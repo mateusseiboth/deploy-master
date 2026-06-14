@@ -1,0 +1,17 @@
+preload = ["./src/config/preload.ts"]
+sourcemap = "external"
+tsconfig = "tsconfig.json"
+
+[test]
+preload = ["./src/config/preload.ts"]
+timeout = 30000
+
+[alias]
+"@core/*" = "./src/core/*"
+"@modules/*" = "./src/modules/*"
+"@http/*" = "./src/http/*"
+"@config/*" = "./src/config/*"
+"@database/*" = "./src/database/*"
+"@di/*" = "./src/core/di/*"
+"@workers/*" = "./src/workers/*"
+"@prisma-generated/*" = "./src/prisma/generated/*"

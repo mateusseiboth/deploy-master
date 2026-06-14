@@ -1,0 +1,101 @@
+// Tipos espelhando os contratos da API (Prisma é a fonte da verdade no backend).
+
+export type UserRole = "ADMIN" | "QA" | "VIEWER";
+
+export interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+}
+
+export interface LoginResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: AuthUser;
+}
+
+export type EnvironmentStatus =
+  | "PENDING"
+  | "PROVISIONING"
+  | "READY"
+  | "FAILED"
+  | "EXPIRING"
+  | "EXPIRED"
+  | "REMOVING"
+  | "REMOVED";
+
+export interface ProjectVariable {
+  id: string;
+  key: string;
+  type: string;
+  required: boolean;
+  defaultValue?: string | null;
+}
+
+export interface ProjectDeadline {
+  defaultDays: number;
+  maxDays: number;
+  maxRenewals: number;
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  gitlabProjectId: string;
+  repositoryUrl: string;
+  databaseStrategy: "UPLOAD_SQL" | "COPY_PRODUCTION";
+  hostnameFormat: string;
+  baseDomain: string;
+  variables?: ProjectVariable[];
+  deadline?: ProjectDeadline | null;
+}
+
+export interface EnvironmentService {
+  id: string;
+  name: string;
+  url: string;
+}
+
+export interface Environment {
+  id: string;
+  name: string;
+  projectId: string;
+  project?: { id: string; name: string };
+  creator?: { id: string; name: string };
+  branch: string;
+  commitHash: string;
+  commitAuthor?: string | null;
+  commitMessage?: string | null;
+  status: EnvironmentStatus;
+  hostname?: string | null;
+  url?: string | null;
+  failureReason?: string | null;
+  expiresAt?: string | null;
+  renewalCount: number;
+  createdAt: string;
+  services?: EnvironmentService[];
+}
+
+export interface GitLabBranch {
+  name: string;
+  commitHash: string;
+}
+
+export interface GitLabCommit {
+  id: string;
+  shortId: string;
+  authorName: string;
+  message: string;
+  createdAt: string;
+}
+
+export interface DashboardIndicators {
+  active: number;
+  expiring: number;
+  expired: number;
+  failed: number;
+  byStatus: Record<string, number>;
+  deploysByProject: { key: string; count: number }[];
+  deploysByUser: { key: string; count: number }[];
+}

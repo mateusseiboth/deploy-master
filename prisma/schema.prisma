@@ -1,0 +1,259 @@
+// Prisma é a FONTE DA VERDADE da estrutura do banco (CLAUDE.md §11).
+// Fluxo: schema -> generate -> Models -> Services -> Aplicação.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/prisma/generated"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Auth & RBAC
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  ADMIN
+  QA
+  VIEWER
+}
+
+model User {
+  id           String        @id @default(uuid())
+  name         String
+  email        String        @unique
+  password     String
+  role         UserRole      @default(QA)
+  enabled      Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  environments Environment[] @relation("EnvironmentCreator")
+  auditLogs    AuditLog[]
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Configuração de Projetos (Painel Admin)
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Estratégia de provisionamento do banco do ambiente.
+enum DatabaseStrategy {
+  UPLOAD_SQL // QA envia arquivo .sql / .sql.gz
+  COPY_PRODUCTION // copia o banco de produção no momento do deploy
+}
+
+// Formato do hostname gerado para o ambiente.
+enum HostnameFormat {
+  PROJECT_HASH // {projeto}-{hash}
+  PROJECT_BRANCH // {projeto}-{branch}
+  PROJECT_USER_HASH // {projeto}-{usuario}-{hash}
+}
+
+enum CertificateProvider {
+  INTERNAL_CA
+  LETS_ENCRYPT
+}
+
+enum ReverseProxyProvider {
+  TRAEFIK
+  CADDY
+}
+
+model Project {
+  id                  String               @id @default(uuid())
+  name                String
+  gitlabProjectId     String // ID/path do projeto no GitLab
+  repositoryUrl       String
+  gitlabToken         String // token de acesso ao repo (secret)
+  dockerfilePath      String               @default("Dockerfile")
+  buildCommand        String?
+  startCommand        String?
+  productionDbUrl     String? // origem para COPY_PRODUCTION
+  databaseStrategy    DatabaseStrategy     @default(UPLOAD_SQL)
+  hostnameFormat      HostnameFormat       @default(PROJECT_HASH)
+  certificateProvider CertificateProvider  @default(INTERNAL_CA)
+  reverseProxy        ReverseProxyProvider @default(TRAEFIK)
+  baseDomain          String               @default("qa.local")
+  enabled             Boolean              @default(true)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  variables    ProjectVariable[]
+  deadline     ProjectDeadline?
+  environments Environment[]
+
+  @@map("projects")
+}
+
+// Variáveis que o QA PODE sobrescrever (whitelist). Secrets nunca entram aqui.
+model ProjectVariable {
+  id           String  @id @default(uuid())
+  projectId    String
+  project      Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  key          String
+  type         String  @default("string") // string | number | boolean | url
+  required     Boolean @default(false)
+  defaultValue String?
+
+  @@unique([projectId, key])
+  @@map("project_variables")
+}
+
+// Política de prazo por projeto.
+model ProjectDeadline {
+  id            String  @id @default(uuid())
+  projectId     String  @unique
+  project       Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  defaultDays   Int     @default(7)
+  maxDays       Int     @default(30)
+  maxRenewals   Int     @default(5)
+
+  @@map("project_deadlines")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Ambientes Efêmeros
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum EnvironmentStatus {
+  PENDING
+  PROVISIONING
+  READY
+  FAILED
+  EXPIRING
+  EXPIRED
+  REMOVING
+  REMOVED
+}
+
+model Environment {
+  id        String            @id @default(uuid())
+  name      String // ex.: env-a84c19f
+  projectId String
+  project   Project           @relation(fields: [projectId], references: [id])
+  creatorId String
+  creator   User              @relation("EnvironmentCreator", fields: [creatorId], references: [id])
+
+  // Origem GitLab
+  branch        String
+  commitHash    String
+  commitAuthor  String?
+  commitMessage String?
+  commitDate    DateTime?
+
+  // Runtime
+  status      EnvironmentStatus @default(PENDING)
+  hostname    String? // frontend-a84c19f.qa.local
+  url         String? // https://...
+  containerId String?
+  networkName String?
+  volumeName  String?
+  databaseName String?
+  imageTag    String?
+  failureReason String?
+
+  // Validade
+  expiresAt   DateTime?
+  renewalCount Int             @default(0)
+
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  variableValues EnvironmentVariableValue[]
+  services       EnvironmentService[]
+  backup         EnvironmentBackup?
+  auditLogs      AuditLog[]
+
+  @@index([projectId])
+  @@index([status])
+  @@map("environments")
+}
+
+// Valor concreto informado pelo QA para uma variável autorizada do projeto.
+model EnvironmentVariableValue {
+  id            String      @id @default(uuid())
+  environmentId String
+  environment   Environment @relation(fields: [environmentId], references: [id], onDelete: Cascade)
+  key           String
+  value         String
+
+  @@unique([environmentId, key])
+  @@map("environment_variable_values")
+}
+
+// Um ambiente pode expor múltiplos serviços (frontend, api, swagger, admin...).
+model EnvironmentService {
+  id            String      @id @default(uuid())
+  environmentId String
+  environment   Environment @relation(fields: [environmentId], references: [id], onDelete: Cascade)
+  name          String // frontend | api | swagger | admin
+  internalPort  Int
+  hostname      String
+  url           String
+
+  @@map("environment_services")
+}
+
+enum BackupSource {
+  UPLOAD
+  PRODUCTION_COPY
+}
+
+model EnvironmentBackup {
+  id            String       @id @default(uuid())
+  environmentId String       @unique
+  environment   Environment  @relation(fields: [environmentId], references: [id], onDelete: Cascade)
+  source        BackupSource
+  filePath      String? // caminho do .sql/.sql.gz quando UPLOAD
+  sizeBytes     BigInt?
+  createdAt     DateTime     @default(now())
+
+  @@map("environment_backups")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Auditoria (imutável)
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum AuditAction {
+  CREATE
+  RENEW
+  RESTART
+  DELETE
+  AUTO_EXPIRE
+}
+
+model AuditLog {
+  id            String       @id @default(uuid())
+  action        AuditAction
+  userId        String?
+  user          User?        @relation(fields: [userId], references: [id])
+  environmentId String?
+  environment   Environment? @relation(fields: [environmentId], references: [id])
+  projectId     String?
+  commitHash    String?
+  ipAddress     String?
+  metadata      Json?
+  createdAt     DateTime     @default(now())
+
+  @@index([environmentId])
+  @@index([action])
+  @@map("audit_logs")
+}
