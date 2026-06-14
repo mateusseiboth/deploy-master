@@ -27,15 +27,19 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={{ notify }}>
       {children}
       {createPortal(
-        <div className="fixed bottom-4 right-4 z-[60] flex flex-col gap-2">
+        <div className="fixed bottom-5 right-5 z-[60] flex w-80 flex-col gap-2">
           {toasts.map((t) => (
             <div
               key={t.id}
               className={cn(
-                "rounded-md border px-4 py-3 text-sm shadow-lg",
-                t.variant === "success" ? "bg-card text-foreground" : "bg-destructive text-destructive-foreground",
+                "animate-fade-up rounded-md border border-border-strong bg-surface px-4 py-3 text-sm text-foreground shadow-[0_20px_40px_-20px_rgb(0_0_0/0.85)]",
+                "border-l-2",
+                t.variant === "success" ? "border-l-ready" : "border-l-danger",
               )}
             >
+              <span className="mr-2 font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-faint">
+                {t.variant === "success" ? "ok" : "erro"}
+              </span>
               {t.message}
             </div>
           ))}
