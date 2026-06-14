@@ -51,7 +51,7 @@ export class DockerService implements IContainerOrchestrator {
     });
 
     // conecta também à rede do proxy reverso para roteamento externo
-    await this.connectToProxyNetwork(container.id);
+    await this.connectToProxyNetwork(container.id, spec.proxyNetwork);
     await container.start();
     return container.id;
   }
@@ -129,8 +129,8 @@ export class DockerService implements IContainerOrchestrator {
 
   // ── helpers privados ──────────────────────────────────────────────────────
 
-  private async connectToProxyNetwork(containerId: string): Promise<void> {
-    const proxyNet = env.docker.traefikNetwork;
+  private async connectToProxyNetwork(containerId: string, proxyNet: string): Promise<void> {
+    if (!proxyNet) return;
     const nets = await this.docker.listNetworks({ filters: { name: [proxyNet] } });
     if (nets.length === 0) return;
     await this.safe(() => this.docker.getNetwork(proxyNet).connect({ Container: containerId }));

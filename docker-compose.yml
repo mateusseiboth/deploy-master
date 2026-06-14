@@ -1,0 +1,44 @@
+# Stack da aplicação: API + worker rodando em containers, conectados ao Docker
+# Engine pelo socket mapeado (container-to-container — o backend orquestra os
+# ambientes efêmeros no mesmo daemon). Sobe junto da infra (rede traefik-public).
+services:
+  api:
+    build: .
+    container_name: deploy-master-api
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    volumes:
+      # Mapeamento do socket do Docker: o backend usa o daemon do host.
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Workspace de clones/builds (compartilhado com o worker).
+      - workspaces:/tmp/deploy-master/workspaces
+    networks:
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.deploy-master.rule=Host(`deploy.qa.local`)"
+      - "traefik.http.routers.deploy-master.entrypoints=websecure"
+      - "traefik.http.routers.deploy-master.tls=true"
+      - "traefik.http.services.deploy-master.loadbalancer.server.port=3000"
+
+  worker:
+    build: .
+    container_name: deploy-master-worker
+    command: ["bun", "src/workers/index.ts"]
+    env_file:
+      - .env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - workspaces:/tmp/deploy-master/workspaces
+    networks:
+      - traefik-public
+
+volumes:
+  workspaces:
+
+networks:
+  traefik-public:
+    name: traefik-public
+    external: true

@@ -80,6 +80,20 @@ Doc viva em `/doc`. Patterns obrigatórios: Factory, Strategy, Builder. SOLID + 
 - [x] Logs em tempo real (SSE) + console web interativo (xterm + WebSocket)
 - [ ] Migrar primitivas UI para ShadCN/Radix oficial (hoje versões leves equivalentes)
 
+## Infra & Configuração (executado)
+
+- [x] Migrations Prisma 7 via baseline (sem shadow DB): `migrate diff` + `migrate deploy`
+- [x] `prisma.config.ts` carrega `.env` (dotenv) — corrige `PrismaConfigEnvError`
+- [x] Seed do admin (`bun run seed`) validado contra o banco real
+- [x] Pi-hole/proxy **cadastráveis pelo admin no banco** (`SystemSettings`) — fora do env
+- [x] Rotas `GET/PUT /api/settings` + tela "Configurações" (admin)
+- [x] Pipeline lê Pi-hole/proxy de `DeployContext.settings` (banco), não env
+- [x] `docker-compose.infra.yml`: Traefik + Pi-hole v5 (+ Postgres) — subido e testado
+- [x] `Dockerfile` + `docker-compose.yml`: api+worker em container com sock do Docker
+- [x] Validado: Pi-hole `customdns` add/get/delete + settings persistidas (RBAC 403 p/ VIEWER)
+- [x] Resize do TTY propagado ao container (console web)
+- [ ] Migrar `PiholeDnsService` para API do Pi-hole v6 (usar imagem `latest`)
+
 ## Fase 6 — Qualidade
 
 - [ ] Testes unitários dos Services e Strategies (antes de qualquer refactor)

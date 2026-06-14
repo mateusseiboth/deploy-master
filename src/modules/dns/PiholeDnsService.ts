@@ -1,29 +1,36 @@
 import { lookup } from "dns/promises";
-import { env } from "@config/env";
 import { Injectable } from "@di/Injectable";
-import type { IDnsProvider } from "@modules/deploy/domain/ports";
+import type { IDnsProvider, PiholeConfig } from "@modules/deploy/domain/ports";
 
 /**
  * Integração com a API do Pi-hole para DNS local (registros A custom).
- * Implementa o port `IDnsProvider`. Usa a API `customdns` do admin.
+ * Implementa o port `IDnsProvider`. As credenciais (baseUrl/token) vêm do banco
+ * (cadastro do admin), não de env — são passadas em cada chamada.
  */
 @Injectable()
 export class PiholeDnsService implements IDnsProvider {
-  private endpoint(action: string, params: Record<string, string>): string {
+  private endpoint(pihole: PiholeConfig, action: string, params: Record<string, string>): string {
     const search = new URLSearchParams({
       customdns: "",
       action,
-      auth: env.dns.piholeApiToken,
+      auth: pihole.apiToken,
       ...params,
     });
-    return `${env.dns.piholeBaseUrl}/api.php?${search.toString()}`;
+    return `${pihole.baseUrl}/api.php?${search.toString()}`;
   }
 
-  async register(hostname: string, ip: string): Promise<void> {
+  async register(hostname: string, ip: string, pihole: PiholeConfig): Promise<void> {
     // idempotente: remove um registro pré-existente antes de adicionar
-    await this.unregister(hostname);
-    const res = await fetch(this.endpoint("add", { domain: hostname, ip }), { method: "GET" });
+    await this.unregister(hostname, ip, pihole);
+    const res = await fetch(this.endpoint(pihole, "add", { domain: hostname, ip }), { method: "GET" });
     if (!res.ok) throw new Error(`Pi-hole add falhou: ${res.status}`);
+  }
+
+  async unregister(hostname: string, ip: string, pihole: PiholeConfig): Promise<void> {
+    // tolerante a falha: cleanup não deve travar por DNS já removido
+    await fetch(this.endpoint(pihole, "delete", { domain: hostname, ip }), { method: "GET" }).catch(
+      () => undefined,
+    );
   }
 
   /** Aguarda a propagação resolvendo o hostname até bater no IP esperado. */
@@ -38,13 +45,6 @@ export class PiholeDnsService implements IDnsProvider {
       await new Promise((r) => setTimeout(r, delayMs));
     }
     return false;
-  }
-
-  async unregister(hostname: string): Promise<void> {
-    // tolerante a falha: cleanup não deve travar por DNS já removido
-    await fetch(this.endpoint("delete", { domain: hostname, ip: env.dns.reverseProxyIp }), {
-      method: "GET",
-    }).catch(() => undefined);
   }
 
   /** Valida propagação resolvendo o hostname localmente. */

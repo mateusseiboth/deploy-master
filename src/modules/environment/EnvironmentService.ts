@@ -21,7 +21,9 @@ import { BackupSource, type EnvironmentStatus } from "@prisma-generated/enums";
 import type {
   DeployProjectConfig,
   DeployRequest,
+  DeploySettings,
 } from "@modules/deploy/domain/DeployContext";
+import { SettingsService } from "@modules/settings/SettingsService";
 
 export interface CreateEnvironmentDTO {
   projectId: string;
@@ -37,6 +39,7 @@ export interface CreateEnvironmentDTO {
 export interface DeployInputs {
   project: DeployProjectConfig;
   request: DeployRequest;
+  settings: DeploySettings;
 }
 
 /** Dados de runtime persistidos após o pipeline concluir com sucesso. */
@@ -63,6 +66,7 @@ export class EnvironmentService extends BaseService {
     private readonly projects: ProjectDAO,
     private readonly audit: AuditService,
     private readonly queue: SqliteJobQueue,
+    private readonly settings: SettingsService,
   ) {
     super();
   }
@@ -177,8 +181,15 @@ export class EnvironmentService extends BaseService {
     const project = environment.project;
 
     const overrides = Object.fromEntries(environment.variableValues.map((v) => [v.key, v.value]));
+    const settings = await this.settings.get();
 
     return {
+      settings: {
+        piholeBaseUrl: settings.piholeBaseUrl,
+        piholeApiToken: settings.piholeApiToken,
+        reverseProxyIp: settings.reverseProxyIp,
+        traefikNetwork: settings.traefikNetwork,
+      },
       project: {
         id: project.id,
         name: project.name,

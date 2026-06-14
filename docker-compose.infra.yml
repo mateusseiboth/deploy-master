@@ -1,5 +1,5 @@
 # Infraestrutura de apoio do Deploy Master (não inclui os ambientes efêmeros,
-# que são criados dinamicamente pelo DockerService).
+# que são criados dinamicamente pelo DockerService via o socket do Docker).
 services:
   postgres:
     image: postgres:16-alpine
@@ -12,6 +12,8 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - traefik-public
 
   traefik:
     image: traefik:v3.1
@@ -22,6 +24,7 @@ services:
       - "--providers.docker.network=traefik-public"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
+      - "--api.insecure=true"
     ports:
       - "80:80"
       - "443:443"
@@ -31,8 +34,31 @@ services:
     networks:
       - traefik-public
 
+  # Pi-hole v5 (a v6 trocou a API customdns usada pelo PiholeDnsService).
+  # Web admin em :8081 para não conflitar com o Traefik na :80.
+  pihole:
+    image: pihole/pihole:2024.07.0
+    container_name: deploy-master-pihole
+    environment:
+      TZ: "America/Sao_Paulo"
+      WEBPASSWORD: "${PIHOLE_WEBPASSWORD:-admin}"
+      FTLCONF_LOCAL_IPV4: "${REVERSE_PROXY_IP:-127.0.0.1}"
+    # DNS bindado no IP de LAN (systemd-resolved ocupa a 53 no loopback).
+    # Aponte a máquina-cliente para ${REVERSE_PROXY_IP} como servidor DNS.
+    ports:
+      - "${REVERSE_PROXY_IP:-0.0.0.0}:53:53/tcp"
+      - "${REVERSE_PROXY_IP:-0.0.0.0}:53:53/udp"
+      - "8081:80/tcp"
+    volumes:
+      - pihole-etc:/etc/pihole
+      - pihole-dnsmasq:/etc/dnsmasq.d
+    networks:
+      - traefik-public
+
 volumes:
   pgdata:
+  pihole-etc:
+  pihole-dnsmasq:
 
 networks:
   traefik-public:

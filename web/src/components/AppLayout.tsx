@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Boxes, FolderGit2, LogOut } from "lucide-react";
+import { LayoutDashboard, Boxes, FolderGit2, Settings, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/AuthContext";
@@ -8,6 +8,7 @@ const NAV = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
   { to: "/environments", label: "Ambientes", icon: Boxes, end: false },
   { to: "/projects", label: "Projetos", icon: FolderGit2, end: false },
+  { to: "/settings", label: "Configurações", icon: Settings, end: false },
 ];
 
 export function AppLayout() {

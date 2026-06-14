@@ -38,7 +38,11 @@ export class DeployJobHandler implements IJobHandler<DeployPayload> {
       return;
     }
 
-    const { context, result } = await this.orchestrator.provision(inputs.project, inputs.request);
+    const { context, result } = await this.orchestrator.provision(
+      inputs.project,
+      inputs.request,
+      inputs.settings,
+    );
 
     await runInTransaction(async () => {
       if (result.success) {

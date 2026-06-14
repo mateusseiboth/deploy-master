@@ -23,6 +23,17 @@ export interface DeployProjectConfig {
   baseDomain: string;
 }
 
+/**
+ * Configurações de infraestrutura cadastradas pelo ADMIN (banco), não env.
+ * Endereços de Pi-hole e proxy reverso usados pelo pipeline.
+ */
+export interface DeploySettings {
+  piholeBaseUrl: string;
+  piholeApiToken: string;
+  reverseProxyIp: string;
+  traefikNetwork: string;
+}
+
 /** Solicitação de deploy disparada pelo QA. */
 export interface DeployRequest {
   environmentId: string;
@@ -43,6 +54,8 @@ export interface DeployRequest {
 export class DeployContext {
   readonly project: DeployProjectConfig;
   readonly request: DeployRequest;
+  /** Endereços de Pi-hole/proxy vindos do banco (cadastro do admin). */
+  readonly settings: DeploySettings;
 
   /** Identificador derivado do commit: `env-<hash>` (idempotência). */
   readonly slug: string;
@@ -65,9 +78,10 @@ export class DeployContext {
   /** Trilha de logs para diagnóstico (FAILED expõe isso). */
   readonly logs: string[] = [];
 
-  constructor(project: DeployProjectConfig, request: DeployRequest) {
+  constructor(project: DeployProjectConfig, request: DeployRequest, settings: DeploySettings) {
     this.project = project;
     this.request = request;
+    this.settings = settings;
     this.slug = `env-${request.commitHash.slice(0, 7)}`;
   }
 

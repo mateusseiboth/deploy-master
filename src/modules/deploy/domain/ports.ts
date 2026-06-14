@@ -16,6 +16,8 @@ export interface ContainerRunSpec {
   image: string;
   name: string;
   network: string;
+  /** Rede do proxy reverso (Traefik) para roteamento externo. */
+  proxyNetwork: string;
   env: Record<string, string>;
   labels: Record<string, string>;
   command?: string;
@@ -33,10 +35,16 @@ export interface IContainerOrchestrator {
   isHealthy(containerId: string): Promise<boolean>;
 }
 
+/** Credenciais do Pi-hole (vindas do banco, cadastradas pelo admin). */
+export interface PiholeConfig {
+  baseUrl: string;
+  apiToken: string;
+}
+
 /** Provedor de DNS (Pi-hole). */
 export interface IDnsProvider {
-  register(hostname: string, ip: string): Promise<void>;
-  unregister(hostname: string): Promise<void>;
+  register(hostname: string, ip: string, pihole: PiholeConfig): Promise<void>;
+  unregister(hostname: string, ip: string, pihole: PiholeConfig): Promise<void>;
   isResolving(hostname: string, expectedIp: string): Promise<boolean>;
   /** Aguarda a propagação do registro (resolução == ip esperado). */
   waitForPropagation(hostname: string, expectedIp: string, attempts?: number, delayMs?: number): Promise<boolean>;

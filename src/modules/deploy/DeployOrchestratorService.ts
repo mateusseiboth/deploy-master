@@ -4,6 +4,7 @@ import {
   DeployContext,
   type DeployProjectConfig,
   type DeployRequest,
+  type DeploySettings,
 } from "@modules/deploy/domain/DeployContext";
 import { DeployPipelineFactory } from "@modules/deploy/domain/pipeline/DeployPipelineFactory";
 import type { PipelineResult } from "@modules/deploy/domain/pipeline/DeployPipeline";
@@ -36,8 +37,12 @@ export class DeployOrchestratorService extends BaseService {
   }
 
   /** Executa o pipeline completo de provisionamento. */
-  async provision(project: DeployProjectConfig, request: DeployRequest): Promise<DeployOutcome> {
-    const context = new DeployContext(project, request);
+  async provision(
+    project: DeployProjectConfig,
+    request: DeployRequest,
+    settings: DeploySettings,
+  ): Promise<DeployOutcome> {
+    const context = new DeployContext(project, request, settings);
     const pipeline = this.pipelineFactory.create(context);
     const result = await pipeline.execute(context);
     return { context, result };
@@ -51,9 +56,10 @@ export class DeployOrchestratorService extends BaseService {
   async destroy(
     project: DeployProjectConfig,
     request: DeployRequest,
+    settings: DeploySettings,
     runtime: EnvRuntimeSnapshot = {},
   ): Promise<DeployContext> {
-    const context = new DeployContext(project, request);
+    const context = new DeployContext(project, request, settings);
     context.containerId = runtime.containerId ?? undefined;
     context.networkName = runtime.networkName ?? `net-${context.slug}`;
     context.volumeName = runtime.volumeName ?? undefined;

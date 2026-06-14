@@ -44,7 +44,7 @@ export class CleanupJobHandler implements IJobHandler<CleanupPayload> {
       };
     });
 
-    await this.orchestrator.destroy(inputs.project, inputs.request, snapshot);
+    await this.orchestrator.destroy(inputs.project, inputs.request, inputs.settings, snapshot);
 
     await runInTransaction(() => this.environments.markRemoved(environmentId));
   }

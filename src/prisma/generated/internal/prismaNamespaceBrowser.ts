@@ -51,6 +51,7 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
+  SystemSettings: 'SystemSettings',
   User: 'User',
   RefreshToken: 'RefreshToken',
   Project: 'Project',
@@ -77,6 +78,19 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 } as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
+
+
+export const SystemSettingsScalarFieldEnum = {
+  id: 'id',
+  piholeBaseUrl: 'piholeBaseUrl',
+  piholeApiToken: 'piholeApiToken',
+  reverseProxyIp: 'reverseProxyIp',
+  traefikNetwork: 'traefikNetwork',
+  baseDomain: 'baseDomain',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SystemSettingsScalarFieldEnum = (typeof SystemSettingsScalarFieldEnum)[keyof typeof SystemSettingsScalarFieldEnum]
 
 
 export const UserScalarFieldEnum = {

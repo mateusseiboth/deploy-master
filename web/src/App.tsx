@@ -5,6 +5,7 @@ import { LoginPage } from "@/pages/LoginPage";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { EnvironmentsPage } from "@/pages/EnvironmentsPage";
 import { ProjectsPage } from "@/pages/ProjectsPage";
+import { SettingsPage } from "@/pages/SettingsPage";
 import type { JSX } from "react";
 
 function Protected({ children }: { children: JSX.Element }) {
@@ -28,6 +29,7 @@ export function App() {
         <Route path="/" element={<DashboardPage />} />
         <Route path="/environments" element={<EnvironmentsPage />} />
         <Route path="/projects" element={<ProjectsPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

@@ -11,6 +11,23 @@ datasource db {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Configurações do sistema (cadastráveis pelo ADMIN — não vêm de env)
+// Linha única (singleton) com endereços de Pi-hole e proxy reverso.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model SystemSettings {
+  id             String   @id @default("singleton")
+  piholeBaseUrl  String   @default("")
+  piholeApiToken String   @default("")
+  reverseProxyIp String   @default("")
+  traefikNetwork String   @default("traefik-public")
+  baseDomain     String   @default("qa.local")
+  updatedAt      DateTime @updatedAt
+
+  @@map("system_settings")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Auth & RBAC
 // ─────────────────────────────────────────────────────────────────────────────
 

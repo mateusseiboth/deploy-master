@@ -48,6 +48,7 @@ export class RunContainerStep extends DeployStep {
       image: ctx.imageTag,
       name: ctx.slug,
       network: ctx.networkName,
+      proxyNetwork: ctx.settings.traefikNetwork,
       env: ctx.resolvedEnv,
       labels: ctx.routeLabels,
       command: ctx.project.startCommand ?? undefined,

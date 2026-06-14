@@ -1,4 +1,3 @@
-import { env } from "@config/env";
 import type { DeployContext } from "@modules/deploy/domain/DeployContext";
 import type { ICertificateStrategy } from "../certificate/ICertificateStrategy";
 import type { IReverseProxyStrategy } from "./IReverseProxyStrategy";
@@ -19,7 +18,7 @@ export class TraefikReverseProxyStrategy implements IReverseProxyStrategy {
       "traefik.enable": "true",
       [`traefik.http.routers.${router}.rule`]: `Host(\`${host}\`)`,
       [`traefik.http.routers.${router}.entrypoints`]: "websecure",
-      [`traefik.docker.network`]: env.docker.traefikNetwork,
+      [`traefik.docker.network`]: ctx.settings.traefikNetwork,
     };
 
     return { ...labels, ...this.certificate.tlsLabels(ctx, router) };
