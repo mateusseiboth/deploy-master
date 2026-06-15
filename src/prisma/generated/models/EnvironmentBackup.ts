@@ -414,14 +414,6 @@ export type EnumBackupSourceFieldUpdateOperationsInput = {
   set?: $Enums.BackupSource
 }
 
-export type NullableBigIntFieldUpdateOperationsInput = {
-  set?: bigint | number | null
-  increment?: bigint | number
-  decrement?: bigint | number
-  multiply?: bigint | number
-  divide?: bigint | number
-}
-
 export type EnvironmentBackupCreateWithoutEnvironmentInput = {
   id?: string
   source: $Enums.BackupSource

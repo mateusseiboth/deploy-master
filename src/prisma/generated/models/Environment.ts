@@ -859,10 +859,6 @@ export type EnvironmentUncheckedUpdateManyWithoutProjectNestedInput = {
   deleteMany?: Prisma.EnvironmentScalarWhereInput | Prisma.EnvironmentScalarWhereInput[]
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type EnumEnvironmentStatusFieldUpdateOperationsInput = {
   set?: $Enums.EnvironmentStatus
 }

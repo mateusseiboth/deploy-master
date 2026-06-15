@@ -7,6 +7,6 @@ import { DashboardController } from "@modules/dashboard/DashboardController";
 export function dashboardRoutes(): Router {
   const controller = container.get(DashboardController);
   const router = Router();
-  new RouteBuilder(router).get("/", (req, res) => controller.indicators(req, res));
+  new RouteBuilder(router).get("/", () => controller.indicators());
   return router;
 }

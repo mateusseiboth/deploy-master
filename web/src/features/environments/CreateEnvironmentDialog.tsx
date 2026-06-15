@@ -38,9 +38,9 @@ export function CreateEnvironmentDialog({ open, onOpenChange }: { open: boolean;
     try {
       const body = new FormData();
       body.append("file", file);
-      const result = await unwrap<{ filePath: string }>(
-        api.post("/backups", body, { headers: { "Content-Type": "multipart/form-data" } }),
-      );
+      // Sem setar Content-Type manualmente: o browser gera o boundary do
+      // multipart (necessário para o multer parsear o arquivo no backend).
+      const result = await unwrap<{ filePath: string }>(api.post("/backups", body));
       setBackupPath(result.filePath);
       notify("Backup enviado");
     } catch {

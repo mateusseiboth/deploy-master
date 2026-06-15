@@ -1,7 +1,8 @@
-import type { Request, Response } from "express";
+import type { Request } from "express";
 import { Injectable } from "@di/Injectable";
 import { BaseController } from "@core/base/BaseController";
 import { UnauthorizedError } from "@core/errors/AppError";
+import type { HttpResult } from "@core/http/HttpResult";
 import { AuthService, type Credentials, type RegisterDTO } from "./AuthService";
 
 /** Controller de autenticação. Body já validado por `validateBody`. */
@@ -11,25 +12,25 @@ export class AuthController extends BaseController {
     super();
   }
 
-  async register(req: Request, res: Response): Promise<void> {
-    this.created(res, await this.service.register(req.body as RegisterDTO));
+  async register(req: Request): Promise<HttpResult> {
+    return this.created(await this.service.register(req.body as RegisterDTO));
   }
 
-  async login(req: Request, res: Response): Promise<void> {
-    this.ok(res, await this.service.login(req.body as Credentials));
+  async login(req: Request): Promise<HttpResult> {
+    return this.ok(await this.service.login(req.body as Credentials));
   }
 
-  async refresh(req: Request, res: Response): Promise<void> {
-    this.ok(res, await this.service.refresh((req.body as { refreshToken: string }).refreshToken));
+  async refresh(req: Request): Promise<HttpResult> {
+    return this.ok(await this.service.refresh((req.body as { refreshToken: string }).refreshToken));
   }
 
-  async logout(req: Request, res: Response): Promise<void> {
+  async logout(req: Request): Promise<HttpResult> {
     await this.service.logout((req.body as { refreshToken: string }).refreshToken);
-    this.noContent(res);
+    return this.noContent();
   }
 
-  me(req: Request & { user?: unknown }, res: Response): void {
+  me(req: Request & { user?: unknown }): HttpResult {
     if (!req.user) throw new UnauthorizedError("Não autenticado");
-    this.ok(res, req.user);
+    return this.ok(req.user);
   }
 }

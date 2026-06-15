@@ -34,6 +34,9 @@ export type ProjectMinAggregateOutputType = {
   buildCommand: string | null
   startCommand: string | null
   productionDbUrl: string | null
+  requiresDatabase: boolean | null
+  databaseEnvVar: string | null
+  databaseUrlTemplate: string | null
   databaseStrategy: $Enums.DatabaseStrategy | null
   hostnameFormat: $Enums.HostnameFormat | null
   certificateProvider: $Enums.CertificateProvider | null
@@ -54,6 +57,9 @@ export type ProjectMaxAggregateOutputType = {
   buildCommand: string | null
   startCommand: string | null
   productionDbUrl: string | null
+  requiresDatabase: boolean | null
+  databaseEnvVar: string | null
+  databaseUrlTemplate: string | null
   databaseStrategy: $Enums.DatabaseStrategy | null
   hostnameFormat: $Enums.HostnameFormat | null
   certificateProvider: $Enums.CertificateProvider | null
@@ -74,6 +80,9 @@ export type ProjectCountAggregateOutputType = {
   buildCommand: number
   startCommand: number
   productionDbUrl: number
+  requiresDatabase: number
+  databaseEnvVar: number
+  databaseUrlTemplate: number
   databaseStrategy: number
   hostnameFormat: number
   certificateProvider: number
@@ -96,6 +105,9 @@ export type ProjectMinAggregateInputType = {
   buildCommand?: true
   startCommand?: true
   productionDbUrl?: true
+  requiresDatabase?: true
+  databaseEnvVar?: true
+  databaseUrlTemplate?: true
   databaseStrategy?: true
   hostnameFormat?: true
   certificateProvider?: true
@@ -116,6 +128,9 @@ export type ProjectMaxAggregateInputType = {
   buildCommand?: true
   startCommand?: true
   productionDbUrl?: true
+  requiresDatabase?: true
+  databaseEnvVar?: true
+  databaseUrlTemplate?: true
   databaseStrategy?: true
   hostnameFormat?: true
   certificateProvider?: true
@@ -136,6 +151,9 @@ export type ProjectCountAggregateInputType = {
   buildCommand?: true
   startCommand?: true
   productionDbUrl?: true
+  requiresDatabase?: true
+  databaseEnvVar?: true
+  databaseUrlTemplate?: true
   databaseStrategy?: true
   hostnameFormat?: true
   certificateProvider?: true
@@ -229,6 +247,9 @@ export type ProjectGroupByOutputType = {
   buildCommand: string | null
   startCommand: string | null
   productionDbUrl: string | null
+  requiresDatabase: boolean
+  databaseEnvVar: string
+  databaseUrlTemplate: string | null
   databaseStrategy: $Enums.DatabaseStrategy
   hostnameFormat: $Enums.HostnameFormat
   certificateProvider: $Enums.CertificateProvider
@@ -270,6 +291,9 @@ export type ProjectWhereInput = {
   buildCommand?: Prisma.StringNullableFilter<"Project"> | string | null
   startCommand?: Prisma.StringNullableFilter<"Project"> | string | null
   productionDbUrl?: Prisma.StringNullableFilter<"Project"> | string | null
+  requiresDatabase?: Prisma.BoolFilter<"Project"> | boolean
+  databaseEnvVar?: Prisma.StringFilter<"Project"> | string
+  databaseUrlTemplate?: Prisma.StringNullableFilter<"Project"> | string | null
   databaseStrategy?: Prisma.EnumDatabaseStrategyFilter<"Project"> | $Enums.DatabaseStrategy
   hostnameFormat?: Prisma.EnumHostnameFormatFilter<"Project"> | $Enums.HostnameFormat
   certificateProvider?: Prisma.EnumCertificateProviderFilter<"Project"> | $Enums.CertificateProvider
@@ -293,6 +317,9 @@ export type ProjectOrderByWithRelationInput = {
   buildCommand?: Prisma.SortOrderInput | Prisma.SortOrder
   startCommand?: Prisma.SortOrderInput | Prisma.SortOrder
   productionDbUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  requiresDatabase?: Prisma.SortOrder
+  databaseEnvVar?: Prisma.SortOrder
+  databaseUrlTemplate?: Prisma.SortOrderInput | Prisma.SortOrder
   databaseStrategy?: Prisma.SortOrder
   hostnameFormat?: Prisma.SortOrder
   certificateProvider?: Prisma.SortOrder
@@ -319,6 +346,9 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   buildCommand?: Prisma.StringNullableFilter<"Project"> | string | null
   startCommand?: Prisma.StringNullableFilter<"Project"> | string | null
   productionDbUrl?: Prisma.StringNullableFilter<"Project"> | string | null
+  requiresDatabase?: Prisma.BoolFilter<"Project"> | boolean
+  databaseEnvVar?: Prisma.StringFilter<"Project"> | string
+  databaseUrlTemplate?: Prisma.StringNullableFilter<"Project"> | string | null
   databaseStrategy?: Prisma.EnumDatabaseStrategyFilter<"Project"> | $Enums.DatabaseStrategy
   hostnameFormat?: Prisma.EnumHostnameFormatFilter<"Project"> | $Enums.HostnameFormat
   certificateProvider?: Prisma.EnumCertificateProviderFilter<"Project"> | $Enums.CertificateProvider
@@ -342,6 +372,9 @@ export type ProjectOrderByWithAggregationInput = {
   buildCommand?: Prisma.SortOrderInput | Prisma.SortOrder
   startCommand?: Prisma.SortOrderInput | Prisma.SortOrder
   productionDbUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  requiresDatabase?: Prisma.SortOrder
+  databaseEnvVar?: Prisma.SortOrder
+  databaseUrlTemplate?: Prisma.SortOrderInput | Prisma.SortOrder
   databaseStrategy?: Prisma.SortOrder
   hostnameFormat?: Prisma.SortOrder
   certificateProvider?: Prisma.SortOrder
@@ -368,6 +401,9 @@ export type ProjectScalarWhereWithAggregatesInput = {
   buildCommand?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   startCommand?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   productionDbUrl?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
+  requiresDatabase?: Prisma.BoolWithAggregatesFilter<"Project"> | boolean
+  databaseEnvVar?: Prisma.StringWithAggregatesFilter<"Project"> | string
+  databaseUrlTemplate?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   databaseStrategy?: Prisma.EnumDatabaseStrategyWithAggregatesFilter<"Project"> | $Enums.DatabaseStrategy
   hostnameFormat?: Prisma.EnumHostnameFormatWithAggregatesFilter<"Project"> | $Enums.HostnameFormat
   certificateProvider?: Prisma.EnumCertificateProviderWithAggregatesFilter<"Project"> | $Enums.CertificateProvider
@@ -382,12 +418,15 @@ export type ProjectCreateInput = {
   id?: string
   name: string
   gitlabProjectId: string
-  repositoryUrl: string
-  gitlabToken: string
+  repositoryUrl?: string
+  gitlabToken?: string
   dockerfilePath?: string
   buildCommand?: string | null
   startCommand?: string | null
   productionDbUrl?: string | null
+  requiresDatabase?: boolean
+  databaseEnvVar?: string
+  databaseUrlTemplate?: string | null
   databaseStrategy?: $Enums.DatabaseStrategy
   hostnameFormat?: $Enums.HostnameFormat
   certificateProvider?: $Enums.CertificateProvider
@@ -405,12 +444,15 @@ export type ProjectUncheckedCreateInput = {
   id?: string
   name: string
   gitlabProjectId: string
-  repositoryUrl: string
-  gitlabToken: string
+  repositoryUrl?: string
+  gitlabToken?: string
   dockerfilePath?: string
   buildCommand?: string | null
   startCommand?: string | null
   productionDbUrl?: string | null
+  requiresDatabase?: boolean
+  databaseEnvVar?: string
+  databaseUrlTemplate?: string | null
   databaseStrategy?: $Enums.DatabaseStrategy
   hostnameFormat?: $Enums.HostnameFormat
   certificateProvider?: $Enums.CertificateProvider
@@ -434,6 +476,9 @@ export type ProjectUpdateInput = {
   buildCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productionDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresDatabase?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  databaseEnvVar?: Prisma.StringFieldUpdateOperationsInput | string
+  databaseUrlTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   databaseStrategy?: Prisma.EnumDatabaseStrategyFieldUpdateOperationsInput | $Enums.DatabaseStrategy
   hostnameFormat?: Prisma.EnumHostnameFormatFieldUpdateOperationsInput | $Enums.HostnameFormat
   certificateProvider?: Prisma.EnumCertificateProviderFieldUpdateOperationsInput | $Enums.CertificateProvider
@@ -457,6 +502,9 @@ export type ProjectUncheckedUpdateInput = {
   buildCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productionDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresDatabase?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  databaseEnvVar?: Prisma.StringFieldUpdateOperationsInput | string
+  databaseUrlTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   databaseStrategy?: Prisma.EnumDatabaseStrategyFieldUpdateOperationsInput | $Enums.DatabaseStrategy
   hostnameFormat?: Prisma.EnumHostnameFormatFieldUpdateOperationsInput | $Enums.HostnameFormat
   certificateProvider?: Prisma.EnumCertificateProviderFieldUpdateOperationsInput | $Enums.CertificateProvider
@@ -474,12 +522,15 @@ export type ProjectCreateManyInput = {
   id?: string
   name: string
   gitlabProjectId: string
-  repositoryUrl: string
-  gitlabToken: string
+  repositoryUrl?: string
+  gitlabToken?: string
   dockerfilePath?: string
   buildCommand?: string | null
   startCommand?: string | null
   productionDbUrl?: string | null
+  requiresDatabase?: boolean
+  databaseEnvVar?: string
+  databaseUrlTemplate?: string | null
   databaseStrategy?: $Enums.DatabaseStrategy
   hostnameFormat?: $Enums.HostnameFormat
   certificateProvider?: $Enums.CertificateProvider
@@ -500,6 +551,9 @@ export type ProjectUpdateManyMutationInput = {
   buildCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productionDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresDatabase?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  databaseEnvVar?: Prisma.StringFieldUpdateOperationsInput | string
+  databaseUrlTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   databaseStrategy?: Prisma.EnumDatabaseStrategyFieldUpdateOperationsInput | $Enums.DatabaseStrategy
   hostnameFormat?: Prisma.EnumHostnameFormatFieldUpdateOperationsInput | $Enums.HostnameFormat
   certificateProvider?: Prisma.EnumCertificateProviderFieldUpdateOperationsInput | $Enums.CertificateProvider
@@ -520,6 +574,9 @@ export type ProjectUncheckedUpdateManyInput = {
   buildCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productionDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresDatabase?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  databaseEnvVar?: Prisma.StringFieldUpdateOperationsInput | string
+  databaseUrlTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   databaseStrategy?: Prisma.EnumDatabaseStrategyFieldUpdateOperationsInput | $Enums.DatabaseStrategy
   hostnameFormat?: Prisma.EnumHostnameFormatFieldUpdateOperationsInput | $Enums.HostnameFormat
   certificateProvider?: Prisma.EnumCertificateProviderFieldUpdateOperationsInput | $Enums.CertificateProvider
@@ -540,6 +597,9 @@ export type ProjectCountOrderByAggregateInput = {
   buildCommand?: Prisma.SortOrder
   startCommand?: Prisma.SortOrder
   productionDbUrl?: Prisma.SortOrder
+  requiresDatabase?: Prisma.SortOrder
+  databaseEnvVar?: Prisma.SortOrder
+  databaseUrlTemplate?: Prisma.SortOrder
   databaseStrategy?: Prisma.SortOrder
   hostnameFormat?: Prisma.SortOrder
   certificateProvider?: Prisma.SortOrder
@@ -560,6 +620,9 @@ export type ProjectMaxOrderByAggregateInput = {
   buildCommand?: Prisma.SortOrder
   startCommand?: Prisma.SortOrder
   productionDbUrl?: Prisma.SortOrder
+  requiresDatabase?: Prisma.SortOrder
+  databaseEnvVar?: Prisma.SortOrder
+  databaseUrlTemplate?: Prisma.SortOrder
   databaseStrategy?: Prisma.SortOrder
   hostnameFormat?: Prisma.SortOrder
   certificateProvider?: Prisma.SortOrder
@@ -580,6 +643,9 @@ export type ProjectMinOrderByAggregateInput = {
   buildCommand?: Prisma.SortOrder
   startCommand?: Prisma.SortOrder
   productionDbUrl?: Prisma.SortOrder
+  requiresDatabase?: Prisma.SortOrder
+  databaseEnvVar?: Prisma.SortOrder
+  databaseUrlTemplate?: Prisma.SortOrder
   databaseStrategy?: Prisma.SortOrder
   hostnameFormat?: Prisma.SortOrder
   certificateProvider?: Prisma.SortOrder
@@ -593,10 +659,6 @@ export type ProjectMinOrderByAggregateInput = {
 export type ProjectScalarRelationFilter = {
   is?: Prisma.ProjectWhereInput
   isNot?: Prisma.ProjectWhereInput
-}
-
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
 }
 
 export type EnumDatabaseStrategyFieldUpdateOperationsInput = {
@@ -661,12 +723,15 @@ export type ProjectCreateWithoutVariablesInput = {
   id?: string
   name: string
   gitlabProjectId: string
-  repositoryUrl: string
-  gitlabToken: string
+  repositoryUrl?: string
+  gitlabToken?: string
   dockerfilePath?: string
   buildCommand?: string | null
   startCommand?: string | null
   productionDbUrl?: string | null
+  requiresDatabase?: boolean
+  databaseEnvVar?: string
+  databaseUrlTemplate?: string | null
   databaseStrategy?: $Enums.DatabaseStrategy
   hostnameFormat?: $Enums.HostnameFormat
   certificateProvider?: $Enums.CertificateProvider
@@ -683,12 +748,15 @@ export type ProjectUncheckedCreateWithoutVariablesInput = {
   id?: string
   name: string
   gitlabProjectId: string
-  repositoryUrl: string
-  gitlabToken: string
+  repositoryUrl?: string
+  gitlabToken?: string
   dockerfilePath?: string
   buildCommand?: string | null
   startCommand?: string | null
   productionDbUrl?: string | null
+  requiresDatabase?: boolean
+  databaseEnvVar?: string
+  databaseUrlTemplate?: string | null
   databaseStrategy?: $Enums.DatabaseStrategy
   hostnameFormat?: $Enums.HostnameFormat
   certificateProvider?: $Enums.CertificateProvider
@@ -727,6 +795,9 @@ export type ProjectUpdateWithoutVariablesInput = {
   buildCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productionDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresDatabase?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  databaseEnvVar?: Prisma.StringFieldUpdateOperationsInput | string
+  databaseUrlTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   databaseStrategy?: Prisma.EnumDatabaseStrategyFieldUpdateOperationsInput | $Enums.DatabaseStrategy
   hostnameFormat?: Prisma.EnumHostnameFormatFieldUpdateOperationsInput | $Enums.HostnameFormat
   certificateProvider?: Prisma.EnumCertificateProviderFieldUpdateOperationsInput | $Enums.CertificateProvider
@@ -749,6 +820,9 @@ export type ProjectUncheckedUpdateWithoutVariablesInput = {
   buildCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productionDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresDatabase?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  databaseEnvVar?: Prisma.StringFieldUpdateOperationsInput | string
+  databaseUrlTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   databaseStrategy?: Prisma.EnumDatabaseStrategyFieldUpdateOperationsInput | $Enums.DatabaseStrategy
   hostnameFormat?: Prisma.EnumHostnameFormatFieldUpdateOperationsInput | $Enums.HostnameFormat
   certificateProvider?: Prisma.EnumCertificateProviderFieldUpdateOperationsInput | $Enums.CertificateProvider
@@ -765,12 +839,15 @@ export type ProjectCreateWithoutDeadlineInput = {
   id?: string
   name: string
   gitlabProjectId: string
-  repositoryUrl: string
-  gitlabToken: string
+  repositoryUrl?: string
+  gitlabToken?: string
   dockerfilePath?: string
   buildCommand?: string | null
   startCommand?: string | null
   productionDbUrl?: string | null
+  requiresDatabase?: boolean
+  databaseEnvVar?: string
+  databaseUrlTemplate?: string | null
   databaseStrategy?: $Enums.DatabaseStrategy
   hostnameFormat?: $Enums.HostnameFormat
   certificateProvider?: $Enums.CertificateProvider
@@ -787,12 +864,15 @@ export type ProjectUncheckedCreateWithoutDeadlineInput = {
   id?: string
   name: string
   gitlabProjectId: string
-  repositoryUrl: string
-  gitlabToken: string
+  repositoryUrl?: string
+  gitlabToken?: string
   dockerfilePath?: string
   buildCommand?: string | null
   startCommand?: string | null
   productionDbUrl?: string | null
+  requiresDatabase?: boolean
+  databaseEnvVar?: string
+  databaseUrlTemplate?: string | null
   databaseStrategy?: $Enums.DatabaseStrategy
   hostnameFormat?: $Enums.HostnameFormat
   certificateProvider?: $Enums.CertificateProvider
@@ -831,6 +911,9 @@ export type ProjectUpdateWithoutDeadlineInput = {
   buildCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productionDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresDatabase?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  databaseEnvVar?: Prisma.StringFieldUpdateOperationsInput | string
+  databaseUrlTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   databaseStrategy?: Prisma.EnumDatabaseStrategyFieldUpdateOperationsInput | $Enums.DatabaseStrategy
   hostnameFormat?: Prisma.EnumHostnameFormatFieldUpdateOperationsInput | $Enums.HostnameFormat
   certificateProvider?: Prisma.EnumCertificateProviderFieldUpdateOperationsInput | $Enums.CertificateProvider
@@ -853,6 +936,9 @@ export type ProjectUncheckedUpdateWithoutDeadlineInput = {
   buildCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productionDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresDatabase?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  databaseEnvVar?: Prisma.StringFieldUpdateOperationsInput | string
+  databaseUrlTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   databaseStrategy?: Prisma.EnumDatabaseStrategyFieldUpdateOperationsInput | $Enums.DatabaseStrategy
   hostnameFormat?: Prisma.EnumHostnameFormatFieldUpdateOperationsInput | $Enums.HostnameFormat
   certificateProvider?: Prisma.EnumCertificateProviderFieldUpdateOperationsInput | $Enums.CertificateProvider
@@ -869,12 +955,15 @@ export type ProjectCreateWithoutEnvironmentsInput = {
   id?: string
   name: string
   gitlabProjectId: string
-  repositoryUrl: string
-  gitlabToken: string
+  repositoryUrl?: string
+  gitlabToken?: string
   dockerfilePath?: string
   buildCommand?: string | null
   startCommand?: string | null
   productionDbUrl?: string | null
+  requiresDatabase?: boolean
+  databaseEnvVar?: string
+  databaseUrlTemplate?: string | null
   databaseStrategy?: $Enums.DatabaseStrategy
   hostnameFormat?: $Enums.HostnameFormat
   certificateProvider?: $Enums.CertificateProvider
@@ -891,12 +980,15 @@ export type ProjectUncheckedCreateWithoutEnvironmentsInput = {
   id?: string
   name: string
   gitlabProjectId: string
-  repositoryUrl: string
-  gitlabToken: string
+  repositoryUrl?: string
+  gitlabToken?: string
   dockerfilePath?: string
   buildCommand?: string | null
   startCommand?: string | null
   productionDbUrl?: string | null
+  requiresDatabase?: boolean
+  databaseEnvVar?: string
+  databaseUrlTemplate?: string | null
   databaseStrategy?: $Enums.DatabaseStrategy
   hostnameFormat?: $Enums.HostnameFormat
   certificateProvider?: $Enums.CertificateProvider
@@ -935,6 +1027,9 @@ export type ProjectUpdateWithoutEnvironmentsInput = {
   buildCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productionDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresDatabase?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  databaseEnvVar?: Prisma.StringFieldUpdateOperationsInput | string
+  databaseUrlTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   databaseStrategy?: Prisma.EnumDatabaseStrategyFieldUpdateOperationsInput | $Enums.DatabaseStrategy
   hostnameFormat?: Prisma.EnumHostnameFormatFieldUpdateOperationsInput | $Enums.HostnameFormat
   certificateProvider?: Prisma.EnumCertificateProviderFieldUpdateOperationsInput | $Enums.CertificateProvider
@@ -957,6 +1052,9 @@ export type ProjectUncheckedUpdateWithoutEnvironmentsInput = {
   buildCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productionDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresDatabase?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  databaseEnvVar?: Prisma.StringFieldUpdateOperationsInput | string
+  databaseUrlTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   databaseStrategy?: Prisma.EnumDatabaseStrategyFieldUpdateOperationsInput | $Enums.DatabaseStrategy
   hostnameFormat?: Prisma.EnumHostnameFormatFieldUpdateOperationsInput | $Enums.HostnameFormat
   certificateProvider?: Prisma.EnumCertificateProviderFieldUpdateOperationsInput | $Enums.CertificateProvider
@@ -1019,6 +1117,9 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   buildCommand?: boolean
   startCommand?: boolean
   productionDbUrl?: boolean
+  requiresDatabase?: boolean
+  databaseEnvVar?: boolean
+  databaseUrlTemplate?: boolean
   databaseStrategy?: boolean
   hostnameFormat?: boolean
   certificateProvider?: boolean
@@ -1043,6 +1144,9 @@ export type ProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   buildCommand?: boolean
   startCommand?: boolean
   productionDbUrl?: boolean
+  requiresDatabase?: boolean
+  databaseEnvVar?: boolean
+  databaseUrlTemplate?: boolean
   databaseStrategy?: boolean
   hostnameFormat?: boolean
   certificateProvider?: boolean
@@ -1063,6 +1167,9 @@ export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   buildCommand?: boolean
   startCommand?: boolean
   productionDbUrl?: boolean
+  requiresDatabase?: boolean
+  databaseEnvVar?: boolean
+  databaseUrlTemplate?: boolean
   databaseStrategy?: boolean
   hostnameFormat?: boolean
   certificateProvider?: boolean
@@ -1083,6 +1190,9 @@ export type ProjectSelectScalar = {
   buildCommand?: boolean
   startCommand?: boolean
   productionDbUrl?: boolean
+  requiresDatabase?: boolean
+  databaseEnvVar?: boolean
+  databaseUrlTemplate?: boolean
   databaseStrategy?: boolean
   hostnameFormat?: boolean
   certificateProvider?: boolean
@@ -1093,7 +1203,7 @@ export type ProjectSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "gitlabProjectId" | "repositoryUrl" | "gitlabToken" | "dockerfilePath" | "buildCommand" | "startCommand" | "productionDbUrl" | "databaseStrategy" | "hostnameFormat" | "certificateProvider" | "reverseProxy" | "baseDomain" | "enabled" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
+export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "gitlabProjectId" | "repositoryUrl" | "gitlabToken" | "dockerfilePath" | "buildCommand" | "startCommand" | "productionDbUrl" | "requiresDatabase" | "databaseEnvVar" | "databaseUrlTemplate" | "databaseStrategy" | "hostnameFormat" | "certificateProvider" | "reverseProxy" | "baseDomain" | "enabled" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   variables?: boolean | Prisma.Project$variablesArgs<ExtArgs>
   deadline?: boolean | Prisma.Project$deadlineArgs<ExtArgs>
@@ -1120,6 +1230,9 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     buildCommand: string | null
     startCommand: string | null
     productionDbUrl: string | null
+    requiresDatabase: boolean
+    databaseEnvVar: string
+    databaseUrlTemplate: string | null
     databaseStrategy: $Enums.DatabaseStrategy
     hostnameFormat: $Enums.HostnameFormat
     certificateProvider: $Enums.CertificateProvider
@@ -1563,6 +1676,9 @@ export interface ProjectFieldRefs {
   readonly buildCommand: Prisma.FieldRef<"Project", 'String'>
   readonly startCommand: Prisma.FieldRef<"Project", 'String'>
   readonly productionDbUrl: Prisma.FieldRef<"Project", 'String'>
+  readonly requiresDatabase: Prisma.FieldRef<"Project", 'Boolean'>
+  readonly databaseEnvVar: Prisma.FieldRef<"Project", 'String'>
+  readonly databaseUrlTemplate: Prisma.FieldRef<"Project", 'String'>
   readonly databaseStrategy: Prisma.FieldRef<"Project", 'DatabaseStrategy'>
   readonly hostnameFormat: Prisma.FieldRef<"Project", 'HostnameFormat'>
   readonly certificateProvider: Prisma.FieldRef<"Project", 'CertificateProvider'>

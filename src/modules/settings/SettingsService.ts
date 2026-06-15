@@ -7,10 +7,16 @@ import type { SystemSettings } from "@prisma-generated/client";
 
 export interface UpdateSettingsDTO {
   piholeBaseUrl?: string;
-  piholeApiToken?: string;
+  piholePassword?: string;
   reverseProxyIp?: string;
   traefikNetwork?: string;
   baseDomain?: string;
+  gitlabBaseUrl?: string;
+  gitlabApiToken?: string;
+  prodBackupDbUrl?: string;
+  prodBackupDir?: string;
+  prodBackupIntervalHours?: number;
+  prodBackupEnabled?: boolean;
 }
 
 /**
@@ -37,10 +43,16 @@ export class SettingsService extends BaseService {
     const existing = await this.dao.find();
     const settings = existing ?? (await this.dao.upsert({
       piholeBaseUrl: env.dns.piholeBaseUrl,
-      piholeApiToken: env.dns.piholeApiToken,
+      piholePassword: env.dns.piholePassword,
       reverseProxyIp: env.dns.reverseProxyIp,
       traefikNetwork: env.docker.traefikNetwork,
       baseDomain: env.proxy.baseDomain,
+      gitlabBaseUrl: env.gitlab.baseUrl,
+      gitlabApiToken: env.gitlab.apiToken,
+      prodBackupDbUrl: env.backup.prodDbUrl,
+      prodBackupDir: env.backup.prodDir,
+      prodBackupIntervalHours: env.backup.prodIntervalHours,
+      prodBackupEnabled: env.backup.prodEnabled,
     }));
 
     this.cache.set(SettingsService.CACHE_KEY, settings, 30_000);

@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   SystemSettings: 'SystemSettings',
+  ProductionBackupLog: 'ProductionBackupLog',
   User: 'User',
   RefreshToken: 'RefreshToken',
   Project: 'Project',
@@ -83,14 +84,35 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export const SystemSettingsScalarFieldEnum = {
   id: 'id',
   piholeBaseUrl: 'piholeBaseUrl',
-  piholeApiToken: 'piholeApiToken',
+  piholePassword: 'piholePassword',
   reverseProxyIp: 'reverseProxyIp',
   traefikNetwork: 'traefikNetwork',
   baseDomain: 'baseDomain',
+  gitlabBaseUrl: 'gitlabBaseUrl',
+  gitlabApiToken: 'gitlabApiToken',
+  prodBackupDbUrl: 'prodBackupDbUrl',
+  prodBackupDir: 'prodBackupDir',
+  prodBackupIntervalHours: 'prodBackupIntervalHours',
+  prodBackupEnabled: 'prodBackupEnabled',
   updatedAt: 'updatedAt'
 } as const
 
 export type SystemSettingsScalarFieldEnum = (typeof SystemSettingsScalarFieldEnum)[keyof typeof SystemSettingsScalarFieldEnum]
+
+
+export const ProductionBackupLogScalarFieldEnum = {
+  id: 'id',
+  trigger: 'trigger',
+  status: 'status',
+  directory: 'directory',
+  databases: 'databases',
+  totalBytes: 'totalBytes',
+  message: 'message',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt'
+} as const
+
+export type ProductionBackupLogScalarFieldEnum = (typeof ProductionBackupLogScalarFieldEnum)[keyof typeof ProductionBackupLogScalarFieldEnum]
 
 
 export const UserScalarFieldEnum = {
@@ -129,6 +151,9 @@ export const ProjectScalarFieldEnum = {
   buildCommand: 'buildCommand',
   startCommand: 'startCommand',
   productionDbUrl: 'productionDbUrl',
+  requiresDatabase: 'requiresDatabase',
+  databaseEnvVar: 'databaseEnvVar',
+  databaseUrlTemplate: 'databaseUrlTemplate',
   databaseStrategy: 'databaseStrategy',
   hostnameFormat: 'hostnameFormat',
   certificateProvider: 'certificateProvider',
@@ -266,14 +291,6 @@ export const QueryMode = {
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
-export const NullsOrder = {
-  first: 'first',
-  last: 'last'
-} as const
-
-export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
-
-
 export const JsonNullValueFilter = {
   DbNull: DbNull,
   JsonNull: JsonNull,
@@ -281,4 +298,12 @@ export const JsonNullValueFilter = {
 } as const
 
 export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 

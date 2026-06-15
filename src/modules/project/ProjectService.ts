@@ -3,7 +3,7 @@ import { BaseService } from "@core/base/BaseService";
 import { NotFoundError } from "@core/errors/AppError";
 import { Cache } from "@core/cache/Cache";
 import { ProjectDAO, type ProjectWithConfig } from "./ProjectDAO";
-import type { Project } from "@prisma-generated/client";
+import type { Prisma, Project } from "@prisma-generated/client";
 import type {
   CertificateProvider,
   DatabaseStrategy,
@@ -14,12 +14,15 @@ import type {
 export interface CreateProjectDTO {
   name: string;
   gitlabProjectId: string;
-  repositoryUrl: string;
-  gitlabToken: string;
+  repositoryUrl?: string;
+  gitlabToken?: string;
   dockerfilePath?: string;
   buildCommand?: string;
   startCommand?: string;
   productionDbUrl?: string;
+  requiresDatabase?: boolean;
+  databaseEnvVar?: string;
+  databaseUrlTemplate?: string;
   databaseStrategy?: DatabaseStrategy;
   hostnameFormat?: HostnameFormat;
   certificateProvider?: CertificateProvider;
@@ -28,6 +31,15 @@ export interface CreateProjectDTO {
   variables?: Array<{ key: string; type?: string; required?: boolean; defaultValue?: string }>;
   deadline?: { defaultDays?: number; maxDays?: number; maxRenewals?: number };
 }
+
+/**
+ * Edição de um projeto existente. Todos os campos são opcionais: o que vier
+ * `undefined` é preservado (Prisma ignora `undefined` no update). Variáveis
+ * continuam sendo geridas pelos endpoints próprios (`add/removeVariable`).
+ */
+export type UpdateProjectDTO = Partial<Omit<CreateProjectDTO, "variables">> & {
+  enabled?: boolean;
+};
 
 /** Regras de negócio do cadastro de Projetos (Painel Admin). */
 @Injectable()
@@ -46,12 +58,15 @@ export class ProjectService extends BaseService {
     return this.dao.create({
       name: dto.name,
       gitlabProjectId: dto.gitlabProjectId,
-      repositoryUrl: dto.repositoryUrl,
-      gitlabToken: dto.gitlabToken,
+      repositoryUrl: dto.repositoryUrl ?? "",
+      gitlabToken: dto.gitlabToken ?? "",
       dockerfilePath: dto.dockerfilePath ?? "Dockerfile",
       buildCommand: dto.buildCommand,
       startCommand: dto.startCommand,
       productionDbUrl: dto.productionDbUrl,
+      requiresDatabase: dto.requiresDatabase ?? true,
+      databaseEnvVar: dto.databaseEnvVar?.trim() || "DATABASE_URL",
+      databaseUrlTemplate: dto.databaseUrlTemplate,
       databaseStrategy: dto.databaseStrategy,
       hostnameFormat: dto.hostnameFormat,
       certificateProvider: dto.certificateProvider,
@@ -62,6 +77,37 @@ export class ProjectService extends BaseService {
         : undefined,
       deadline: { create: dto.deadline ?? {} },
     });
+  }
+
+  async update(id: string, dto: UpdateProjectDTO): Promise<Project> {
+    await this.getById(id); // lança NotFound se não existir
+    this.cache.delete(ProjectService.LIST_KEY);
+
+    const data: Prisma.ProjectUpdateInput = {
+      name: dto.name,
+      gitlabProjectId: dto.gitlabProjectId,
+      repositoryUrl: dto.repositoryUrl,
+      gitlabToken: dto.gitlabToken,
+      dockerfilePath: dto.dockerfilePath,
+      buildCommand: dto.buildCommand,
+      startCommand: dto.startCommand,
+      productionDbUrl: dto.productionDbUrl,
+      requiresDatabase: dto.requiresDatabase,
+      databaseEnvVar: dto.databaseEnvVar?.trim() || undefined,
+      databaseUrlTemplate: dto.databaseUrlTemplate,
+      databaseStrategy: dto.databaseStrategy,
+      hostnameFormat: dto.hostnameFormat,
+      certificateProvider: dto.certificateProvider,
+      reverseProxy: dto.reverseProxy,
+      baseDomain: dto.baseDomain,
+      enabled: dto.enabled,
+    };
+
+    if (dto.deadline) {
+      data.deadline = { upsert: { create: dto.deadline, update: dto.deadline } };
+    }
+
+    return this.dao.update(id, data);
   }
 
   async list(): Promise<Project[]> {

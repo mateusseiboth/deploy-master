@@ -385,6 +385,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   SystemSettings: 'SystemSettings',
+  ProductionBackupLog: 'ProductionBackupLog',
   User: 'User',
   RefreshToken: 'RefreshToken',
   Project: 'Project',
@@ -410,7 +411,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "systemSettings" | "user" | "refreshToken" | "project" | "projectVariable" | "projectDeadline" | "environment" | "environmentVariableValue" | "environmentService" | "environmentBackup" | "auditLog"
+    modelProps: "systemSettings" | "productionBackupLog" | "user" | "refreshToken" | "project" | "projectVariable" | "projectDeadline" | "environment" | "environmentVariableValue" | "environmentService" | "environmentBackup" | "auditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -485,6 +486,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.SystemSettingsCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.SystemSettingsCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProductionBackupLog: {
+      payload: Prisma.$ProductionBackupLogPayload<ExtArgs>
+      fields: Prisma.ProductionBackupLogFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProductionBackupLogFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionBackupLogPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProductionBackupLogFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionBackupLogPayload>
+        }
+        findFirst: {
+          args: Prisma.ProductionBackupLogFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionBackupLogPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProductionBackupLogFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionBackupLogPayload>
+        }
+        findMany: {
+          args: Prisma.ProductionBackupLogFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionBackupLogPayload>[]
+        }
+        create: {
+          args: Prisma.ProductionBackupLogCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionBackupLogPayload>
+        }
+        createMany: {
+          args: Prisma.ProductionBackupLogCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProductionBackupLogCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionBackupLogPayload>[]
+        }
+        delete: {
+          args: Prisma.ProductionBackupLogDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionBackupLogPayload>
+        }
+        update: {
+          args: Prisma.ProductionBackupLogUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionBackupLogPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProductionBackupLogDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProductionBackupLogUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProductionBackupLogUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionBackupLogPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProductionBackupLogUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionBackupLogPayload>
+        }
+        aggregate: {
+          args: Prisma.ProductionBackupLogAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProductionBackupLog>
+        }
+        groupBy: {
+          args: Prisma.ProductionBackupLogGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductionBackupLogGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProductionBackupLogCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductionBackupLogCountAggregateOutputType> | number
         }
       }
     }
@@ -1270,14 +1345,35 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export const SystemSettingsScalarFieldEnum = {
   id: 'id',
   piholeBaseUrl: 'piholeBaseUrl',
-  piholeApiToken: 'piholeApiToken',
+  piholePassword: 'piholePassword',
   reverseProxyIp: 'reverseProxyIp',
   traefikNetwork: 'traefikNetwork',
   baseDomain: 'baseDomain',
+  gitlabBaseUrl: 'gitlabBaseUrl',
+  gitlabApiToken: 'gitlabApiToken',
+  prodBackupDbUrl: 'prodBackupDbUrl',
+  prodBackupDir: 'prodBackupDir',
+  prodBackupIntervalHours: 'prodBackupIntervalHours',
+  prodBackupEnabled: 'prodBackupEnabled',
   updatedAt: 'updatedAt'
 } as const
 
 export type SystemSettingsScalarFieldEnum = (typeof SystemSettingsScalarFieldEnum)[keyof typeof SystemSettingsScalarFieldEnum]
+
+
+export const ProductionBackupLogScalarFieldEnum = {
+  id: 'id',
+  trigger: 'trigger',
+  status: 'status',
+  directory: 'directory',
+  databases: 'databases',
+  totalBytes: 'totalBytes',
+  message: 'message',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt'
+} as const
+
+export type ProductionBackupLogScalarFieldEnum = (typeof ProductionBackupLogScalarFieldEnum)[keyof typeof ProductionBackupLogScalarFieldEnum]
 
 
 export const UserScalarFieldEnum = {
@@ -1316,6 +1412,9 @@ export const ProjectScalarFieldEnum = {
   buildCommand: 'buildCommand',
   startCommand: 'startCommand',
   productionDbUrl: 'productionDbUrl',
+  requiresDatabase: 'requiresDatabase',
+  databaseEnvVar: 'databaseEnvVar',
+  databaseUrlTemplate: 'databaseUrlTemplate',
   databaseStrategy: 'databaseStrategy',
   hostnameFormat: 'hostnameFormat',
   certificateProvider: 'certificateProvider',
@@ -1453,14 +1552,6 @@ export const QueryMode = {
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
-export const NullsOrder = {
-  first: 'first',
-  last: 'last'
-} as const
-
-export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
-
-
 export const JsonNullValueFilter = {
   DbNull: DbNull,
   JsonNull: JsonNull,
@@ -1468,6 +1559,14 @@ export const JsonNullValueFilter = {
 } as const
 
 export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
 
@@ -1491,6 +1590,27 @@ export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaMod
 
 
 /**
+ * Reference to a field of type 'Int'
+ */
+export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+/**
+ * Reference to a field of type 'Int[]'
+ */
+export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
  * Reference to a field of type 'DateTime'
  */
 export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
@@ -1505,6 +1625,62 @@ export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 
 
 /**
+ * Reference to a field of type 'BackupTrigger'
+ */
+export type EnumBackupTriggerFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BackupTrigger'>
+    
+
+
+/**
+ * Reference to a field of type 'BackupTrigger[]'
+ */
+export type ListEnumBackupTriggerFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BackupTrigger[]'>
+    
+
+
+/**
+ * Reference to a field of type 'BackupRunStatus'
+ */
+export type EnumBackupRunStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BackupRunStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'BackupRunStatus[]'
+ */
+export type ListEnumBackupRunStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BackupRunStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
+ * Reference to a field of type 'BigInt'
+ */
+export type BigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt'>
+    
+
+
+/**
+ * Reference to a field of type 'BigInt[]'
+ */
+export type ListBigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt[]'>
+    
+
+
+/**
  * Reference to a field of type 'UserRole'
  */
 export type EnumUserRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserRole'>
@@ -1515,13 +1691,6 @@ export type EnumUserRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
  * Reference to a field of type 'UserRole[]'
  */
 export type ListEnumUserRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserRole[]'>
-    
-
-
-/**
- * Reference to a field of type 'Boolean'
- */
-export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -1582,20 +1751,6 @@ export type ListEnumReverseProxyProviderFieldRefInput<$PrismaModel> = FieldRefIn
 
 
 /**
- * Reference to a field of type 'Int'
- */
-export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
-    
-
-
-/**
- * Reference to a field of type 'Int[]'
- */
-export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
-    
-
-
-/**
  * Reference to a field of type 'EnvironmentStatus'
  */
 export type EnumEnvironmentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EnvironmentStatus'>
@@ -1624,20 +1779,6 @@ export type ListEnumBackupSourceFieldRefInput<$PrismaModel> = FieldRefInputType<
 
 
 /**
- * Reference to a field of type 'BigInt'
- */
-export type BigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt'>
-    
-
-
-/**
- * Reference to a field of type 'BigInt[]'
- */
-export type ListBigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt[]'>
-    
-
-
-/**
  * Reference to a field of type 'AuditAction'
  */
 export type EnumAuditActionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AuditAction'>
@@ -1648,20 +1789,6 @@ export type EnumAuditActionFieldRefInput<$PrismaModel> = FieldRefInputType<$Pris
  * Reference to a field of type 'AuditAction[]'
  */
 export type ListEnumAuditActionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AuditAction[]'>
-    
-
-
-/**
- * Reference to a field of type 'Json'
- */
-export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-/**
- * Reference to a field of type 'QueryMode'
- */
-export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -1789,6 +1916,7 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   systemSettings?: Prisma.SystemSettingsOmit
+  productionBackupLog?: Prisma.ProductionBackupLogOmit
   user?: Prisma.UserOmit
   refreshToken?: Prisma.RefreshTokenOmit
   project?: Prisma.ProjectOmit

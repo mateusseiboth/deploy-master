@@ -1,7 +1,8 @@
-import type { Request, Response } from "express";
+import type { Request } from "express";
 import { Injectable } from "@di/Injectable";
 import { BaseController } from "@core/base/BaseController";
-import { ProjectService, type CreateProjectDTO } from "./ProjectService";
+import type { HttpResult } from "@core/http/HttpResult";
+import { ProjectService, type CreateProjectDTO, type UpdateProjectDTO } from "./ProjectService";
 import type { AddVariableDTO } from "./projectSchemas";
 
 /**
@@ -13,24 +14,28 @@ export class ProjectController extends BaseController {
     super();
   }
 
-  async create(req: Request, res: Response): Promise<void> {
-    this.created(res, await this.service.create(req.body as CreateProjectDTO));
+  async create(req: Request): Promise<HttpResult> {
+    return this.created(await this.service.create(req.body as CreateProjectDTO));
   }
 
-  async list(_req: Request, res: Response): Promise<void> {
-    this.ok(res, await this.service.list());
+  async list(): Promise<HttpResult> {
+    return this.ok(await this.service.list());
   }
 
-  async getById(req: Request, res: Response): Promise<void> {
-    this.ok(res, await this.service.getById(this.param(req, "id")));
+  async getById(req: Request): Promise<HttpResult> {
+    return this.ok(await this.service.getById(this.param(req, "id")));
   }
 
-  async addVariable(req: Request, res: Response): Promise<void> {
-    this.created(res, await this.service.addVariable(this.param(req, "id"), req.body as AddVariableDTO));
+  async update(req: Request): Promise<HttpResult> {
+    return this.ok(await this.service.update(this.param(req, "id"), req.body as UpdateProjectDTO));
   }
 
-  async removeVariable(req: Request, res: Response): Promise<void> {
+  async addVariable(req: Request): Promise<HttpResult> {
+    return this.created(await this.service.addVariable(this.param(req, "id"), req.body as AddVariableDTO));
+  }
+
+  async removeVariable(req: Request): Promise<HttpResult> {
     await this.service.removeVariable(this.param(req, "id"), this.param(req, "key"));
-    this.noContent(res);
+    return this.noContent();
   }
 }

@@ -92,7 +92,13 @@ Doc viva em `/doc`. Patterns obrigatórios: Factory, Strategy, Builder. SOLID + 
 - [x] `Dockerfile` + `docker-compose.yml`: api+worker em container com sock do Docker
 - [x] Validado: Pi-hole `customdns` add/get/delete + settings persistidas (RBAC 403 p/ VIEWER)
 - [x] Resize do TTY propagado ao container (console web)
-- [ ] Migrar `PiholeDnsService` para API do Pi-hole v6 (usar imagem `latest`)
+- [x] Migrar `PiholeDnsService` para API do Pi-hole v6 (auth por senha + `config/dns/hosts`, imagem `latest`)
+- [x] GitLab global em `SystemSettings` (URL + token geral): projetos buscam pela API
+      (`GET /api/gitlab/projects`), URL/token por projeto viram override opcional
+- [x] Backup automático do Postgres de produção (`SystemSettings`: URL/pasta/intervalo/habilitado)
+      → `BackupScheduler` enfileira job `backup`; `ProductionBackupService` roda `pg_dump` de
+      todos os bancos e grava `ProductionBackupLog` (automático x solicitado)
+- [x] Upload multipart do SQL corrigido (browser define o boundary; multer parseia)
 
 ## Fase 6 — Qualidade
 

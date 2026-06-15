@@ -1,11 +1,21 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, unwrap } from "@/lib/api";
-import type { GitLabBranch, GitLabCommit, Project } from "@/lib/types";
+import type { GitLabBranch, GitLabCommit, GitLabProjectRef, Project } from "@/lib/types";
 
 const KEY = ["projects"];
 
 export function useProjects() {
   return useQuery({ queryKey: KEY, queryFn: () => unwrap<Project[]>(api.get("/projects")) });
+}
+
+/** Projetos visíveis pelo token GERAL do GitLab (para o seletor de cadastro). */
+export function useGitlabProjects(enabled: boolean) {
+  return useQuery({
+    queryKey: [...KEY, "gitlab-catalog"],
+    queryFn: () => unwrap<GitLabProjectRef[]>(api.get("/gitlab/projects")),
+    enabled,
+    staleTime: 60_000,
+  });
 }
 
 export function useProject(id: string) {
@@ -19,10 +29,14 @@ export function useProject(id: string) {
 export interface CreateProjectInput {
   name: string;
   gitlabProjectId: string;
-  repositoryUrl: string;
-  gitlabToken: string;
+  // Opcionais: se vazios, usa o GitLab global (token geral em Configurações).
+  repositoryUrl?: string;
+  gitlabToken?: string;
   dockerfilePath?: string;
   databaseStrategy?: "UPLOAD_SQL" | "COPY_PRODUCTION";
+  requiresDatabase?: boolean;
+  databaseEnvVar?: string;
+  databaseUrlTemplate?: string;
   baseDomain?: string;
   variables?: { key: string; required?: boolean; defaultValue?: string }[];
   deadline?: { defaultDays?: number; maxDays?: number; maxRenewals?: number };
@@ -32,6 +46,19 @@ export function useCreateProject() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (input: CreateProjectInput) => unwrap<Project>(api.post("/projects", input)),
+    onSuccess: () => qc.invalidateQueries({ queryKey: KEY }),
+  });
+}
+
+/** Edição: todos os campos opcionais (variáveis ficam fora — endpoints próprios). */
+export type UpdateProjectInput = Partial<Omit<CreateProjectInput, "variables">> & {
+  enabled?: boolean;
+};
+
+export function useUpdateProject(id: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: UpdateProjectInput) => unwrap<Project>(api.put(`/projects/${id}`, input)),
     onSuccess: () => qc.invalidateQueries({ queryKey: KEY }),
   });
 }

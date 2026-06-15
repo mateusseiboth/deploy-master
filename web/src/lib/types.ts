@@ -44,9 +44,18 @@ export interface Project {
   name: string;
   gitlabProjectId: string;
   repositoryUrl: string;
+  gitlabToken?: string;
+  dockerfilePath?: string;
+  buildCommand?: string | null;
+  startCommand?: string | null;
+  productionDbUrl?: string | null;
+  requiresDatabase?: boolean;
+  databaseEnvVar?: string;
+  databaseUrlTemplate?: string | null;
   databaseStrategy: "UPLOAD_SQL" | "COPY_PRODUCTION";
   hostnameFormat: string;
   baseDomain: string;
+  enabled?: boolean;
   variables?: ProjectVariable[];
   deadline?: ProjectDeadline | null;
 }
@@ -88,6 +97,14 @@ export interface GitLabCommit {
   authorName: string;
   message: string;
   createdAt: string;
+}
+
+export interface GitLabProjectRef {
+  id: number;
+  name: string;
+  pathWithNamespace: string;
+  httpUrlToRepo: string;
+  webUrl: string;
 }
 
 export interface DashboardIndicators {

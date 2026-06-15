@@ -17,14 +17,61 @@ datasource db {
 
 model SystemSettings {
   id             String   @id @default("singleton")
+
+  // Pi-hole v6: autentica com a SENHA do admin (não há mais API token).
   piholeBaseUrl  String   @default("")
-  piholeApiToken String   @default("")
+  piholePassword String   @default("")
+
   reverseProxyIp String   @default("")
   traefikNetwork String   @default("traefik-public")
   baseDomain     String   @default("qa.local")
+
+  // GitLab (token geral): projetos buscam metadados/repos pela API, sem precisar
+  // informar URL/token por projeto.
+  gitlabBaseUrl  String   @default("")
+  gitlabApiToken String   @default("")
+
+  // Backup automático do servidor PostgreSQL de produção. O job roda um pg_dump
+  // completo de TODOS os bancos do servidor e grava na pasta configurada.
+  prodBackupDbUrl         String   @default("") // conexão admin do Postgres de produção
+  prodBackupDir           String   @default("") // pasta destino dos dumps
+  prodBackupIntervalHours Int      @default(24) // intervalo entre execuções automáticas
+  prodBackupEnabled       Boolean  @default(false)
+
   updatedAt      DateTime @updatedAt
 
   @@map("system_settings")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Backup automático do PostgreSQL de produção (rotina agendada)
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum BackupTrigger {
+  AUTOMATIC // disparado pelo scheduler (intervalo configurado)
+  MANUAL // solicitado por um usuário
+}
+
+enum BackupRunStatus {
+  RUNNING
+  SUCCESS
+  FAILED
+}
+
+// Uma execução do backup completo (todos os bancos do servidor de produção).
+model ProductionBackupLog {
+  id         String          @id @default(uuid())
+  trigger    BackupTrigger
+  status     BackupRunStatus @default(RUNNING)
+  directory  String // pasta onde os dumps foram gravados
+  databases  Json? // detalhamento por banco: { name, file, sizeBytes, ok, error }
+  totalBytes BigInt?
+  message    String? // erro/observação geral da execução
+  startedAt  DateTime        @default(now())
+  finishedAt DateTime?
+
+  @@index([status])
+  @@map("production_backup_logs")
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -97,12 +144,22 @@ model Project {
   id                  String               @id @default(uuid())
   name                String
   gitlabProjectId     String // ID/path do projeto no GitLab
-  repositoryUrl       String
-  gitlabToken         String // token de acesso ao repo (secret)
+  // URL/token são opcionais: se vazios, o sistema usa o GitLab global (settings).
+  repositoryUrl       String               @default("")
+  gitlabToken         String               @default("") // override por projeto (secret)
   dockerfilePath      String               @default("Dockerfile")
   buildCommand        String?
   startCommand        String?
   productionDbUrl     String? // origem para COPY_PRODUCTION
+
+  // Banco de dados do ambiente. Quando `requiresDatabase`, o sistema gera a URL
+  // do banco efêmero automaticamente e injeta na variável `databaseEnvVar`. Se um
+  // `databaseUrlTemplate` for informado, só a query (ex.: ?schema=public) é
+  // preservada — usuário/senha/host/porta/banco vêm do banco gerado.
+  requiresDatabase    Boolean              @default(true)
+  databaseEnvVar      String               @default("DATABASE_URL")
+  databaseUrlTemplate String?
+
   databaseStrategy    DatabaseStrategy     @default(UPLOAD_SQL)
   hostnameFormat      HostnameFormat       @default(PROJECT_HASH)
   certificateProvider CertificateProvider  @default(INTERNAL_CA)

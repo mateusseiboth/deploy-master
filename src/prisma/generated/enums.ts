@@ -9,6 +9,23 @@
 * 🟢 You can import this file directly.
 */
 
+export const BackupTrigger = {
+  AUTOMATIC: 'AUTOMATIC',
+  MANUAL: 'MANUAL'
+} as const
+
+export type BackupTrigger = (typeof BackupTrigger)[keyof typeof BackupTrigger]
+
+
+export const BackupRunStatus = {
+  RUNNING: 'RUNNING',
+  SUCCESS: 'SUCCESS',
+  FAILED: 'FAILED'
+} as const
+
+export type BackupRunStatus = (typeof BackupRunStatus)[keyof typeof BackupRunStatus]
+
+
 export const UserRole = {
   ADMIN: 'ADMIN',
   QA: 'QA',

@@ -6,7 +6,7 @@ import { errorHandler } from "@core/http/errorHandler";
 import { authRoutes } from "./routes/authRoutes";
 import { environmentRoutes } from "./routes/environmentRoutes";
 import { projectRoutes } from "./routes/projectRoutes";
-import { gitlabRoutes } from "./routes/gitlabRoutes";
+import { gitlabRoutes, gitlabGlobalRoutes } from "./routes/gitlabRoutes";
 import { dashboardRoutes } from "./routes/dashboardRoutes";
 import { backupRoutes } from "./routes/backupRoutes";
 import { settingsRoutes } from "./routes/settingsRoutes";
@@ -34,6 +34,7 @@ export function buildApp(): Express {
   const authenticated = requireRole();
   app.use("/api/projects", authenticated, projectRoutes());
   app.use("/api/projects", authenticated, gitlabRoutes());
+  app.use("/api/gitlab", authenticated, gitlabGlobalRoutes());
   app.use("/api/environments", authenticated, environmentRoutes());
   app.use("/api/dashboard", authenticated, dashboardRoutes());
   app.use("/api/backups", authenticated, backupRoutes());

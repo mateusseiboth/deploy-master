@@ -35,10 +35,13 @@ export interface IContainerOrchestrator {
   isHealthy(containerId: string): Promise<boolean>;
 }
 
-/** Credenciais do Pi-hole (vindas do banco, cadastradas pelo admin). */
+/**
+ * Credenciais do Pi-hole (vindas do banco, cadastradas pelo admin).
+ * Pi-hole v6 autentica com a SENHA do admin (não há mais API token).
+ */
 export interface PiholeConfig {
   baseUrl: string;
-  apiToken: string;
+  password: string;
 }
 
 /** Provedor de DNS (Pi-hole). */

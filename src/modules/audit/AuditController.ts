@@ -1,6 +1,7 @@
-import type { Request, Response } from "express";
+import type { Request } from "express";
 import { Injectable } from "@di/Injectable";
 import { BaseController } from "@core/base/BaseController";
+import type { HttpResult } from "@core/http/HttpResult";
 import { AuditService } from "./AuditService";
 
 /** Consulta da trilha de auditoria de um ambiente. */
@@ -10,7 +11,7 @@ export class AuditController extends BaseController {
     super();
   }
 
-  async listByEnvironment(req: Request, res: Response): Promise<void> {
-    this.ok(res, await this.service.listByEnvironment(this.param(req, "id")));
+  async listByEnvironment(req: Request): Promise<HttpResult> {
+    return this.ok(await this.service.listByEnvironment(this.param(req, "id")));
   }
 }

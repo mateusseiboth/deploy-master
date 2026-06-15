@@ -7,7 +7,7 @@ import { DeployStep } from "./IDeployStep";
 
 /** Extrai as credenciais do Pi-hole do contexto (cadastro do admin). */
 function piholeOf(ctx: DeployContext): PiholeConfig {
-  return { baseUrl: ctx.settings.piholeBaseUrl, apiToken: ctx.settings.piholeApiToken };
+  return { baseUrl: ctx.settings.piholeBaseUrl, password: ctx.settings.piholePassword };
 }
 
 /** Registra o hostname no Pi-hole apontando para o IP do proxy reverso. */

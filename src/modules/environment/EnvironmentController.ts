@@ -1,6 +1,7 @@
-import type { Request, Response } from "express";
+import type { Request } from "express";
 import { Injectable } from "@di/Injectable";
 import { BaseController } from "@core/base/BaseController";
+import type { HttpResult } from "@core/http/HttpResult";
 import { EnvironmentService, type CreateEnvironmentDTO } from "./EnvironmentService";
 import type { RenewDTO } from "./environmentSchemas";
 import type { EnvironmentStatus } from "@prisma-generated/enums";
@@ -15,33 +16,32 @@ export class EnvironmentController extends BaseController {
     super();
   }
 
-  async create(req: Request, res: Response): Promise<void> {
-    const environment = await this.service.create(req.body as CreateEnvironmentDTO);
-    this.created(res, environment);
+  async create(req: Request): Promise<HttpResult> {
+    return this.created(await this.service.create(req.body as CreateEnvironmentDTO));
   }
 
-  async list(req: Request, res: Response): Promise<void> {
+  async list(req: Request): Promise<HttpResult> {
     const status = req.query.status as EnvironmentStatus | undefined;
     const projectId = req.query.projectId as string | undefined;
-    this.ok(res, await this.service.list({ status, projectId }));
+    return this.ok(await this.service.list({ status, projectId }));
   }
 
-  async getById(req: Request, res: Response): Promise<void> {
-    this.ok(res, await this.service.getById(this.param(req, "id")));
+  async getById(req: Request): Promise<HttpResult> {
+    return this.ok(await this.service.getById(this.param(req, "id")));
   }
 
-  async renew(req: Request, res: Response): Promise<void> {
+  async renew(req: Request): Promise<HttpResult> {
     const { days } = req.body as RenewDTO;
-    this.ok(res, await this.service.renew(this.param(req, "id"), days));
+    return this.ok(await this.service.renew(this.param(req, "id"), days));
   }
 
-  async restart(req: Request, res: Response): Promise<void> {
+  async restart(req: Request): Promise<HttpResult> {
     await this.service.restart(this.param(req, "id"));
-    this.ok(res, { restarted: true });
+    return this.ok({ restarted: true });
   }
 
-  async remove(req: Request, res: Response): Promise<void> {
+  async remove(req: Request): Promise<HttpResult> {
     await this.service.remove(this.param(req, "id"));
-    this.noContent(res);
+    return this.noContent();
   }
 }

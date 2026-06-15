@@ -5,6 +5,7 @@ import type { JobType } from "@core/queue/IJobQueue";
 import type { IJobHandler } from "./IJobHandler";
 import { DeployJobHandler } from "./DeployJobHandler";
 import { CleanupJobHandler } from "./CleanupJobHandler";
+import { BackupJobHandler } from "./BackupJobHandler";
 
 /**
  * Runtime consumidor da fila. Faz polling, reserva o próximo job e despacha para
@@ -21,10 +22,12 @@ export class Worker {
     private readonly queue: SqliteJobQueue,
     deployHandler: DeployJobHandler,
     cleanupHandler: CleanupJobHandler,
+    backupHandler: BackupJobHandler,
   ) {
     this.handlers = new Map<JobType, IJobHandler>([
       [deployHandler.type, deployHandler],
       [cleanupHandler.type, cleanupHandler],
+      [backupHandler.type, backupHandler],
     ]);
   }
 

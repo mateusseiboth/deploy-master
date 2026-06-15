@@ -28,6 +28,10 @@ export const env = {
   },
   database: {
     url: optional("DATABASE_URL", ""),
+    // Transação interativa do Prisma (P2028). O default de 5s é curto para
+    // operações sobre um banco remoto/lento; maxWait é a espera por conexão.
+    txTimeoutMs: int("DB_TX_TIMEOUT_MS", 15000),
+    txMaxWaitMs: int("DB_TX_MAX_WAIT_MS", 5000),
   },
   ephemeralPg: {
     host: optional("EPHEMERAL_PG_HOST", "localhost"),
@@ -54,9 +58,22 @@ export const env = {
     traefikNetwork: optional("TRAEFIK_NETWORK", "traefik-public"),
   },
   dns: {
-    piholeBaseUrl: optional("PIHOLE_BASE_URL", "http://localhost/admin"),
-    piholeApiToken: optional("PIHOLE_API_TOKEN", ""),
+    // Pi-hole v6: URL raiz (sem /admin) + senha do admin (não há mais API token).
+    piholeBaseUrl: optional("PIHOLE_BASE_URL", "http://localhost"),
+    piholePassword: optional("PIHOLE_PASSWORD", ""),
     reverseProxyIp: optional("REVERSE_PROXY_IP", "127.0.0.1"),
+  },
+  gitlab: {
+    // Token geral: projetos buscam metadados/repos pela API sem URL/token manuais.
+    baseUrl: optional("GITLAB_BASE_URL", ""),
+    apiToken: optional("GITLAB_API_TOKEN", ""),
+  },
+  backup: {
+    // Backup automático completo do servidor PostgreSQL de produção.
+    prodDbUrl: optional("PROD_BACKUP_DB_URL", ""),
+    prodDir: optional("PROD_BACKUP_DIR", ""),
+    prodIntervalHours: int("PROD_BACKUP_INTERVAL_HOURS", 24),
+    prodEnabled: optional("PROD_BACKUP_ENABLED", "false") === "true",
   },
   proxy: {
     provider: optional("REVERSE_PROXY_PROVIDER", "traefik"),

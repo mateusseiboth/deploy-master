@@ -17,6 +17,8 @@ export interface GitLabProjectRef {
   id: number;
   name: string;
   pathWithNamespace: string;
+  httpUrlToRepo: string;
+  webUrl: string;
 }
 
 export interface GitLabPipeline {
@@ -116,14 +118,17 @@ export class GitLabClient {
     return first ? toPipeline(first) : null;
   }
 
-  /** Projetos acessíveis pelo token (para popular seletor de projeto). */
-  async listProjects(repositoryUrl: string, token: string): Promise<GitLabProjectRef[]> {
+  /**
+   * Projetos acessíveis pelo token (para popular o seletor de projeto).
+   * `baseUrl` pode ser a URL base do GitLab (token geral) — só o host é usado.
+   */
+  async listProjects(baseUrl: string, token: string): Promise<GitLabProjectRef[]> {
     const raw = await this.request<Array<RawProject>>(
-      repositoryUrl,
+      baseUrl,
       token,
       `/projects?membership=true&per_page=100&order_by=last_activity_at`,
     );
-    return raw.map((p) => ({ id: p.id, name: p.name, pathWithNamespace: p.path_with_namespace }));
+    return raw.map(toProjectRef);
   }
 }
 
@@ -139,6 +144,18 @@ interface RawProject {
   id: number;
   name: string;
   path_with_namespace: string;
+  http_url_to_repo: string;
+  web_url: string;
+}
+
+function toProjectRef(raw: RawProject): GitLabProjectRef {
+  return {
+    id: raw.id,
+    name: raw.name,
+    pathWithNamespace: raw.path_with_namespace,
+    httpUrlToRepo: raw.http_url_to_repo,
+    webUrl: raw.web_url,
+  };
 }
 
 function toPipeline(raw: RawPipeline): GitLabPipeline {

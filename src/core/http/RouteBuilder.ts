@@ -1,7 +1,11 @@
-import { Router, type RequestHandler } from "express";
+import { Router, type Request, type RequestHandler, type Response } from "express";
 import { withTransaction } from "@core/transaction/withTransaction";
+import type { HttpResult } from "@core/http/HttpResult";
 
-type Handler = (req: import("express").Request, res: import("express").Response) => Promise<void>;
+type Handler = (
+  req: Request,
+  res: Response,
+) => HttpResult | void | Promise<HttpResult | void>;
 
 /**
  * Builder fluente de rotas sobre um Express Router.

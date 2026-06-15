@@ -23,6 +23,11 @@ export * from './enums.ts';
  */
 export type SystemSettings = Prisma.SystemSettingsModel
 /**
+ * Model ProductionBackupLog
+ * 
+ */
+export type ProductionBackupLog = Prisma.ProductionBackupLogModel
+/**
  * Model User
  * 
  */

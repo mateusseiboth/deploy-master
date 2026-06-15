@@ -400,14 +400,6 @@ export type ProjectDeadlineUncheckedUpdateOneWithoutProjectNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectDeadlineUpdateToOneWithWhereWithoutProjectInput, Prisma.ProjectDeadlineUpdateWithoutProjectInput>, Prisma.ProjectDeadlineUncheckedUpdateWithoutProjectInput>
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type ProjectDeadlineCreateWithoutProjectInput = {
   id?: string
   defaultDays?: number

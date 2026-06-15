@@ -2,6 +2,7 @@
 export const JobType = {
   DEPLOY: "deploy",
   CLEANUP: "cleanup",
+  BACKUP: "backup",
 } as const;
 export type JobType = (typeof JobType)[keyof typeof JobType];
 

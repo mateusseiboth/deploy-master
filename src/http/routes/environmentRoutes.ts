@@ -19,9 +19,9 @@ export function environmentRoutes(): Router {
   const route = new RouteBuilder(router);
   const mutate = route.with(requireRole("ADMIN", "QA"));
 
-  route.get("/", (req, res) => controller.list(req, res));
-  route.get("/:id", (req, res) => controller.getById(req, res));
-  route.get("/:id/audit", (req, res) => audit.listByEnvironment(req, res));
+  route.get("/", (req) => controller.list(req));
+  route.get("/:id", (req) => controller.getById(req));
+  route.get("/:id/audit", (req) => audit.listByEnvironment(req));
 
   // SSE: logs do container em tempo real. Rota "crua" (sem transação longa):
   // o containerId é lido numa transação curta e o stream roda fora dela.
@@ -29,12 +29,12 @@ export function environmentRoutes(): Router {
 
   route
     .with(requireRole("ADMIN", "QA"), validateBody(createEnvironmentSchema))
-    .post("/", (req, res) => controller.create(req, res));
+    .post("/", (req) => controller.create(req));
   route
     .with(requireRole("ADMIN", "QA"), validateBody(renewSchema))
-    .post("/:id/renew", (req, res) => controller.renew(req, res));
-  mutate.post("/:id/restart", (req, res) => controller.restart(req, res));
-  mutate.delete("/:id", (req, res) => controller.remove(req, res));
+    .post("/:id/renew", (req) => controller.renew(req));
+  mutate.post("/:id/restart", (req) => controller.restart(req));
+  mutate.delete("/:id", (req) => controller.remove(req));
 
   return router;
 }

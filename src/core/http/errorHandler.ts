@@ -9,8 +9,17 @@ export function errorHandler(
   err: unknown,
   _req: Request,
   res: Response,
-  _next: NextFunction,
+  next: NextFunction,
 ): void {
+  // A resposta já começou a ser enviada (ex.: handler respondeu e o COMMIT da
+  // transação falhou depois). Não dá para trocar status/headers; delega ao
+  // Express, que encerra o socket — em vez de estourar "headers already sent".
+  if (res.headersSent) {
+    console.error("[unhandled:after-response]", err);
+    next(err);
+    return;
+  }
+
   if (err instanceof AppError) {
     res.status(err.statusCode).json({
       error: err.name,

@@ -12,10 +12,10 @@ export function settingsRoutes(): Router {
   const router = Router();
   const route = new RouteBuilder(router);
 
-  route.get("/", (req, res) => controller.get(req, res));
+  route.get("/", () => controller.get());
   route
     .with(requireRole("ADMIN"), validateBody(updateSettingsSchema))
-    .put("/", (req, res) => controller.update(req, res));
+    .put("/", (req) => controller.update(req));
 
   return router;
 }

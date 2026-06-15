@@ -1,19 +1,19 @@
 # Infraestrutura de apoio do Deploy Master (não inclui os ambientes efêmeros,
 # que são criados dinamicamente pelo DockerService via o socket do Docker).
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: deploy-master-postgres
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: deploy_master
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    networks:
-      - traefik-public
+  # postgres:
+  #   image: postgres:16-alpine
+  #   container_name: deploy-master-postgres
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+  #     POSTGRES_DB: deploy_master
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
+  #   networks:
+  #     - traefik-public
 
   traefik:
     image: traefik:v3.1
@@ -34,26 +34,27 @@ services:
     networks:
       - traefik-public
 
-  # Pi-hole v5 (a v6 trocou a API customdns usada pelo PiholeDnsService).
+  # Pi-hole v6 (PiholeDnsService usa a API REST v6: auth por senha + config/dns/hosts).
   # Web admin em :8081 para não conflitar com o Traefik na :80.
-  pihole:
-    image: pihole/pihole:2024.07.0
-    container_name: deploy-master-pihole
-    environment:
-      TZ: "America/Sao_Paulo"
-      WEBPASSWORD: "${PIHOLE_WEBPASSWORD:-admin}"
-      FTLCONF_LOCAL_IPV4: "${REVERSE_PROXY_IP:-127.0.0.1}"
-    # DNS bindado no IP de LAN (systemd-resolved ocupa a 53 no loopback).
-    # Aponte a máquina-cliente para ${REVERSE_PROXY_IP} como servidor DNS.
-    ports:
-      - "${REVERSE_PROXY_IP:-0.0.0.0}:53:53/tcp"
-      - "${REVERSE_PROXY_IP:-0.0.0.0}:53:53/udp"
-      - "8081:80/tcp"
-    volumes:
-      - pihole-etc:/etc/pihole
-      - pihole-dnsmasq:/etc/dnsmasq.d
-    networks:
-      - traefik-public
+  # pihole:
+  #   image: pihole/pihole:latest
+  #   container_name: deploy-master-pihole
+  #   environment:
+  #     TZ: "America/Sao_Paulo"
+  #     # v6: senha do admin da API/web (substitui o WEBPASSWORD da v5).
+  #     FTLCONF_webserver_api_password: "${PIHOLE_WEBPASSWORD:-admin}"
+  #     FTLCONF_dns_listeningMode: "all"
+  #   # DNS bindado no IP de LAN (systemd-resolved ocupa a 53 no loopback).
+  #   # Aponte a máquina-cliente para ${REVERSE_PROXY_IP} como servidor DNS.
+  #   ports:
+  #     - "${REVERSE_PROXY_IP:-0.0.0.0}:53:53/tcp"
+  #     - "${REVERSE_PROXY_IP:-0.0.0.0}:53:53/udp"
+  #     - "8081:80/tcp"
+  #   volumes:
+  #     - pihole-etc:/etc/pihole
+  #     - pihole-dnsmasq:/etc/dnsmasq.d
+  #   networks:
+  #     - traefik-public
 
 volumes:
   pgdata:

@@ -3,6 +3,7 @@ import { container } from "@di/container";
 import { RouteBuilder } from "@core/http/RouteBuilder";
 import { requireRole } from "@core/http/currentUser";
 import { validateBody } from "@core/http/validateBody";
+import { sendResult } from "@core/http/HttpResult";
 import { AuthController } from "@modules/auth/AuthController";
 import { loginSchema, refreshSchema, registerSchema } from "@modules/auth/authSchemas";
 
@@ -12,15 +13,15 @@ export function authRoutes(): Router {
   const router = Router();
   const route = new RouteBuilder(router);
 
-  route.with(validateBody(loginSchema)).post("/login", (req, res) => controller.login(req, res));
-  route.with(validateBody(refreshSchema)).post("/refresh", (req, res) => controller.refresh(req, res));
-  route.with(validateBody(refreshSchema)).post("/logout", (req, res) => controller.logout(req, res));
+  route.with(validateBody(loginSchema)).post("/login", (req) => controller.login(req));
+  route.with(validateBody(refreshSchema)).post("/refresh", (req) => controller.refresh(req));
+  route.with(validateBody(refreshSchema)).post("/logout", (req) => controller.logout(req));
   route
     .with(requireRole("ADMIN"), validateBody(registerSchema))
-    .post("/register", (req, res) => controller.register(req, res));
+    .post("/register", (req) => controller.register(req));
 
   // `me` não usa transação: lê apenas o req.user já resolvido pelo middleware.
-  router.get("/me", (req, res) => controller.me(req, res));
+  router.get("/me", (req, res) => sendResult(res, controller.me(req)));
 
   return router;
 }

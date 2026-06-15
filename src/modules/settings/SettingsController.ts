@@ -1,6 +1,7 @@
-import type { Request, Response } from "express";
+import type { Request } from "express";
 import { Injectable } from "@di/Injectable";
 import { BaseController } from "@core/base/BaseController";
+import type { HttpResult } from "@core/http/HttpResult";
 import { SettingsService, type UpdateSettingsDTO } from "./SettingsService";
 
 /** Configurações do sistema (leitura para autenticados; escrita só ADMIN). */
@@ -10,11 +11,11 @@ export class SettingsController extends BaseController {
     super();
   }
 
-  async get(_req: Request, res: Response): Promise<void> {
-    this.ok(res, await this.service.get());
+  async get(): Promise<HttpResult> {
+    return this.ok(await this.service.get());
   }
 
-  async update(req: Request, res: Response): Promise<void> {
-    this.ok(res, await this.service.update(req.body as UpdateSettingsDTO));
+  async update(req: Request): Promise<HttpResult> {
+    return this.ok(await this.service.update(req.body as UpdateSettingsDTO));
   }
 }

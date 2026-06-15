@@ -16,6 +16,9 @@ export interface DeployProjectConfig {
   buildCommand?: string | null;
   startCommand?: string | null;
   productionDbUrl?: string | null;
+  requiresDatabase: boolean;
+  databaseEnvVar: string;
+  databaseUrlTemplate?: string | null;
   databaseStrategy: DatabaseStrategy;
   hostnameFormat: HostnameFormat;
   certificateProvider: CertificateProvider;
@@ -29,9 +32,12 @@ export interface DeployProjectConfig {
  */
 export interface DeploySettings {
   piholeBaseUrl: string;
-  piholeApiToken: string;
+  piholePassword: string;
   reverseProxyIp: string;
   traefikNetwork: string;
+  /** GitLab global: usado quando o projeto não tem URL/token próprios. */
+  gitlabBaseUrl: string;
+  gitlabApiToken: string;
 }
 
 /** Solicitação de deploy disparada pelo QA. */

@@ -1,10 +1,13 @@
-import type { Request, Response } from "express";
+import type { Request } from "express";
 import { type ZodType } from "zod";
 import { BadRequestError } from "@core/errors/AppError";
+import type { HttpResult } from "@core/http/HttpResult";
 
 /**
  * Base de Controllers. Responsabilidades estritas (CLAUDE.md §7): receber a
- * request, validar entrada, delegar ao Service e responder. Sem regra de negócio.
+ * request, validar entrada, delegar ao Service e devolver um `HttpResult`.
+ * Os helpers NÃO escrevem na resposta — quem o faz é o `withTransaction`, após
+ * o commit. Sem regra de negócio.
  */
 export abstract class BaseController {
   /** Valida e tipa o body via Zod, lançando BadRequest com os detalhes. */
@@ -16,16 +19,21 @@ export abstract class BaseController {
     return result.data;
   }
 
-  protected ok(res: Response, data: unknown): void {
-    res.status(200).json({ data });
+  protected ok(data: unknown): HttpResult {
+    return { status: 200, body: { data } };
   }
 
-  protected created(res: Response, data: unknown): void {
-    res.status(201).json({ data });
+  protected created(data: unknown): HttpResult {
+    return { status: 201, body: { data } };
   }
 
-  protected noContent(res: Response): void {
-    res.status(204).end();
+  /** 202: requisição aceita para processamento assíncrono (fila). */
+  protected accepted(data: unknown): HttpResult {
+    return { status: 202, body: { data } };
+  }
+
+  protected noContent(): HttpResult {
+    return { status: 204 };
   }
 
   protected param(req: Request, name: string): string {

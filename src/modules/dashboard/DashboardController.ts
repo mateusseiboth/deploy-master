@@ -1,6 +1,6 @@
-import type { Request, Response } from "express";
 import { Injectable } from "@di/Injectable";
 import { BaseController } from "@core/base/BaseController";
+import type { HttpResult } from "@core/http/HttpResult";
 import { DashboardService } from "./DashboardService";
 
 /** Indicadores agregados do sistema. */
@@ -10,7 +10,7 @@ export class DashboardController extends BaseController {
     super();
   }
 
-  async indicators(_req: Request, res: Response): Promise<void> {
-    this.ok(res, await this.service.indicators());
+  async indicators(): Promise<HttpResult> {
+    return this.ok(await this.service.indicators());
   }
 }

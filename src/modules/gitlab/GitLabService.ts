@@ -1,13 +1,16 @@
 import { Injectable } from "@di/Injectable";
 import { BaseService } from "@core/base/BaseService";
-import { NotFoundError } from "@core/errors/AppError";
+import { BadRequestError, NotFoundError } from "@core/errors/AppError";
 import { Cache } from "@core/cache/Cache";
+import { runInTransaction } from "@core/transaction/withTransaction";
 import { ProjectDAO } from "@modules/project/ProjectDAO";
+import { SettingsService } from "@modules/settings/SettingsService";
 import {
   GitLabClient,
   type GitLabBranch,
   type GitLabCommit,
   type GitLabPipeline,
+  type GitLabProjectRef,
 } from "./GitLabClient";
 
 interface GitLabAccess {
@@ -29,8 +32,24 @@ export class GitLabService extends BaseService {
     private readonly projects: ProjectDAO,
     private readonly gitlab: GitLabClient,
     private readonly cache: Cache,
+    private readonly settings: SettingsService,
   ) {
     super();
+  }
+
+  /**
+   * Lista os projetos visíveis pelo token GERAL do GitLab (settings). Usado no
+   * cadastro para escolher o projeto sem digitar URL/token. Cacheado por 60s.
+   */
+  listGlobalProjects(): Promise<GitLabProjectRef[]> {
+    return this.cached("gitlab:global:projects", async () => {
+      // Lê settings em transação CURTA; a chamada HTTP roda FORA da transação.
+      const s = await runInTransaction(() => this.settings.get());
+      if (!s.gitlabBaseUrl || !s.gitlabApiToken) {
+        throw new BadRequestError("Configure a URL e o token do GitLab nas Configurações");
+      }
+      return this.gitlab.listProjects(s.gitlabBaseUrl, s.gitlabApiToken);
+    });
   }
 
   async validateAccess(projectId: string): Promise<{ valid: boolean }> {
@@ -73,14 +92,20 @@ export class GitLabService extends BaseService {
 
   // ── helpers ───────────────────────────────────────────────────────────────
 
-  private async loadAccess(projectId: string): Promise<GitLabAccess> {
-    const project = await this.projects.findById(projectId);
-    if (!project) throw new NotFoundError(`Projeto ${projectId} não encontrado`);
-    return {
-      repositoryUrl: project.repositoryUrl,
-      gitlabProjectId: project.gitlabProjectId,
-      gitlabToken: project.gitlabToken,
-    };
+  private loadAccess(projectId: string): Promise<GitLabAccess> {
+    // Transação CURTA só para ler projeto + settings; o HTTP do GitLab roda fora
+    // dela (evita P2028: transação expirando durante a chamada externa).
+    return runInTransaction(async () => {
+      const project = await this.projects.findById(projectId);
+      if (!project) throw new NotFoundError(`Projeto ${projectId} não encontrado`);
+      const settings = await this.settings.get();
+      // Fallback para o GitLab global quando o projeto não tem URL/token próprios.
+      return {
+        repositoryUrl: project.repositoryUrl || settings.gitlabBaseUrl,
+        gitlabProjectId: project.gitlabProjectId,
+        gitlabToken: project.gitlabToken || settings.gitlabApiToken,
+      };
+    });
   }
 
   /** Memoiza no cache (TTL curto) operações de leitura idempotentes. */

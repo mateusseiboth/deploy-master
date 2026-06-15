@@ -70,4 +70,36 @@ export class PostgresAdmin {
     const result = await exec("psql", [databaseUrl, "-tAc", "SELECT 1"], { allowFailure: true });
     return result.code === 0 && result.stdout.trim() === "1";
   }
+
+  /**
+   * Lista os bancos do servidor (exclui templates e bancos sem conexão).
+   * `serverUrl` é uma connection string para qualquer banco do servidor.
+   */
+  async listDatabases(serverUrl: string): Promise<string[]> {
+    const result = await exec(
+      "psql",
+      [serverUrl, "-tAc", "SELECT datname FROM pg_database WHERE datistemplate = false AND datallowconn = true ORDER BY datname"],
+    );
+    return result.stdout
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((name) => name.length > 0);
+  }
+
+  /** Troca o nome do banco no path de uma connection string. */
+  withDatabase(serverUrl: string, databaseName: string): string {
+    const url = new URL(serverUrl);
+    url.pathname = `/${databaseName}`;
+    return url.toString();
+  }
+
+  /** Gera um dump SQL completo de um banco para `outFilePath` (pg_dump). */
+  async dumpToFile(serverUrl: string, databaseName: string, outFilePath: string): Promise<void> {
+    await exec("pg_dump", [
+      "--no-owner",
+      "--no-acl",
+      "-f", outFilePath,
+      this.withDatabase(serverUrl, databaseName),
+    ]);
+  }
 }
