@@ -22,6 +22,7 @@ export function CreateEnvironmentDialog({ open, onOpenChange }: { open: boolean;
   const [backupPath, setBackupPath] = React.useState<string>();
   const [storedBackupId, setStoredBackupId] = React.useState("");
   const [dockerfilePath, setDockerfilePath] = React.useState("");
+  const [appPort, setAppPort] = React.useState<number>(80);
   const [overrides, setOverrides] = React.useState<Record<string, string>>({});
   const [uploading, setUploading] = React.useState(false);
 
@@ -33,15 +34,16 @@ export function CreateEnvironmentDialog({ open, onOpenChange }: { open: boolean;
   const availableBackups = useAvailableBackups(open && backupSource === "STORED_BACKUP");
   const selectedCommit = commits.data?.find((c) => c.id === commitHash);
 
-  // Pré-seleciona o Dockerfile padrão do projeto quando o projeto muda.
+  // Pré-seleciona o Dockerfile e a porta padrão do projeto quando o projeto muda.
   React.useEffect(() => {
     setDockerfilePath(project.data?.dockerfilePath || "Dockerfile");
-  }, [project.data?.dockerfilePath]);
+    setAppPort(project.data?.appPort || 80);
+  }, [project.data?.dockerfilePath, project.data?.appPort]);
 
   function reset() {
     setProjectId(""); setBranch(""); setCommitHash("");
     setBackupSource("UPLOAD"); setBackupPath(undefined); setStoredBackupId("");
-    setDockerfilePath(""); setOverrides({});
+    setDockerfilePath(""); setAppPort(80); setOverrides({});
   }
 
   async function onUpload(file: File) {
@@ -73,6 +75,7 @@ export function CreateEnvironmentDialog({ open, onOpenChange }: { open: boolean;
         variableOverrides: overrides,
         backup: { source: backupSource, filePath: backupPath },
         dockerfilePath: dockerfilePath || undefined,
+        appPort: appPort > 0 ? appPort : undefined,
       });
       notify("Deploy enfileirado");
       reset();
@@ -146,6 +149,19 @@ export function CreateEnvironmentDialog({ open, onOpenChange }: { open: boolean;
             <p className="text-xs text-muted-foreground">
               Repositórios com vários Dockerfiles: escolha qual usar neste build.
             </p>
+            <div className="mt-2 space-y-1">
+              <Label>Porta do container</Label>
+              <Input
+                type="number"
+                min={1}
+                max={65535}
+                value={appPort}
+                onChange={(e) => setAppPort(Number(e.target.value))}
+              />
+              <p className="text-xs text-muted-foreground">
+                Porta interna exposta pela imagem (o proxy roteia para ela). Padrão do projeto.
+              </p>
+            </div>
             <p className="text-xs text-muted-foreground">
               Migrations em <span className="text-foreground">build-time</span>? Declare{" "}
               <code>ARG DATABASE_URL</code> + <code>ENV DATABASE_URL=${"{DATABASE_URL}"}</code> no Dockerfile:

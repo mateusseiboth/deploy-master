@@ -19,6 +19,7 @@ export const createEnvironmentSchema: z.ZodType<CreateEnvironmentDTO> = z.object
     })
     .optional(),
   dockerfilePath: z.string().optional(),
+  appPort: z.number().int().positive().max(65535).optional(),
 });
 
 export const renewSchema = z.object({ days: z.number().int().positive().max(30) });

@@ -18,6 +18,9 @@ export class TraefikReverseProxyStrategy implements IReverseProxyStrategy {
       "traefik.enable": "true",
       [`traefik.http.routers.${router}.rule`]: `Host(\`${host}\`)`,
       [`traefik.http.routers.${router}.entrypoints`]: "websecure",
+      // Porta interna do container: sem isto o Traefik não roteia quando a imagem
+      // não expõe exatamente uma porta ("service ... error: port is missing").
+      [`traefik.http.services.${router}.loadbalancer.server.port`]: String(ctx.appPort),
       [`traefik.docker.network`]: ctx.settings.traefikNetwork,
     };
 

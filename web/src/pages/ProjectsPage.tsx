@@ -87,10 +87,10 @@ function CreateProjectDialog({ open, onOpenChange }: { open: boolean; onOpenChan
   const create = useCreateProject();
   const gitlab = useGitlabProjects(open);
   const [form, setForm] = React.useState<CreateProjectInput>({
-    name: "", gitlabProjectId: "", repositoryUrl: "", gitlabToken: "", dockerfilePath: "Dockerfile",
+    name: "", gitlabProjectId: "", repositoryUrl: "", gitlabToken: "", dockerfilePath: "Dockerfile", appPort: 80,
     databaseStrategy: "UPLOAD_SQL", baseDomain: "qa.local",
     requiresDatabase: true, databaseEnvVar: "DATABASE_URL", databaseUrlTemplate: "",
-    productionDbUrl: "", homologationDbUrl: "",
+    productionDbUrl: "", homologationDbUrl: "", appDbUser: "",
     deadline: { defaultDays: 7, maxDays: 30, maxRenewals: 5 },
   });
   const [variables, setVariables] = React.useState<{ key: string; required: boolean }[]>([]);
@@ -159,9 +159,14 @@ function CreateProjectDialog({ open, onOpenChange }: { open: boolean; onOpenChan
         <FormRow label="Token GitLab (opcional — usa o token geral)">
           <Input type="password" value={form.gitlabToken} onChange={(e) => set("gitlabToken", e.target.value)} />
         </FormRow>
-        <FormRow label="Dockerfile padrão">
-          <Input value={form.dockerfilePath ?? ""} onChange={(e) => set("dockerfilePath", e.target.value)} placeholder="Dockerfile" />
-        </FormRow>
+        <div className="grid grid-cols-2 gap-3">
+          <FormRow label="Dockerfile padrão">
+            <Input value={form.dockerfilePath ?? ""} onChange={(e) => set("dockerfilePath", e.target.value)} placeholder="Dockerfile" />
+          </FormRow>
+          <FormRow label="Porta do container">
+            <Input type="number" min={1} max={65535} value={form.appPort ?? 80} onChange={(e) => set("appPort", Number(e.target.value))} placeholder="80" />
+          </FormRow>
+        </div>
         <div className="grid grid-cols-2 gap-3">
           <FormRow label="Estratégia de banco">
             <Select value={form.databaseStrategy} onChange={(e) => set("databaseStrategy", e.target.value as CreateProjectInput["databaseStrategy"])}>
@@ -217,6 +222,17 @@ function CreateProjectDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                   onChange={(e) => set("homologationDbUrl", e.target.value)}
                   placeholder="vazio = usa o padrão global das Configurações"
                 />
+              </FormRow>
+              <FormRow label="Usuário de aplicação (RLS)">
+                <Input
+                  value={form.appDbUser ?? ""}
+                  onChange={(e) => set("appDbUser", e.target.value)}
+                  placeholder="ex.: app_user — vazio = conecta como admin (ignora RLS)"
+                />
+                <p className="text-xs text-muted-foreground">
+                  O container conecta com este usuário (sujeito a RLS). Deve casar com o role
+                  usado nas policies da origem; o sistema cria o usuário e gera a senha.
+                </p>
               </FormRow>
             </>
           )}
@@ -282,6 +298,7 @@ function EditProjectDialog({ project, onClose }: { project: Project; onClose: ()
     repositoryUrl: project.repositoryUrl ?? "",
     gitlabToken: project.gitlabToken ?? "",
     dockerfilePath: project.dockerfilePath ?? "",
+    appPort: project.appPort ?? 80,
     databaseStrategy: project.databaseStrategy,
     baseDomain: project.baseDomain,
     requiresDatabase: project.requiresDatabase ?? true,
@@ -289,6 +306,7 @@ function EditProjectDialog({ project, onClose }: { project: Project; onClose: ()
     databaseUrlTemplate: project.databaseUrlTemplate ?? "",
     productionDbUrl: project.productionDbUrl ?? "",
     homologationDbUrl: project.homologationDbUrl ?? "",
+    appDbUser: project.appDbUser ?? "",
     enabled: project.enabled ?? true,
     deadline: project.deadline
       ? {
@@ -327,9 +345,14 @@ function EditProjectDialog({ project, onClose }: { project: Project; onClose: ()
         <FormRow label="Token GitLab (opcional — usa o token geral)">
           <Input type="password" value={form.gitlabToken ?? ""} onChange={(e) => set("gitlabToken", e.target.value)} placeholder="inalterado se vazio" />
         </FormRow>
-        <FormRow label="Dockerfile">
-          <Input value={form.dockerfilePath ?? ""} onChange={(e) => set("dockerfilePath", e.target.value)} placeholder="Dockerfile" />
-        </FormRow>
+        <div className="grid grid-cols-2 gap-3">
+          <FormRow label="Dockerfile">
+            <Input value={form.dockerfilePath ?? ""} onChange={(e) => set("dockerfilePath", e.target.value)} placeholder="Dockerfile" />
+          </FormRow>
+          <FormRow label="Porta do container">
+            <Input type="number" min={1} max={65535} value={form.appPort ?? 80} onChange={(e) => set("appPort", Number(e.target.value))} placeholder="80" />
+          </FormRow>
+        </div>
         <div className="grid grid-cols-2 gap-3">
           <FormRow label="Estratégia de banco">
             <Select value={form.databaseStrategy} onChange={(e) => set("databaseStrategy", e.target.value as CreateProjectInput["databaseStrategy"])}>
@@ -373,6 +396,17 @@ function EditProjectDialog({ project, onClose }: { project: Project; onClose: ()
                   onChange={(e) => set("homologationDbUrl", e.target.value)}
                   placeholder="vazio = usa o padrão global das Configurações"
                 />
+              </FormRow>
+              <FormRow label="Usuário de aplicação (RLS)">
+                <Input
+                  value={form.appDbUser ?? ""}
+                  onChange={(e) => set("appDbUser", e.target.value)}
+                  placeholder="ex.: app_user — vazio = conecta como admin (ignora RLS)"
+                />
+                <p className="text-xs text-muted-foreground">
+                  O container conecta com este usuário (sujeito a RLS). Deve casar com o role
+                  usado nas policies da origem; o sistema cria o usuário e gera a senha.
+                </p>
               </FormRow>
             </>
           )}

@@ -37,6 +37,8 @@ export interface CreateEnvironmentDTO {
   backup?: { source: BackupSource; filePath?: string };
   /** Dockerfile escolhido para este deploy (override do padrão do projeto). */
   dockerfilePath?: string;
+  /** Porta interna do container neste deploy (override do padrão do projeto). */
+  appPort?: number;
 }
 
 export interface DeployInputs {
@@ -160,6 +162,7 @@ export class EnvironmentService extends BaseService {
       commitDate: dto.commitDate ? new Date(dto.commitDate) : undefined,
       status: "PENDING",
       dockerfilePath: dto.dockerfilePath?.trim() || undefined,
+      appPort: dto.appPort && dto.appPort > 0 ? dto.appPort : undefined,
       expiresAt,
       variableValues: {
         create: Object.entries(overrides).map(([key, value]) => ({ key, value })),
@@ -257,11 +260,13 @@ export class EnvironmentService extends BaseService {
         repositoryUrl: project.repositoryUrl || settings.gitlabBaseUrl,
         gitlabToken: project.gitlabToken || settings.gitlabApiToken,
         dockerfilePath: project.dockerfilePath,
+        appPort: project.appPort,
         buildCommand: project.buildCommand,
         startCommand: project.startCommand,
         // Override por projeto tem prioridade; senão usa o padrão global (settings).
         productionDbUrl: project.productionDbUrl || settings.prodDbUrl || null,
         homologationDbUrl: project.homologationDbUrl || settings.homologDbUrl || null,
+        appDbUser: project.appDbUser,
         requiresDatabase: project.requiresDatabase,
         databaseEnvVar: project.databaseEnvVar,
         databaseUrlTemplate: project.databaseUrlTemplate,
@@ -284,6 +289,7 @@ export class EnvironmentService extends BaseService {
         databaseSource: environment.backup?.source ?? defaultSourceFor(project.databaseStrategy),
         backupFilePath: environment.backup?.filePath ?? undefined,
         dockerfilePath: environment.dockerfilePath ?? undefined,
+        appPort: environment.appPort ?? undefined,
       },
     };
   }
@@ -384,7 +390,7 @@ export class EnvironmentService extends BaseService {
    */
   private requireBackup(
     project: { productionDbUrl: string | null; homologationDbUrl: string | null },
-    backup: CreateEnvironmentDTO["backup"],
+    backup: NonNullable<CreateEnvironmentDTO["backup"]>,
   ): void {
     const rules: Record<BackupSource, () => void> = {
       [BackupSource.UPLOAD]: () => {

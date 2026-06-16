@@ -33,8 +33,10 @@ export interface CreateProjectInput {
   repositoryUrl?: string;
   gitlabToken?: string;
   dockerfilePath?: string;
+  appPort?: number;
   productionDbUrl?: string;
   homologationDbUrl?: string;
+  appDbUser?: string;
   databaseStrategy?: "UPLOAD_SQL" | "COPY_PRODUCTION";
   requiresDatabase?: boolean;
   databaseEnvVar?: string;

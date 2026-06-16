@@ -134,7 +134,22 @@ function EnvironmentRow({
 
   return (
     <TableRow>
-      <TableCell className="font-medium">{env.name}</TableCell>
+      <TableCell className="font-medium">
+        {env.name}
+        {env.url ? (
+          <a
+            href={env.url}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-0.5 flex items-center gap-1 text-xs font-normal text-primary hover:underline"
+          >
+            <span className="truncate">{env.url}</span>
+            <ExternalLink className="h-3 w-3 shrink-0" />
+          </a>
+        ) : (
+          <span className="mt-0.5 block text-xs font-normal text-muted-foreground">sem URL ainda</span>
+        )}
+      </TableCell>
       <TableCell className="text-muted-foreground">{env.project?.name ?? "—"}</TableCell>
       <TableCell className="font-mono text-xs">{env.commitHash.slice(0, 7)}</TableCell>
       <TableCell>

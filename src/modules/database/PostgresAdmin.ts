@@ -17,6 +17,37 @@ function isLoopback(host: string): boolean {
   return !host || host === "localhost" || host === "127.0.0.1" || host === "::1";
 }
 
+/** Remove a query string da connection URL (ex.: `?schema=public` do Prisma),
+ *  inválida para o libpq (`pg_dump`/`psql`). Mantém a URL se não parsear. */
+function stripUrlQuery(url: string): string {
+  try {
+    const u = new URL(url);
+    u.search = "";
+    return u.toString();
+  } catch {
+    return url;
+  }
+}
+
+/** Valida um identificador SQL (nome de role) para uso seguro em DDL interpolado. */
+function assertSafeIdentifier(name: string): void {
+  if (!/^[A-Za-z_][A-Za-z0-9_]{0,62}$/.test(name)) {
+    throw new Error(`Identificador inválido (use apenas letras, números e _): "${name}"`);
+  }
+}
+
+/** Define `connect_timeout` (segundos) na connection URL para falhar rápido se o
+ *  host não responder. Mantém a URL como veio se não parsear. */
+function withConnectTimeout(url: string, seconds: number): string {
+  try {
+    const u = new URL(url);
+    u.searchParams.set("connect_timeout", String(seconds));
+    return u.toString();
+  } catch {
+    return url;
+  }
+}
+
 /** 1º IPv4 não-interno das interfaces de rede (IP de LAN do host). */
 function detectHostIp(): string | undefined {
   for (const addrs of Object.values(networkInterfaces())) {
@@ -104,6 +135,52 @@ export class PostgresAdmin {
     return `postgresql://${adminUser}:${adminPassword}@${host}:${port}/${databaseName}`;
   }
 
+  /** URL de conexão com um usuário específico (ex.: usuário de aplicação/RLS). */
+  async buildUrlFor(databaseName: string, user: string, password: string): Promise<string> {
+    const { host, port } = await this.ensureServer();
+    return `postgresql://${encodeURIComponent(user)}:${encodeURIComponent(password)}@${host}:${port}/${databaseName}`;
+  }
+
+  /**
+   * Garante um role de LOGIN (idempotente) com a senha informada. NÃO é superuser
+   * e NÃO tem BYPASSRLS (padrão do CREATE ROLE) — portanto fica SUJEITO a RLS, ao
+   * contrário do admin. Cluster-wide: criado uma vez, reutilizado por todos os
+   * ambientes. Deve existir ANTES da cópia para `CREATE POLICY ... TO <user>` aplicar.
+   */
+  async ensureLoginRole(user: string, password: string): Promise<void> {
+    assertSafeIdentifier(user);
+    const pass = password.replace(/'/g, "''");
+    const sql = `DO $$ BEGIN
+      IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '${user}') THEN
+        CREATE ROLE "${user}" LOGIN PASSWORD '${pass}';
+      ELSE
+        ALTER ROLE "${user}" LOGIN PASSWORD '${pass}';
+      END IF;
+    END $$;`;
+    await exec("psql", [...(await this.baseArgs()), "-d", "postgres", "-v", "ON_ERROR_STOP=1", "-c", sql], {
+      env: this.adminEnv,
+    });
+  }
+
+  /** Concede ao usuário de aplicação acesso completo (DML) ao banco copiado.
+   *  Como ele NÃO é dono das tabelas (restauradas com --no-owner, dono = admin),
+   *  permanece sujeito às policies de RLS. */
+  async grantDatabaseAccess(databaseName: string, user: string): Promise<void> {
+    assertSafeIdentifier(user);
+    const sql = `
+      GRANT CONNECT ON DATABASE "${databaseName}" TO "${user}";
+      GRANT USAGE ON SCHEMA public TO "${user}";
+      GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "${user}";
+      GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "${user}";
+      GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO "${user}";
+      ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO "${user}";
+      ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO "${user}";
+    `;
+    await exec("psql", [...(await this.baseArgs()), "-d", databaseName, "-v", "ON_ERROR_STOP=1", "-c", sql], {
+      env: this.adminEnv,
+    });
+  }
+
   async createDatabase(databaseName: string): Promise<void> {
     // idempotente: ignora erro de "já existe"
     const result = await exec("createdb", [...(await this.baseArgs()), databaseName], {
@@ -134,11 +211,21 @@ export class PostgresAdmin {
    * STREAMING (sem arquivo intermediário). `sourceUrl` aponta para produção
    * (recomenda-se usuário read-only).
    */
-  async copyFromProduction(sourceUrl: string, targetDatabase: string): Promise<void> {
+  async copyFromProduction(
+    sourceUrl: string,
+    targetDatabase: string,
+    onProgress?: (line: string) => void,
+  ): Promise<void> {
+    // Remove parâmetros de query (ex.: `?schema=public`, do Prisma) que NÃO são
+    // válidos para o libpq, e adiciona `connect_timeout` para falhar rápido se o
+    // host de origem não responder (em vez de pendurar o deploy indefinidamente).
+    const dumpUrl = withConnectTimeout(stripUrlQuery(sourceUrl), 10);
     await pipe(
-      { command: "pg_dump", args: ["--no-owner", "--no-acl", sourceUrl] },
+      // `--verbose` + `--no-password`: emite o progresso por tabela no stderr e
+      // nunca trava pedindo senha interativamente.
+      { command: "pg_dump", args: ["--no-owner", "--no-acl", "--no-password", "--verbose", dumpUrl] },
       { command: "psql", args: [...(await this.baseArgs()), "-d", targetDatabase] },
-      { env: this.adminEnv },
+      { env: this.adminEnv, onStderr: onProgress },
     );
   }
 

@@ -20,8 +20,18 @@ export type ProjectModel = runtime.Types.Result.DefaultSelection<Prisma.$Project
 
 export type AggregateProject = {
   _count: ProjectCountAggregateOutputType | null
+  _avg: ProjectAvgAggregateOutputType | null
+  _sum: ProjectSumAggregateOutputType | null
   _min: ProjectMinAggregateOutputType | null
   _max: ProjectMaxAggregateOutputType | null
+}
+
+export type ProjectAvgAggregateOutputType = {
+  appPort: number | null
+}
+
+export type ProjectSumAggregateOutputType = {
+  appPort: number | null
 }
 
 export type ProjectMinAggregateOutputType = {
@@ -31,10 +41,12 @@ export type ProjectMinAggregateOutputType = {
   repositoryUrl: string | null
   gitlabToken: string | null
   dockerfilePath: string | null
+  appPort: number | null
   buildCommand: string | null
   startCommand: string | null
   productionDbUrl: string | null
   homologationDbUrl: string | null
+  appDbUser: string | null
   requiresDatabase: boolean | null
   databaseEnvVar: string | null
   databaseUrlTemplate: string | null
@@ -55,10 +67,12 @@ export type ProjectMaxAggregateOutputType = {
   repositoryUrl: string | null
   gitlabToken: string | null
   dockerfilePath: string | null
+  appPort: number | null
   buildCommand: string | null
   startCommand: string | null
   productionDbUrl: string | null
   homologationDbUrl: string | null
+  appDbUser: string | null
   requiresDatabase: boolean | null
   databaseEnvVar: string | null
   databaseUrlTemplate: string | null
@@ -79,10 +93,12 @@ export type ProjectCountAggregateOutputType = {
   repositoryUrl: number
   gitlabToken: number
   dockerfilePath: number
+  appPort: number
   buildCommand: number
   startCommand: number
   productionDbUrl: number
   homologationDbUrl: number
+  appDbUser: number
   requiresDatabase: number
   databaseEnvVar: number
   databaseUrlTemplate: number
@@ -98,6 +114,14 @@ export type ProjectCountAggregateOutputType = {
 }
 
 
+export type ProjectAvgAggregateInputType = {
+  appPort?: true
+}
+
+export type ProjectSumAggregateInputType = {
+  appPort?: true
+}
+
 export type ProjectMinAggregateInputType = {
   id?: true
   name?: true
@@ -105,10 +129,12 @@ export type ProjectMinAggregateInputType = {
   repositoryUrl?: true
   gitlabToken?: true
   dockerfilePath?: true
+  appPort?: true
   buildCommand?: true
   startCommand?: true
   productionDbUrl?: true
   homologationDbUrl?: true
+  appDbUser?: true
   requiresDatabase?: true
   databaseEnvVar?: true
   databaseUrlTemplate?: true
@@ -129,10 +155,12 @@ export type ProjectMaxAggregateInputType = {
   repositoryUrl?: true
   gitlabToken?: true
   dockerfilePath?: true
+  appPort?: true
   buildCommand?: true
   startCommand?: true
   productionDbUrl?: true
   homologationDbUrl?: true
+  appDbUser?: true
   requiresDatabase?: true
   databaseEnvVar?: true
   databaseUrlTemplate?: true
@@ -153,10 +181,12 @@ export type ProjectCountAggregateInputType = {
   repositoryUrl?: true
   gitlabToken?: true
   dockerfilePath?: true
+  appPort?: true
   buildCommand?: true
   startCommand?: true
   productionDbUrl?: true
   homologationDbUrl?: true
+  appDbUser?: true
   requiresDatabase?: true
   databaseEnvVar?: true
   databaseUrlTemplate?: true
@@ -209,6 +239,18 @@ export type ProjectAggregateArgs<ExtArgs extends runtime.Types.Extensions.Intern
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: ProjectAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: ProjectSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: ProjectMinAggregateInputType
@@ -239,6 +281,8 @@ export type ProjectGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   _count?: ProjectCountAggregateInputType | true
+  _avg?: ProjectAvgAggregateInputType
+  _sum?: ProjectSumAggregateInputType
   _min?: ProjectMinAggregateInputType
   _max?: ProjectMaxAggregateInputType
 }
@@ -250,10 +294,12 @@ export type ProjectGroupByOutputType = {
   repositoryUrl: string
   gitlabToken: string
   dockerfilePath: string
+  appPort: number
   buildCommand: string | null
   startCommand: string | null
   productionDbUrl: string | null
   homologationDbUrl: string | null
+  appDbUser: string | null
   requiresDatabase: boolean
   databaseEnvVar: string
   databaseUrlTemplate: string | null
@@ -266,6 +312,8 @@ export type ProjectGroupByOutputType = {
   createdAt: Date
   updatedAt: Date
   _count: ProjectCountAggregateOutputType | null
+  _avg: ProjectAvgAggregateOutputType | null
+  _sum: ProjectSumAggregateOutputType | null
   _min: ProjectMinAggregateOutputType | null
   _max: ProjectMaxAggregateOutputType | null
 }
@@ -295,10 +343,12 @@ export type ProjectWhereInput = {
   repositoryUrl?: Prisma.StringFilter<"Project"> | string
   gitlabToken?: Prisma.StringFilter<"Project"> | string
   dockerfilePath?: Prisma.StringFilter<"Project"> | string
+  appPort?: Prisma.IntFilter<"Project"> | number
   buildCommand?: Prisma.StringNullableFilter<"Project"> | string | null
   startCommand?: Prisma.StringNullableFilter<"Project"> | string | null
   productionDbUrl?: Prisma.StringNullableFilter<"Project"> | string | null
   homologationDbUrl?: Prisma.StringNullableFilter<"Project"> | string | null
+  appDbUser?: Prisma.StringNullableFilter<"Project"> | string | null
   requiresDatabase?: Prisma.BoolFilter<"Project"> | boolean
   databaseEnvVar?: Prisma.StringFilter<"Project"> | string
   databaseUrlTemplate?: Prisma.StringNullableFilter<"Project"> | string | null
@@ -322,10 +372,12 @@ export type ProjectOrderByWithRelationInput = {
   repositoryUrl?: Prisma.SortOrder
   gitlabToken?: Prisma.SortOrder
   dockerfilePath?: Prisma.SortOrder
+  appPort?: Prisma.SortOrder
   buildCommand?: Prisma.SortOrderInput | Prisma.SortOrder
   startCommand?: Prisma.SortOrderInput | Prisma.SortOrder
   productionDbUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   homologationDbUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  appDbUser?: Prisma.SortOrderInput | Prisma.SortOrder
   requiresDatabase?: Prisma.SortOrder
   databaseEnvVar?: Prisma.SortOrder
   databaseUrlTemplate?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -352,10 +404,12 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   repositoryUrl?: Prisma.StringFilter<"Project"> | string
   gitlabToken?: Prisma.StringFilter<"Project"> | string
   dockerfilePath?: Prisma.StringFilter<"Project"> | string
+  appPort?: Prisma.IntFilter<"Project"> | number
   buildCommand?: Prisma.StringNullableFilter<"Project"> | string | null
   startCommand?: Prisma.StringNullableFilter<"Project"> | string | null
   productionDbUrl?: Prisma.StringNullableFilter<"Project"> | string | null
   homologationDbUrl?: Prisma.StringNullableFilter<"Project"> | string | null
+  appDbUser?: Prisma.StringNullableFilter<"Project"> | string | null
   requiresDatabase?: Prisma.BoolFilter<"Project"> | boolean
   databaseEnvVar?: Prisma.StringFilter<"Project"> | string
   databaseUrlTemplate?: Prisma.StringNullableFilter<"Project"> | string | null
@@ -379,10 +433,12 @@ export type ProjectOrderByWithAggregationInput = {
   repositoryUrl?: Prisma.SortOrder
   gitlabToken?: Prisma.SortOrder
   dockerfilePath?: Prisma.SortOrder
+  appPort?: Prisma.SortOrder
   buildCommand?: Prisma.SortOrderInput | Prisma.SortOrder
   startCommand?: Prisma.SortOrderInput | Prisma.SortOrder
   productionDbUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   homologationDbUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  appDbUser?: Prisma.SortOrderInput | Prisma.SortOrder
   requiresDatabase?: Prisma.SortOrder
   databaseEnvVar?: Prisma.SortOrder
   databaseUrlTemplate?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -395,8 +451,10 @@ export type ProjectOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ProjectCountOrderByAggregateInput
+  _avg?: Prisma.ProjectAvgOrderByAggregateInput
   _max?: Prisma.ProjectMaxOrderByAggregateInput
   _min?: Prisma.ProjectMinOrderByAggregateInput
+  _sum?: Prisma.ProjectSumOrderByAggregateInput
 }
 
 export type ProjectScalarWhereWithAggregatesInput = {
@@ -409,10 +467,12 @@ export type ProjectScalarWhereWithAggregatesInput = {
   repositoryUrl?: Prisma.StringWithAggregatesFilter<"Project"> | string
   gitlabToken?: Prisma.StringWithAggregatesFilter<"Project"> | string
   dockerfilePath?: Prisma.StringWithAggregatesFilter<"Project"> | string
+  appPort?: Prisma.IntWithAggregatesFilter<"Project"> | number
   buildCommand?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   startCommand?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   productionDbUrl?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   homologationDbUrl?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
+  appDbUser?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   requiresDatabase?: Prisma.BoolWithAggregatesFilter<"Project"> | boolean
   databaseEnvVar?: Prisma.StringWithAggregatesFilter<"Project"> | string
   databaseUrlTemplate?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
@@ -433,10 +493,12 @@ export type ProjectCreateInput = {
   repositoryUrl?: string
   gitlabToken?: string
   dockerfilePath?: string
+  appPort?: number
   buildCommand?: string | null
   startCommand?: string | null
   productionDbUrl?: string | null
   homologationDbUrl?: string | null
+  appDbUser?: string | null
   requiresDatabase?: boolean
   databaseEnvVar?: string
   databaseUrlTemplate?: string | null
@@ -460,10 +522,12 @@ export type ProjectUncheckedCreateInput = {
   repositoryUrl?: string
   gitlabToken?: string
   dockerfilePath?: string
+  appPort?: number
   buildCommand?: string | null
   startCommand?: string | null
   productionDbUrl?: string | null
   homologationDbUrl?: string | null
+  appDbUser?: string | null
   requiresDatabase?: boolean
   databaseEnvVar?: string
   databaseUrlTemplate?: string | null
@@ -487,10 +551,12 @@ export type ProjectUpdateInput = {
   repositoryUrl?: Prisma.StringFieldUpdateOperationsInput | string
   gitlabToken?: Prisma.StringFieldUpdateOperationsInput | string
   dockerfilePath?: Prisma.StringFieldUpdateOperationsInput | string
+  appPort?: Prisma.IntFieldUpdateOperationsInput | number
   buildCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productionDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   homologationDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appDbUser?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresDatabase?: Prisma.BoolFieldUpdateOperationsInput | boolean
   databaseEnvVar?: Prisma.StringFieldUpdateOperationsInput | string
   databaseUrlTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -514,10 +580,12 @@ export type ProjectUncheckedUpdateInput = {
   repositoryUrl?: Prisma.StringFieldUpdateOperationsInput | string
   gitlabToken?: Prisma.StringFieldUpdateOperationsInput | string
   dockerfilePath?: Prisma.StringFieldUpdateOperationsInput | string
+  appPort?: Prisma.IntFieldUpdateOperationsInput | number
   buildCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productionDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   homologationDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appDbUser?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresDatabase?: Prisma.BoolFieldUpdateOperationsInput | boolean
   databaseEnvVar?: Prisma.StringFieldUpdateOperationsInput | string
   databaseUrlTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -541,10 +609,12 @@ export type ProjectCreateManyInput = {
   repositoryUrl?: string
   gitlabToken?: string
   dockerfilePath?: string
+  appPort?: number
   buildCommand?: string | null
   startCommand?: string | null
   productionDbUrl?: string | null
   homologationDbUrl?: string | null
+  appDbUser?: string | null
   requiresDatabase?: boolean
   databaseEnvVar?: string
   databaseUrlTemplate?: string | null
@@ -565,10 +635,12 @@ export type ProjectUpdateManyMutationInput = {
   repositoryUrl?: Prisma.StringFieldUpdateOperationsInput | string
   gitlabToken?: Prisma.StringFieldUpdateOperationsInput | string
   dockerfilePath?: Prisma.StringFieldUpdateOperationsInput | string
+  appPort?: Prisma.IntFieldUpdateOperationsInput | number
   buildCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productionDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   homologationDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appDbUser?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresDatabase?: Prisma.BoolFieldUpdateOperationsInput | boolean
   databaseEnvVar?: Prisma.StringFieldUpdateOperationsInput | string
   databaseUrlTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -589,10 +661,12 @@ export type ProjectUncheckedUpdateManyInput = {
   repositoryUrl?: Prisma.StringFieldUpdateOperationsInput | string
   gitlabToken?: Prisma.StringFieldUpdateOperationsInput | string
   dockerfilePath?: Prisma.StringFieldUpdateOperationsInput | string
+  appPort?: Prisma.IntFieldUpdateOperationsInput | number
   buildCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productionDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   homologationDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appDbUser?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresDatabase?: Prisma.BoolFieldUpdateOperationsInput | boolean
   databaseEnvVar?: Prisma.StringFieldUpdateOperationsInput | string
   databaseUrlTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -613,10 +687,12 @@ export type ProjectCountOrderByAggregateInput = {
   repositoryUrl?: Prisma.SortOrder
   gitlabToken?: Prisma.SortOrder
   dockerfilePath?: Prisma.SortOrder
+  appPort?: Prisma.SortOrder
   buildCommand?: Prisma.SortOrder
   startCommand?: Prisma.SortOrder
   productionDbUrl?: Prisma.SortOrder
   homologationDbUrl?: Prisma.SortOrder
+  appDbUser?: Prisma.SortOrder
   requiresDatabase?: Prisma.SortOrder
   databaseEnvVar?: Prisma.SortOrder
   databaseUrlTemplate?: Prisma.SortOrder
@@ -630,6 +706,10 @@ export type ProjectCountOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
+export type ProjectAvgOrderByAggregateInput = {
+  appPort?: Prisma.SortOrder
+}
+
 export type ProjectMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
@@ -637,10 +717,12 @@ export type ProjectMaxOrderByAggregateInput = {
   repositoryUrl?: Prisma.SortOrder
   gitlabToken?: Prisma.SortOrder
   dockerfilePath?: Prisma.SortOrder
+  appPort?: Prisma.SortOrder
   buildCommand?: Prisma.SortOrder
   startCommand?: Prisma.SortOrder
   productionDbUrl?: Prisma.SortOrder
   homologationDbUrl?: Prisma.SortOrder
+  appDbUser?: Prisma.SortOrder
   requiresDatabase?: Prisma.SortOrder
   databaseEnvVar?: Prisma.SortOrder
   databaseUrlTemplate?: Prisma.SortOrder
@@ -661,10 +743,12 @@ export type ProjectMinOrderByAggregateInput = {
   repositoryUrl?: Prisma.SortOrder
   gitlabToken?: Prisma.SortOrder
   dockerfilePath?: Prisma.SortOrder
+  appPort?: Prisma.SortOrder
   buildCommand?: Prisma.SortOrder
   startCommand?: Prisma.SortOrder
   productionDbUrl?: Prisma.SortOrder
   homologationDbUrl?: Prisma.SortOrder
+  appDbUser?: Prisma.SortOrder
   requiresDatabase?: Prisma.SortOrder
   databaseEnvVar?: Prisma.SortOrder
   databaseUrlTemplate?: Prisma.SortOrder
@@ -676,6 +760,10 @@ export type ProjectMinOrderByAggregateInput = {
   enabled?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type ProjectSumOrderByAggregateInput = {
+  appPort?: Prisma.SortOrder
 }
 
 export type ProjectScalarRelationFilter = {
@@ -748,10 +836,12 @@ export type ProjectCreateWithoutVariablesInput = {
   repositoryUrl?: string
   gitlabToken?: string
   dockerfilePath?: string
+  appPort?: number
   buildCommand?: string | null
   startCommand?: string | null
   productionDbUrl?: string | null
   homologationDbUrl?: string | null
+  appDbUser?: string | null
   requiresDatabase?: boolean
   databaseEnvVar?: string
   databaseUrlTemplate?: string | null
@@ -774,10 +864,12 @@ export type ProjectUncheckedCreateWithoutVariablesInput = {
   repositoryUrl?: string
   gitlabToken?: string
   dockerfilePath?: string
+  appPort?: number
   buildCommand?: string | null
   startCommand?: string | null
   productionDbUrl?: string | null
   homologationDbUrl?: string | null
+  appDbUser?: string | null
   requiresDatabase?: boolean
   databaseEnvVar?: string
   databaseUrlTemplate?: string | null
@@ -816,10 +908,12 @@ export type ProjectUpdateWithoutVariablesInput = {
   repositoryUrl?: Prisma.StringFieldUpdateOperationsInput | string
   gitlabToken?: Prisma.StringFieldUpdateOperationsInput | string
   dockerfilePath?: Prisma.StringFieldUpdateOperationsInput | string
+  appPort?: Prisma.IntFieldUpdateOperationsInput | number
   buildCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productionDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   homologationDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appDbUser?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresDatabase?: Prisma.BoolFieldUpdateOperationsInput | boolean
   databaseEnvVar?: Prisma.StringFieldUpdateOperationsInput | string
   databaseUrlTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -842,10 +936,12 @@ export type ProjectUncheckedUpdateWithoutVariablesInput = {
   repositoryUrl?: Prisma.StringFieldUpdateOperationsInput | string
   gitlabToken?: Prisma.StringFieldUpdateOperationsInput | string
   dockerfilePath?: Prisma.StringFieldUpdateOperationsInput | string
+  appPort?: Prisma.IntFieldUpdateOperationsInput | number
   buildCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productionDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   homologationDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appDbUser?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresDatabase?: Prisma.BoolFieldUpdateOperationsInput | boolean
   databaseEnvVar?: Prisma.StringFieldUpdateOperationsInput | string
   databaseUrlTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -868,10 +964,12 @@ export type ProjectCreateWithoutDeadlineInput = {
   repositoryUrl?: string
   gitlabToken?: string
   dockerfilePath?: string
+  appPort?: number
   buildCommand?: string | null
   startCommand?: string | null
   productionDbUrl?: string | null
   homologationDbUrl?: string | null
+  appDbUser?: string | null
   requiresDatabase?: boolean
   databaseEnvVar?: string
   databaseUrlTemplate?: string | null
@@ -894,10 +992,12 @@ export type ProjectUncheckedCreateWithoutDeadlineInput = {
   repositoryUrl?: string
   gitlabToken?: string
   dockerfilePath?: string
+  appPort?: number
   buildCommand?: string | null
   startCommand?: string | null
   productionDbUrl?: string | null
   homologationDbUrl?: string | null
+  appDbUser?: string | null
   requiresDatabase?: boolean
   databaseEnvVar?: string
   databaseUrlTemplate?: string | null
@@ -936,10 +1036,12 @@ export type ProjectUpdateWithoutDeadlineInput = {
   repositoryUrl?: Prisma.StringFieldUpdateOperationsInput | string
   gitlabToken?: Prisma.StringFieldUpdateOperationsInput | string
   dockerfilePath?: Prisma.StringFieldUpdateOperationsInput | string
+  appPort?: Prisma.IntFieldUpdateOperationsInput | number
   buildCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productionDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   homologationDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appDbUser?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresDatabase?: Prisma.BoolFieldUpdateOperationsInput | boolean
   databaseEnvVar?: Prisma.StringFieldUpdateOperationsInput | string
   databaseUrlTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -962,10 +1064,12 @@ export type ProjectUncheckedUpdateWithoutDeadlineInput = {
   repositoryUrl?: Prisma.StringFieldUpdateOperationsInput | string
   gitlabToken?: Prisma.StringFieldUpdateOperationsInput | string
   dockerfilePath?: Prisma.StringFieldUpdateOperationsInput | string
+  appPort?: Prisma.IntFieldUpdateOperationsInput | number
   buildCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productionDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   homologationDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appDbUser?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresDatabase?: Prisma.BoolFieldUpdateOperationsInput | boolean
   databaseEnvVar?: Prisma.StringFieldUpdateOperationsInput | string
   databaseUrlTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -988,10 +1092,12 @@ export type ProjectCreateWithoutEnvironmentsInput = {
   repositoryUrl?: string
   gitlabToken?: string
   dockerfilePath?: string
+  appPort?: number
   buildCommand?: string | null
   startCommand?: string | null
   productionDbUrl?: string | null
   homologationDbUrl?: string | null
+  appDbUser?: string | null
   requiresDatabase?: boolean
   databaseEnvVar?: string
   databaseUrlTemplate?: string | null
@@ -1014,10 +1120,12 @@ export type ProjectUncheckedCreateWithoutEnvironmentsInput = {
   repositoryUrl?: string
   gitlabToken?: string
   dockerfilePath?: string
+  appPort?: number
   buildCommand?: string | null
   startCommand?: string | null
   productionDbUrl?: string | null
   homologationDbUrl?: string | null
+  appDbUser?: string | null
   requiresDatabase?: boolean
   databaseEnvVar?: string
   databaseUrlTemplate?: string | null
@@ -1056,10 +1164,12 @@ export type ProjectUpdateWithoutEnvironmentsInput = {
   repositoryUrl?: Prisma.StringFieldUpdateOperationsInput | string
   gitlabToken?: Prisma.StringFieldUpdateOperationsInput | string
   dockerfilePath?: Prisma.StringFieldUpdateOperationsInput | string
+  appPort?: Prisma.IntFieldUpdateOperationsInput | number
   buildCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productionDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   homologationDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appDbUser?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresDatabase?: Prisma.BoolFieldUpdateOperationsInput | boolean
   databaseEnvVar?: Prisma.StringFieldUpdateOperationsInput | string
   databaseUrlTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1082,10 +1192,12 @@ export type ProjectUncheckedUpdateWithoutEnvironmentsInput = {
   repositoryUrl?: Prisma.StringFieldUpdateOperationsInput | string
   gitlabToken?: Prisma.StringFieldUpdateOperationsInput | string
   dockerfilePath?: Prisma.StringFieldUpdateOperationsInput | string
+  appPort?: Prisma.IntFieldUpdateOperationsInput | number
   buildCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startCommand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productionDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   homologationDbUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appDbUser?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresDatabase?: Prisma.BoolFieldUpdateOperationsInput | boolean
   databaseEnvVar?: Prisma.StringFieldUpdateOperationsInput | string
   databaseUrlTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1148,10 +1260,12 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   repositoryUrl?: boolean
   gitlabToken?: boolean
   dockerfilePath?: boolean
+  appPort?: boolean
   buildCommand?: boolean
   startCommand?: boolean
   productionDbUrl?: boolean
   homologationDbUrl?: boolean
+  appDbUser?: boolean
   requiresDatabase?: boolean
   databaseEnvVar?: boolean
   databaseUrlTemplate?: boolean
@@ -1176,10 +1290,12 @@ export type ProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   repositoryUrl?: boolean
   gitlabToken?: boolean
   dockerfilePath?: boolean
+  appPort?: boolean
   buildCommand?: boolean
   startCommand?: boolean
   productionDbUrl?: boolean
   homologationDbUrl?: boolean
+  appDbUser?: boolean
   requiresDatabase?: boolean
   databaseEnvVar?: boolean
   databaseUrlTemplate?: boolean
@@ -1200,10 +1316,12 @@ export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   repositoryUrl?: boolean
   gitlabToken?: boolean
   dockerfilePath?: boolean
+  appPort?: boolean
   buildCommand?: boolean
   startCommand?: boolean
   productionDbUrl?: boolean
   homologationDbUrl?: boolean
+  appDbUser?: boolean
   requiresDatabase?: boolean
   databaseEnvVar?: boolean
   databaseUrlTemplate?: boolean
@@ -1224,10 +1342,12 @@ export type ProjectSelectScalar = {
   repositoryUrl?: boolean
   gitlabToken?: boolean
   dockerfilePath?: boolean
+  appPort?: boolean
   buildCommand?: boolean
   startCommand?: boolean
   productionDbUrl?: boolean
   homologationDbUrl?: boolean
+  appDbUser?: boolean
   requiresDatabase?: boolean
   databaseEnvVar?: boolean
   databaseUrlTemplate?: boolean
@@ -1241,7 +1361,7 @@ export type ProjectSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "gitlabProjectId" | "repositoryUrl" | "gitlabToken" | "dockerfilePath" | "buildCommand" | "startCommand" | "productionDbUrl" | "homologationDbUrl" | "requiresDatabase" | "databaseEnvVar" | "databaseUrlTemplate" | "databaseStrategy" | "hostnameFormat" | "certificateProvider" | "reverseProxy" | "baseDomain" | "enabled" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
+export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "gitlabProjectId" | "repositoryUrl" | "gitlabToken" | "dockerfilePath" | "appPort" | "buildCommand" | "startCommand" | "productionDbUrl" | "homologationDbUrl" | "appDbUser" | "requiresDatabase" | "databaseEnvVar" | "databaseUrlTemplate" | "databaseStrategy" | "hostnameFormat" | "certificateProvider" | "reverseProxy" | "baseDomain" | "enabled" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   variables?: boolean | Prisma.Project$variablesArgs<ExtArgs>
   deadline?: boolean | Prisma.Project$deadlineArgs<ExtArgs>
@@ -1265,10 +1385,12 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     repositoryUrl: string
     gitlabToken: string
     dockerfilePath: string
+    appPort: number
     buildCommand: string | null
     startCommand: string | null
     productionDbUrl: string | null
     homologationDbUrl: string | null
+    appDbUser: string | null
     requiresDatabase: boolean
     databaseEnvVar: string
     databaseUrlTemplate: string | null
@@ -1712,10 +1834,12 @@ export interface ProjectFieldRefs {
   readonly repositoryUrl: Prisma.FieldRef<"Project", 'String'>
   readonly gitlabToken: Prisma.FieldRef<"Project", 'String'>
   readonly dockerfilePath: Prisma.FieldRef<"Project", 'String'>
+  readonly appPort: Prisma.FieldRef<"Project", 'Int'>
   readonly buildCommand: Prisma.FieldRef<"Project", 'String'>
   readonly startCommand: Prisma.FieldRef<"Project", 'String'>
   readonly productionDbUrl: Prisma.FieldRef<"Project", 'String'>
   readonly homologationDbUrl: Prisma.FieldRef<"Project", 'String'>
+  readonly appDbUser: Prisma.FieldRef<"Project", 'String'>
   readonly requiresDatabase: Prisma.FieldRef<"Project", 'Boolean'>
   readonly databaseEnvVar: Prisma.FieldRef<"Project", 'String'>
   readonly databaseUrlTemplate: Prisma.FieldRef<"Project", 'String'>

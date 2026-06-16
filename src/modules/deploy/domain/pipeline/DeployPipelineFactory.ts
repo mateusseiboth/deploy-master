@@ -57,7 +57,7 @@ export class DeployPipelineFactory {
       .add(new CreateNetworkStep(this.docker));
 
     if (project.requiresDatabase) {
-      builder.add(new ProvisionDatabaseStep(this.databaseStrategies.create(ctx.request.databaseSource)));
+      builder.add(new ProvisionDatabaseStep(this.databaseStrategies.create(ctx.request.databaseSource), this.postgres));
     }
 
     return builder

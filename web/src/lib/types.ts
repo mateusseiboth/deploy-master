@@ -46,10 +46,12 @@ export interface Project {
   repositoryUrl: string;
   gitlabToken?: string;
   dockerfilePath?: string;
+  appPort?: number;
   buildCommand?: string | null;
   startCommand?: string | null;
   productionDbUrl?: string | null;
   homologationDbUrl?: string | null;
+  appDbUser?: string | null;
   requiresDatabase?: boolean;
   databaseEnvVar?: string;
   databaseUrlTemplate?: string | null;
@@ -81,6 +83,7 @@ export interface Environment {
   hostname?: string | null;
   url?: string | null;
   dockerfilePath?: string | null;
+  appPort?: number | null;
   deployLog?: string | null;
   deployPhase?: string | null;
   failureReason?: string | null;

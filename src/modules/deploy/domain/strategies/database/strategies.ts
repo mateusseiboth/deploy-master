@@ -69,8 +69,18 @@ export class CopyDatabaseStrategy implements IDatabaseProvisionStrategy {
     }
 
     const databaseName = databaseNameFor(ctx);
+    // Slate limpo: dropa restos de tentativas anteriores (ex.: cópia que falhou
+    // no meio) — senão `createdb` ignora "já existe" e a cópia herda lixo, o que
+    // faz o `migrate deploy` do build bater em "type already exists".
+    await this.pg.dropDatabase(databaseName);
     await this.pg.createDatabase(databaseName);
-    await this.pg.copyFromProduction(sourceUrl, databaseName);
+
+    // Cópia COMPLETA (schema + dados + `_prisma_migrations`): o ambiente fica
+    // idêntico à origem e o `prisma migrate deploy` do build vira NO-OP (todas as
+    // migrations já constam como aplicadas) — não tenta recriar tipos/tabelas.
+    ctx.log(`Iniciando cópia completa do banco de ${this.sourceLabel} (pg_dump → ${databaseName})…`);
+    await this.pg.copyFromProduction(sourceUrl, databaseName, (line) => ctx.log(line));
+    ctx.log(`Cópia do banco de ${this.sourceLabel} concluída.`);
 
     return { databaseName, databaseUrl: await this.pg.buildUrl(databaseName) };
   }

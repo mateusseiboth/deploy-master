@@ -183,10 +183,16 @@ model Project {
   repositoryUrl       String               @default("")
   gitlabToken         String               @default("") // override por projeto (secret)
   dockerfilePath      String               @default("Dockerfile")
+  // Porta interna que o container expõe (Traefik roteia para ela).
+  appPort             Int                  @default(80)
   buildCommand        String?
   startCommand        String?
   productionDbUrl     String? // origem para cópia de PRODUÇÃO
   homologationDbUrl   String? // origem para cópia de HOMOLOGAÇÃO
+  // Usuário de aplicação (role) com que o container conecta — sujeito a RLS.
+  // Deve casar com o role usado nas policies da origem. Vazio = conecta como
+  // admin (bypassa RLS). A senha é gerada pelo sistema a cada deploy.
+  appDbUser           String?
 
   // Banco de dados do ambiente. Quando `requiresDatabase`, o sistema gera a URL
   // do banco efêmero automaticamente e injeta na variável `databaseEnvVar`. Se um
@@ -280,6 +286,8 @@ model Environment {
   failureReason String?
   // Dockerfile escolhido para este deploy (override do padrão do projeto).
   dockerfilePath String?
+  // Porta interna do container neste deploy (override do padrão do projeto).
+  appPort        Int?
   // Trilha de progresso do pipeline (clone → build → ... → health), atualizada
   // ao vivo pelo worker e consumida via SSE. Também persistida em FAILED.
   deployLog     String?

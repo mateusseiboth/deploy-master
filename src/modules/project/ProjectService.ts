@@ -17,10 +17,12 @@ export interface CreateProjectDTO {
   repositoryUrl?: string;
   gitlabToken?: string;
   dockerfilePath?: string;
+  appPort?: number;
   buildCommand?: string;
   startCommand?: string;
   productionDbUrl?: string;
   homologationDbUrl?: string;
+  appDbUser?: string;
   requiresDatabase?: boolean;
   databaseEnvVar?: string;
   databaseUrlTemplate?: string;
@@ -62,10 +64,12 @@ export class ProjectService extends BaseService {
       repositoryUrl: dto.repositoryUrl ?? "",
       gitlabToken: dto.gitlabToken ?? "",
       dockerfilePath: dto.dockerfilePath ?? "Dockerfile",
+      appPort: dto.appPort && dto.appPort > 0 ? dto.appPort : 80,
       buildCommand: dto.buildCommand,
       startCommand: dto.startCommand,
       productionDbUrl: dto.productionDbUrl,
       homologationDbUrl: dto.homologationDbUrl,
+      appDbUser: dto.appDbUser?.trim() || undefined,
       requiresDatabase: dto.requiresDatabase ?? true,
       databaseEnvVar: dto.databaseEnvVar?.trim() || "DATABASE_URL",
       databaseUrlTemplate: dto.databaseUrlTemplate,
@@ -92,10 +96,12 @@ export class ProjectService extends BaseService {
       repositoryUrl: dto.repositoryUrl,
       gitlabToken: dto.gitlabToken,
       dockerfilePath: dto.dockerfilePath,
+      appPort: dto.appPort,
       buildCommand: dto.buildCommand,
       startCommand: dto.startCommand,
       productionDbUrl: dto.productionDbUrl,
       homologationDbUrl: dto.homologationDbUrl,
+      appDbUser: dto.appDbUser,
       requiresDatabase: dto.requiresDatabase,
       databaseEnvVar: dto.databaseEnvVar?.trim() || undefined,
       databaseUrlTemplate: dto.databaseUrlTemplate,

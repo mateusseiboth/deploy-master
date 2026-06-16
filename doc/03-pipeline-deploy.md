@@ -63,12 +63,43 @@ cada deploy. O `Project.databaseStrategy` apenas pré-seleciona a opção na tel
 `CopyDatabaseStrategy` é parametrizada por um resolver de URL de origem — a mesma
 classe atende produção e homologação (parametrização > duplicação).
 
+**Cópia COMPLETA antes do build (inclui `_prisma_migrations`):** o banco isolado é
+dropado+recriado (slate limpo) e recebe um `pg_dump` completo da origem — schema,
+dados e a tabela `_prisma_migrations`. Como a cópia roda ANTES do `BuildImage`, o
+`prisma migrate deploy` do Dockerfile encontra todas as migrations já aplicadas e
+vira **no-op** (não tenta recriar tipos/tabelas → sem `type "X" already exists`).
+A URL de origem tem a query (`?schema=public`) removida e `connect_timeout` para
+não pendurar; o progresso do `pg_dump --verbose` é transmitido ao vivo.
+
 **Config pelo ADMIN, clique pelo QA:** as conexões de produção e homologação são
 cadastradas pelo admin — global em **Configurações** (`SystemSettings.prodDbUrl`
 / `homologDbUrl`) e, opcionalmente, sobrescritas por projeto
 (`Project.productionDbUrl` / `homologationDbUrl`). O QA **não digita URL**: só
 escolhe a origem. A resolução (`EnvironmentService.buildDeployInputs`) é
 `override do projeto || padrão global`.
+
+## Porta do container (roteamento do proxy)
+
+O Traefik precisa saber a porta interna do container — o `ComputeRouteStep`
+(estratégia Traefik) emite `traefik.http.services.<router>.loadbalancer.server.port`.
+Sem isso o Traefik erra `service ... error: port is missing` quando a imagem não
+expõe exatamente uma porta. A porta é `ctx.appPort` = `request.appPort` (override
+por deploy) **ou** `project.appPort` (padrão do projeto, default `80`), ambos
+cadastrados pelo admin / escolhidos na criação do ambiente.
+
+## Usuário de aplicação e RLS
+
+O admin (`postgres`) **bypassa RLS** (superuser ignora policies). Para a aplicação
+respeitar Row Level Security, o projeto pode definir `appDbUser` (nome do role):
+
+- O role é criado (`ensureLoginRole`, idempotente, cluster-wide) **antes da cópia**,
+  para que `CREATE POLICY ... TO <user>` da origem seja restaurado com sucesso.
+- É um role comum (LOGIN, **sem** SUPERUSER/BYPASSRLS) → **sujeito a RLS**.
+- Recebe GRANT de DML no banco copiado; como **não é dono** das tabelas
+  (restauradas com `--no-owner`, dono = admin), continua sujeito às policies.
+- O `DATABASE_URL` injetado no container usa esse usuário (senha gerada pelo
+  sistema a cada deploy). O nome deve **casar com o role das policies** da origem.
+- Vazio (`appDbUser` não informado) → conecta como admin (ignora RLS, comportamento padrão).
 
 ## Dockerfile por deploy
 

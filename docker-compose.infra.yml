@@ -22,6 +22,9 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker.network=traefik-public"
+      # File provider: carrega os certificados TLS de certs/dynamic/*.yml.
+      - "--providers.file.directory=/certs/dynamic"
+      - "--providers.file.watch=true"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       - "--api.insecure=true"
@@ -31,6 +34,8 @@ services:
       - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Certificados (wildcard localdev/localhost/quality) + config dinâmica.
+      - ./certs:/certs:ro
     networks:
       - traefik-public
 

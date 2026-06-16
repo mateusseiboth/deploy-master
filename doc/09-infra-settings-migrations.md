@@ -81,6 +81,27 @@ dropa só o `db_<hash>`, nunca o servidor.
 Para um Postgres externo fixo, use `EPHEMERAL_PG_MANAGED=false` +
 `EPHEMERAL_PG_HOST/PORT`.
 
+## Certificados TLS no Traefik (file provider)
+
+Os ambientes usam a estratégia `internal-ca` (label `...tls=true`); o certificado
+servido vem de arquivos montados no Traefik, não de ACME.
+
+- `certs/` guarda os pares wildcard (`wildcard.<dominio>.pem` + `-key.pem`). O
+  `localdev` é um mkcert para `*.qualitysistemas.localdev`.
+- `certs/dynamic/tls.yml` é a **config dinâmica** (file provider): registra os
+  certificados e define o `defaultCertificate` (wildcard localdev).
+- `docker-compose.infra.yml` monta `./certs:/certs:ro` e liga o provider:
+  `--providers.file.directory=/certs/dynamic` + `--providers.file.watch=true`.
+
+**Adicionar/trocar certificado:** copie o par para `certs/`, adicione uma entrada
+em `tls.certificates` (e ajuste o `defaultCertificate` se quiser). O Traefik
+recarrega sozinho — sem reiniciar.
+
+> Para o HTTPS ser válido, o **domínio base** dos ambientes deve casar com o
+> wildcard. Com o cert localdev, configure `baseDomain = qualitysistemas.localdev`
+> (Configurações / por projeto) — os hostnames ficam `*.qualitysistemas.localdev`.
+> mkcert: o navegador só confia se a CA raiz do mkcert estiver instalada no cliente.
+
 ## Backend em container (container-to-container)
 
 `Dockerfile` + `docker-compose.yml` rodam **api** e **worker** em containers com

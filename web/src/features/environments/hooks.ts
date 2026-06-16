@@ -14,6 +14,7 @@ export interface CreateEnvironmentInput {
   variableOverrides?: Record<string, string>;
   backup: { source: BackupSource; filePath?: string };
   dockerfilePath?: string;
+  appPort?: number;
 }
 
 const KEY = ["environments"];

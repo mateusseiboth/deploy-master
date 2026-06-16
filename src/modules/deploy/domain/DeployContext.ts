@@ -14,10 +14,13 @@ export interface DeployProjectConfig {
   repositoryUrl: string;
   gitlabToken: string;
   dockerfilePath: string;
+  appPort: number;
   buildCommand?: string | null;
   startCommand?: string | null;
   productionDbUrl?: string | null;
   homologationDbUrl?: string | null;
+  /** Usuário de aplicação (role sujeito a RLS) com que o container conecta. */
+  appDbUser?: string | null;
   requiresDatabase: boolean;
   databaseEnvVar: string;
   databaseUrlTemplate?: string | null;
@@ -56,6 +59,8 @@ export interface DeployRequest {
   backupFilePath?: string;
   /** Dockerfile escolhido para este deploy (override do padrão do projeto). */
   dockerfilePath?: string;
+  /** Porta interna do container neste deploy (override do padrão do projeto). */
+  appPort?: number;
 }
 
 /**
@@ -101,6 +106,11 @@ export class DeployContext {
   /** Dockerfile efetivo deste deploy (override do ambiente ou padrão do projeto). */
   get dockerfile(): string {
     return this.request.dockerfilePath || this.project.dockerfilePath;
+  }
+
+  /** Porta interna efetiva (override do ambiente ou padrão do projeto). */
+  get appPort(): number {
+    return this.request.appPort || this.project.appPort;
   }
 
   constructor(
