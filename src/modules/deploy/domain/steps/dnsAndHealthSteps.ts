@@ -5,29 +5,31 @@ import { tcpProbe } from "@core/process/tcpProbe";
 import type { PostgresAdmin } from "@modules/database/PostgresAdmin";
 import { DeployStep } from "./IDeployStep";
 
-/** Extrai as credenciais do Pi-hole do contexto (cadastro do admin). */
-function piholeOf(ctx: DeployContext): PiholeConfig {
-  return { baseUrl: ctx.settings.piholeBaseUrl, password: ctx.settings.piholePassword };
+/** Servidores Pi-hole do contexto (cadastro do admin). */
+function piholesOf(ctx: DeployContext): PiholeConfig[] {
+  return ctx.settings.piholes;
 }
 
 /** Registra o hostname no Pi-hole apontando para o IP do proxy reverso. */
 export class RegisterDnsStep extends DeployStep {
   readonly name = "RegisterDns";
+  readonly label = "Registrando DNS";
   constructor(private readonly dns: IDnsProvider) {
     super();
   }
   async execute(ctx: DeployContext): Promise<void> {
     if (!ctx.hostname) throw new DeployError("hostname ausente para DNS", this.name);
     const ip = ctx.settings.reverseProxyIp;
-    ctx.log(`Registrando DNS ${ctx.hostname} -> ${ip}`);
-    await this.dns.register(ctx.hostname, ip, piholeOf(ctx));
+    const piholes = piholesOf(ctx);
+    ctx.log(`Registrando DNS ${ctx.hostname} -> ${ip} em ${piholes.length} servidor(es) Pi-hole`);
+    await this.dns.register(ctx.hostname, ip, piholes);
 
     // Valida propagação (best-effort: o HealthCheck é o gate final para READY).
     const propagated = await this.dns.waitForPropagation(ctx.hostname, ip);
     ctx.log(propagated ? "DNS propagado" : "DNS ainda não propagado (será revalidado no health check)");
   }
   override async compensate(ctx: DeployContext): Promise<void> {
-    if (ctx.hostname) await this.dns.unregister(ctx.hostname, ctx.settings.reverseProxyIp, piholeOf(ctx));
+    if (ctx.hostname) await this.dns.unregister(ctx.hostname, ctx.settings.reverseProxyIp, piholesOf(ctx));
   }
 }
 
@@ -37,6 +39,7 @@ export class RegisterDnsStep extends DeployStep {
  */
 export class HealthCheckStep extends DeployStep {
   readonly name = "HealthCheck";
+  readonly label = "Verificando saúde (health check)";
   constructor(
     private readonly docker: IContainerOrchestrator,
     private readonly dns: IDnsProvider,

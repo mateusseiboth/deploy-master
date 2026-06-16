@@ -10,6 +10,14 @@ export interface ConsoleSession {
   resize: (rows: number, cols: number) => Promise<void>;
 }
 
+/** Evento do stream de build do Docker (saída + erros). */
+interface BuildEvent {
+  stream?: string;
+  status?: string;
+  error?: string;
+  errorDetail?: { message?: string };
+}
+
 /**
  * Adapter de orquestração via Docker Engine API (dockerode). Implementa o port
  * `IContainerOrchestrator`. Operações idempotentes e tolerantes a "não existe"
@@ -19,14 +27,98 @@ export interface ConsoleSession {
 export class DockerService implements IContainerOrchestrator {
   private readonly docker = new Docker({ socketPath: env.docker.socket });
 
-  async buildImage(contextDir: string, dockerfilePath: string, tag: string): Promise<void> {
+  async buildImage(
+    contextDir: string,
+    dockerfilePath: string,
+    tag: string,
+    buildArgs?: Record<string, string>,
+    onLog?: (line: string) => void,
+  ): Promise<void> {
     const stream = await this.docker.buildImage(
       { context: contextDir, src: ["."] },
-      { t: tag, dockerfile: dockerfilePath },
+      // buildargs: disponibiliza a env (ex.: DATABASE_URL) para Dockerfiles que
+      // rodam migrations em build-time (precisam declarar o ARG correspondente).
+      { t: tag, dockerfile: dockerfilePath, buildargs: buildArgs },
     );
+    // ATENÇÃO: o build pode falhar SEM erro no callback — o Docker reporta a
+    // falha como um evento {error/errorDetail} no stream. Sem isso, o pipeline
+    // seguiria e quebraria depois com "no such image". Inspecionamos os eventos
+    // e transmitimos a saída do build ao vivo (onLog) para o progresso.
+    await new Promise<void>((resolve, reject) => {
+      this.docker.modem.followProgress(
+        stream,
+        (err, output: BuildEvent[]) => {
+          if (err) return reject(err);
+          const failed = output?.find((e) => e.error || e.errorDetail);
+          if (failed) {
+            return reject(new Error(failed.error || failed.errorDetail?.message || "build falhou"));
+          }
+          resolve();
+        },
+        (event: BuildEvent) => {
+          const line = (event.stream ?? event.status ?? "").trim();
+          if (line) onLog?.(line);
+          if (event.error) onLog?.(`erro: ${event.error}`);
+        },
+      );
+    });
+  }
+
+  /**
+   * Garante um Postgres compartilhado rodando (idempotente) e devolve a porta
+   * HOST publicada (aleatória, atribuída pelo Docker). Reaproveita o container se
+   * já existir; sobe com volume nomeado para os bancos sobreviverem a restart.
+   */
+  async ensurePostgres(opts: {
+    containerName: string;
+    image: string;
+    user: string;
+    password: string;
+  }): Promise<number> {
+    const existing = await this.docker.listContainers({
+      all: true,
+      filters: { name: [opts.containerName] },
+    });
+
+    const match = existing.find((c) => c.Names.some((n) => n.replace(/^\//, "") === opts.containerName));
+    if (match) {
+      if (match.State !== "running") await this.safe(() => this.docker.getContainer(match.Id).start());
+      return this.publishedPort(match.Id);
+    }
+
+    await this.pullImage(opts.image); // createContainer não baixa a imagem sozinho
+    const container = await this.docker.createContainer({
+      Image: opts.image,
+      name: opts.containerName,
+      Env: [`POSTGRES_USER=${opts.user}`, `POSTGRES_PASSWORD=${opts.password}`],
+      ExposedPorts: { "5432/tcp": {} },
+      HostConfig: {
+        // HostPort vazio => Docker escolhe uma porta livre aleatória no host.
+        PortBindings: { "5432/tcp": [{ HostPort: "" }] },
+        Binds: [`${opts.containerName}-data:/var/lib/postgresql/data`],
+        RestartPolicy: { Name: "unless-stopped" },
+      },
+    });
+    await container.start();
+    return this.publishedPort(container.id);
+  }
+
+  /** Baixa a imagem se ainda não estiver presente (idempotente). */
+  private async pullImage(image: string): Promise<void> {
+    const local = await this.docker.listImages({ filters: { reference: [image] } });
+    if (local.length > 0) return;
+    const stream = await this.docker.pull(image);
     await new Promise<void>((resolve, reject) => {
       this.docker.modem.followProgress(stream, (err) => (err ? reject(err) : resolve()));
     });
+  }
+
+  /** Lê a porta HOST publicada para 5432/tcp de um container. */
+  private async publishedPort(containerId: string): Promise<number> {
+    const info = await this.docker.getContainer(containerId).inspect();
+    const binding = info.NetworkSettings.Ports?.["5432/tcp"]?.[0]?.HostPort;
+    if (!binding) throw new Error("Postgres efêmero sem porta host publicada");
+    return Number(binding);
   }
 
   async createNetwork(name: string): Promise<void> {

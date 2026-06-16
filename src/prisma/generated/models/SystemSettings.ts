@@ -20,18 +20,8 @@ export type SystemSettingsModel = runtime.Types.Result.DefaultSelection<Prisma.$
 
 export type AggregateSystemSettings = {
   _count: SystemSettingsCountAggregateOutputType | null
-  _avg: SystemSettingsAvgAggregateOutputType | null
-  _sum: SystemSettingsSumAggregateOutputType | null
   _min: SystemSettingsMinAggregateOutputType | null
   _max: SystemSettingsMaxAggregateOutputType | null
-}
-
-export type SystemSettingsAvgAggregateOutputType = {
-  prodBackupIntervalHours: number | null
-}
-
-export type SystemSettingsSumAggregateOutputType = {
-  prodBackupIntervalHours: number | null
 }
 
 export type SystemSettingsMinAggregateOutputType = {
@@ -43,9 +33,10 @@ export type SystemSettingsMinAggregateOutputType = {
   baseDomain: string | null
   gitlabBaseUrl: string | null
   gitlabApiToken: string | null
+  prodDbUrl: string | null
+  homologDbUrl: string | null
   prodBackupDbUrl: string | null
   prodBackupDir: string | null
-  prodBackupIntervalHours: number | null
   prodBackupEnabled: boolean | null
   updatedAt: Date | null
 }
@@ -59,15 +50,17 @@ export type SystemSettingsMaxAggregateOutputType = {
   baseDomain: string | null
   gitlabBaseUrl: string | null
   gitlabApiToken: string | null
+  prodDbUrl: string | null
+  homologDbUrl: string | null
   prodBackupDbUrl: string | null
   prodBackupDir: string | null
-  prodBackupIntervalHours: number | null
   prodBackupEnabled: boolean | null
   updatedAt: Date | null
 }
 
 export type SystemSettingsCountAggregateOutputType = {
   id: number
+  piholeServers: number
   piholeBaseUrl: number
   piholePassword: number
   reverseProxyIp: number
@@ -75,22 +68,15 @@ export type SystemSettingsCountAggregateOutputType = {
   baseDomain: number
   gitlabBaseUrl: number
   gitlabApiToken: number
+  prodDbUrl: number
+  homologDbUrl: number
   prodBackupDbUrl: number
   prodBackupDir: number
-  prodBackupIntervalHours: number
   prodBackupEnabled: number
   updatedAt: number
   _all: number
 }
 
-
-export type SystemSettingsAvgAggregateInputType = {
-  prodBackupIntervalHours?: true
-}
-
-export type SystemSettingsSumAggregateInputType = {
-  prodBackupIntervalHours?: true
-}
 
 export type SystemSettingsMinAggregateInputType = {
   id?: true
@@ -101,9 +87,10 @@ export type SystemSettingsMinAggregateInputType = {
   baseDomain?: true
   gitlabBaseUrl?: true
   gitlabApiToken?: true
+  prodDbUrl?: true
+  homologDbUrl?: true
   prodBackupDbUrl?: true
   prodBackupDir?: true
-  prodBackupIntervalHours?: true
   prodBackupEnabled?: true
   updatedAt?: true
 }
@@ -117,15 +104,17 @@ export type SystemSettingsMaxAggregateInputType = {
   baseDomain?: true
   gitlabBaseUrl?: true
   gitlabApiToken?: true
+  prodDbUrl?: true
+  homologDbUrl?: true
   prodBackupDbUrl?: true
   prodBackupDir?: true
-  prodBackupIntervalHours?: true
   prodBackupEnabled?: true
   updatedAt?: true
 }
 
 export type SystemSettingsCountAggregateInputType = {
   id?: true
+  piholeServers?: true
   piholeBaseUrl?: true
   piholePassword?: true
   reverseProxyIp?: true
@@ -133,9 +122,10 @@ export type SystemSettingsCountAggregateInputType = {
   baseDomain?: true
   gitlabBaseUrl?: true
   gitlabApiToken?: true
+  prodDbUrl?: true
+  homologDbUrl?: true
   prodBackupDbUrl?: true
   prodBackupDir?: true
-  prodBackupIntervalHours?: true
   prodBackupEnabled?: true
   updatedAt?: true
   _all?: true
@@ -179,18 +169,6 @@ export type SystemSettingsAggregateArgs<ExtArgs extends runtime.Types.Extensions
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Select which fields to average
-  **/
-  _avg?: SystemSettingsAvgAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
-   * Select which fields to sum
-  **/
-  _sum?: SystemSettingsSumAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
    * Select which fields to find the minimum value
   **/
   _min?: SystemSettingsMinAggregateInputType
@@ -221,14 +199,13 @@ export type SystemSettingsGroupByArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   _count?: SystemSettingsCountAggregateInputType | true
-  _avg?: SystemSettingsAvgAggregateInputType
-  _sum?: SystemSettingsSumAggregateInputType
   _min?: SystemSettingsMinAggregateInputType
   _max?: SystemSettingsMaxAggregateInputType
 }
 
 export type SystemSettingsGroupByOutputType = {
   id: string
+  piholeServers: runtime.JsonValue
   piholeBaseUrl: string
   piholePassword: string
   reverseProxyIp: string
@@ -236,14 +213,13 @@ export type SystemSettingsGroupByOutputType = {
   baseDomain: string
   gitlabBaseUrl: string
   gitlabApiToken: string
+  prodDbUrl: string
+  homologDbUrl: string
   prodBackupDbUrl: string
   prodBackupDir: string
-  prodBackupIntervalHours: number
   prodBackupEnabled: boolean
   updatedAt: Date
   _count: SystemSettingsCountAggregateOutputType | null
-  _avg: SystemSettingsAvgAggregateOutputType | null
-  _sum: SystemSettingsSumAggregateOutputType | null
   _min: SystemSettingsMinAggregateOutputType | null
   _max: SystemSettingsMaxAggregateOutputType | null
 }
@@ -268,6 +244,7 @@ export type SystemSettingsWhereInput = {
   OR?: Prisma.SystemSettingsWhereInput[]
   NOT?: Prisma.SystemSettingsWhereInput | Prisma.SystemSettingsWhereInput[]
   id?: Prisma.StringFilter<"SystemSettings"> | string
+  piholeServers?: Prisma.JsonFilter<"SystemSettings">
   piholeBaseUrl?: Prisma.StringFilter<"SystemSettings"> | string
   piholePassword?: Prisma.StringFilter<"SystemSettings"> | string
   reverseProxyIp?: Prisma.StringFilter<"SystemSettings"> | string
@@ -275,15 +252,17 @@ export type SystemSettingsWhereInput = {
   baseDomain?: Prisma.StringFilter<"SystemSettings"> | string
   gitlabBaseUrl?: Prisma.StringFilter<"SystemSettings"> | string
   gitlabApiToken?: Prisma.StringFilter<"SystemSettings"> | string
+  prodDbUrl?: Prisma.StringFilter<"SystemSettings"> | string
+  homologDbUrl?: Prisma.StringFilter<"SystemSettings"> | string
   prodBackupDbUrl?: Prisma.StringFilter<"SystemSettings"> | string
   prodBackupDir?: Prisma.StringFilter<"SystemSettings"> | string
-  prodBackupIntervalHours?: Prisma.IntFilter<"SystemSettings"> | number
   prodBackupEnabled?: Prisma.BoolFilter<"SystemSettings"> | boolean
   updatedAt?: Prisma.DateTimeFilter<"SystemSettings"> | Date | string
 }
 
 export type SystemSettingsOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  piholeServers?: Prisma.SortOrder
   piholeBaseUrl?: Prisma.SortOrder
   piholePassword?: Prisma.SortOrder
   reverseProxyIp?: Prisma.SortOrder
@@ -291,9 +270,10 @@ export type SystemSettingsOrderByWithRelationInput = {
   baseDomain?: Prisma.SortOrder
   gitlabBaseUrl?: Prisma.SortOrder
   gitlabApiToken?: Prisma.SortOrder
+  prodDbUrl?: Prisma.SortOrder
+  homologDbUrl?: Prisma.SortOrder
   prodBackupDbUrl?: Prisma.SortOrder
   prodBackupDir?: Prisma.SortOrder
-  prodBackupIntervalHours?: Prisma.SortOrder
   prodBackupEnabled?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -303,6 +283,7 @@ export type SystemSettingsWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.SystemSettingsWhereInput | Prisma.SystemSettingsWhereInput[]
   OR?: Prisma.SystemSettingsWhereInput[]
   NOT?: Prisma.SystemSettingsWhereInput | Prisma.SystemSettingsWhereInput[]
+  piholeServers?: Prisma.JsonFilter<"SystemSettings">
   piholeBaseUrl?: Prisma.StringFilter<"SystemSettings"> | string
   piholePassword?: Prisma.StringFilter<"SystemSettings"> | string
   reverseProxyIp?: Prisma.StringFilter<"SystemSettings"> | string
@@ -310,15 +291,17 @@ export type SystemSettingsWhereUniqueInput = Prisma.AtLeast<{
   baseDomain?: Prisma.StringFilter<"SystemSettings"> | string
   gitlabBaseUrl?: Prisma.StringFilter<"SystemSettings"> | string
   gitlabApiToken?: Prisma.StringFilter<"SystemSettings"> | string
+  prodDbUrl?: Prisma.StringFilter<"SystemSettings"> | string
+  homologDbUrl?: Prisma.StringFilter<"SystemSettings"> | string
   prodBackupDbUrl?: Prisma.StringFilter<"SystemSettings"> | string
   prodBackupDir?: Prisma.StringFilter<"SystemSettings"> | string
-  prodBackupIntervalHours?: Prisma.IntFilter<"SystemSettings"> | number
   prodBackupEnabled?: Prisma.BoolFilter<"SystemSettings"> | boolean
   updatedAt?: Prisma.DateTimeFilter<"SystemSettings"> | Date | string
 }, "id">
 
 export type SystemSettingsOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  piholeServers?: Prisma.SortOrder
   piholeBaseUrl?: Prisma.SortOrder
   piholePassword?: Prisma.SortOrder
   reverseProxyIp?: Prisma.SortOrder
@@ -326,16 +309,15 @@ export type SystemSettingsOrderByWithAggregationInput = {
   baseDomain?: Prisma.SortOrder
   gitlabBaseUrl?: Prisma.SortOrder
   gitlabApiToken?: Prisma.SortOrder
+  prodDbUrl?: Prisma.SortOrder
+  homologDbUrl?: Prisma.SortOrder
   prodBackupDbUrl?: Prisma.SortOrder
   prodBackupDir?: Prisma.SortOrder
-  prodBackupIntervalHours?: Prisma.SortOrder
   prodBackupEnabled?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.SystemSettingsCountOrderByAggregateInput
-  _avg?: Prisma.SystemSettingsAvgOrderByAggregateInput
   _max?: Prisma.SystemSettingsMaxOrderByAggregateInput
   _min?: Prisma.SystemSettingsMinOrderByAggregateInput
-  _sum?: Prisma.SystemSettingsSumOrderByAggregateInput
 }
 
 export type SystemSettingsScalarWhereWithAggregatesInput = {
@@ -343,6 +325,7 @@ export type SystemSettingsScalarWhereWithAggregatesInput = {
   OR?: Prisma.SystemSettingsScalarWhereWithAggregatesInput[]
   NOT?: Prisma.SystemSettingsScalarWhereWithAggregatesInput | Prisma.SystemSettingsScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"SystemSettings"> | string
+  piholeServers?: Prisma.JsonWithAggregatesFilter<"SystemSettings">
   piholeBaseUrl?: Prisma.StringWithAggregatesFilter<"SystemSettings"> | string
   piholePassword?: Prisma.StringWithAggregatesFilter<"SystemSettings"> | string
   reverseProxyIp?: Prisma.StringWithAggregatesFilter<"SystemSettings"> | string
@@ -350,15 +333,17 @@ export type SystemSettingsScalarWhereWithAggregatesInput = {
   baseDomain?: Prisma.StringWithAggregatesFilter<"SystemSettings"> | string
   gitlabBaseUrl?: Prisma.StringWithAggregatesFilter<"SystemSettings"> | string
   gitlabApiToken?: Prisma.StringWithAggregatesFilter<"SystemSettings"> | string
+  prodDbUrl?: Prisma.StringWithAggregatesFilter<"SystemSettings"> | string
+  homologDbUrl?: Prisma.StringWithAggregatesFilter<"SystemSettings"> | string
   prodBackupDbUrl?: Prisma.StringWithAggregatesFilter<"SystemSettings"> | string
   prodBackupDir?: Prisma.StringWithAggregatesFilter<"SystemSettings"> | string
-  prodBackupIntervalHours?: Prisma.IntWithAggregatesFilter<"SystemSettings"> | number
   prodBackupEnabled?: Prisma.BoolWithAggregatesFilter<"SystemSettings"> | boolean
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SystemSettings"> | Date | string
 }
 
 export type SystemSettingsCreateInput = {
   id?: string
+  piholeServers?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   piholeBaseUrl?: string
   piholePassword?: string
   reverseProxyIp?: string
@@ -366,15 +351,17 @@ export type SystemSettingsCreateInput = {
   baseDomain?: string
   gitlabBaseUrl?: string
   gitlabApiToken?: string
+  prodDbUrl?: string
+  homologDbUrl?: string
   prodBackupDbUrl?: string
   prodBackupDir?: string
-  prodBackupIntervalHours?: number
   prodBackupEnabled?: boolean
   updatedAt?: Date | string
 }
 
 export type SystemSettingsUncheckedCreateInput = {
   id?: string
+  piholeServers?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   piholeBaseUrl?: string
   piholePassword?: string
   reverseProxyIp?: string
@@ -382,15 +369,17 @@ export type SystemSettingsUncheckedCreateInput = {
   baseDomain?: string
   gitlabBaseUrl?: string
   gitlabApiToken?: string
+  prodDbUrl?: string
+  homologDbUrl?: string
   prodBackupDbUrl?: string
   prodBackupDir?: string
-  prodBackupIntervalHours?: number
   prodBackupEnabled?: boolean
   updatedAt?: Date | string
 }
 
 export type SystemSettingsUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  piholeServers?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   piholeBaseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   piholePassword?: Prisma.StringFieldUpdateOperationsInput | string
   reverseProxyIp?: Prisma.StringFieldUpdateOperationsInput | string
@@ -398,15 +387,17 @@ export type SystemSettingsUpdateInput = {
   baseDomain?: Prisma.StringFieldUpdateOperationsInput | string
   gitlabBaseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   gitlabApiToken?: Prisma.StringFieldUpdateOperationsInput | string
+  prodDbUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  homologDbUrl?: Prisma.StringFieldUpdateOperationsInput | string
   prodBackupDbUrl?: Prisma.StringFieldUpdateOperationsInput | string
   prodBackupDir?: Prisma.StringFieldUpdateOperationsInput | string
-  prodBackupIntervalHours?: Prisma.IntFieldUpdateOperationsInput | number
   prodBackupEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SystemSettingsUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  piholeServers?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   piholeBaseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   piholePassword?: Prisma.StringFieldUpdateOperationsInput | string
   reverseProxyIp?: Prisma.StringFieldUpdateOperationsInput | string
@@ -414,15 +405,17 @@ export type SystemSettingsUncheckedUpdateInput = {
   baseDomain?: Prisma.StringFieldUpdateOperationsInput | string
   gitlabBaseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   gitlabApiToken?: Prisma.StringFieldUpdateOperationsInput | string
+  prodDbUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  homologDbUrl?: Prisma.StringFieldUpdateOperationsInput | string
   prodBackupDbUrl?: Prisma.StringFieldUpdateOperationsInput | string
   prodBackupDir?: Prisma.StringFieldUpdateOperationsInput | string
-  prodBackupIntervalHours?: Prisma.IntFieldUpdateOperationsInput | number
   prodBackupEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SystemSettingsCreateManyInput = {
   id?: string
+  piholeServers?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   piholeBaseUrl?: string
   piholePassword?: string
   reverseProxyIp?: string
@@ -430,15 +423,17 @@ export type SystemSettingsCreateManyInput = {
   baseDomain?: string
   gitlabBaseUrl?: string
   gitlabApiToken?: string
+  prodDbUrl?: string
+  homologDbUrl?: string
   prodBackupDbUrl?: string
   prodBackupDir?: string
-  prodBackupIntervalHours?: number
   prodBackupEnabled?: boolean
   updatedAt?: Date | string
 }
 
 export type SystemSettingsUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  piholeServers?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   piholeBaseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   piholePassword?: Prisma.StringFieldUpdateOperationsInput | string
   reverseProxyIp?: Prisma.StringFieldUpdateOperationsInput | string
@@ -446,15 +441,17 @@ export type SystemSettingsUpdateManyMutationInput = {
   baseDomain?: Prisma.StringFieldUpdateOperationsInput | string
   gitlabBaseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   gitlabApiToken?: Prisma.StringFieldUpdateOperationsInput | string
+  prodDbUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  homologDbUrl?: Prisma.StringFieldUpdateOperationsInput | string
   prodBackupDbUrl?: Prisma.StringFieldUpdateOperationsInput | string
   prodBackupDir?: Prisma.StringFieldUpdateOperationsInput | string
-  prodBackupIntervalHours?: Prisma.IntFieldUpdateOperationsInput | number
   prodBackupEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SystemSettingsUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  piholeServers?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   piholeBaseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   piholePassword?: Prisma.StringFieldUpdateOperationsInput | string
   reverseProxyIp?: Prisma.StringFieldUpdateOperationsInput | string
@@ -462,15 +459,17 @@ export type SystemSettingsUncheckedUpdateManyInput = {
   baseDomain?: Prisma.StringFieldUpdateOperationsInput | string
   gitlabBaseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   gitlabApiToken?: Prisma.StringFieldUpdateOperationsInput | string
+  prodDbUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  homologDbUrl?: Prisma.StringFieldUpdateOperationsInput | string
   prodBackupDbUrl?: Prisma.StringFieldUpdateOperationsInput | string
   prodBackupDir?: Prisma.StringFieldUpdateOperationsInput | string
-  prodBackupIntervalHours?: Prisma.IntFieldUpdateOperationsInput | number
   prodBackupEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SystemSettingsCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  piholeServers?: Prisma.SortOrder
   piholeBaseUrl?: Prisma.SortOrder
   piholePassword?: Prisma.SortOrder
   reverseProxyIp?: Prisma.SortOrder
@@ -478,15 +477,12 @@ export type SystemSettingsCountOrderByAggregateInput = {
   baseDomain?: Prisma.SortOrder
   gitlabBaseUrl?: Prisma.SortOrder
   gitlabApiToken?: Prisma.SortOrder
+  prodDbUrl?: Prisma.SortOrder
+  homologDbUrl?: Prisma.SortOrder
   prodBackupDbUrl?: Prisma.SortOrder
   prodBackupDir?: Prisma.SortOrder
-  prodBackupIntervalHours?: Prisma.SortOrder
   prodBackupEnabled?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-}
-
-export type SystemSettingsAvgOrderByAggregateInput = {
-  prodBackupIntervalHours?: Prisma.SortOrder
 }
 
 export type SystemSettingsMaxOrderByAggregateInput = {
@@ -498,9 +494,10 @@ export type SystemSettingsMaxOrderByAggregateInput = {
   baseDomain?: Prisma.SortOrder
   gitlabBaseUrl?: Prisma.SortOrder
   gitlabApiToken?: Prisma.SortOrder
+  prodDbUrl?: Prisma.SortOrder
+  homologDbUrl?: Prisma.SortOrder
   prodBackupDbUrl?: Prisma.SortOrder
   prodBackupDir?: Prisma.SortOrder
-  prodBackupIntervalHours?: Prisma.SortOrder
   prodBackupEnabled?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -514,27 +511,16 @@ export type SystemSettingsMinOrderByAggregateInput = {
   baseDomain?: Prisma.SortOrder
   gitlabBaseUrl?: Prisma.SortOrder
   gitlabApiToken?: Prisma.SortOrder
+  prodDbUrl?: Prisma.SortOrder
+  homologDbUrl?: Prisma.SortOrder
   prodBackupDbUrl?: Prisma.SortOrder
   prodBackupDir?: Prisma.SortOrder
-  prodBackupIntervalHours?: Prisma.SortOrder
   prodBackupEnabled?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
-export type SystemSettingsSumOrderByAggregateInput = {
-  prodBackupIntervalHours?: Prisma.SortOrder
-}
-
 export type StringFieldUpdateOperationsInput = {
   set?: string
-}
-
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
 }
 
 export type BoolFieldUpdateOperationsInput = {
@@ -549,6 +535,7 @@ export type DateTimeFieldUpdateOperationsInput = {
 
 export type SystemSettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  piholeServers?: boolean
   piholeBaseUrl?: boolean
   piholePassword?: boolean
   reverseProxyIp?: boolean
@@ -556,15 +543,17 @@ export type SystemSettingsSelect<ExtArgs extends runtime.Types.Extensions.Intern
   baseDomain?: boolean
   gitlabBaseUrl?: boolean
   gitlabApiToken?: boolean
+  prodDbUrl?: boolean
+  homologDbUrl?: boolean
   prodBackupDbUrl?: boolean
   prodBackupDir?: boolean
-  prodBackupIntervalHours?: boolean
   prodBackupEnabled?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["systemSettings"]>
 
 export type SystemSettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  piholeServers?: boolean
   piholeBaseUrl?: boolean
   piholePassword?: boolean
   reverseProxyIp?: boolean
@@ -572,15 +561,17 @@ export type SystemSettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   baseDomain?: boolean
   gitlabBaseUrl?: boolean
   gitlabApiToken?: boolean
+  prodDbUrl?: boolean
+  homologDbUrl?: boolean
   prodBackupDbUrl?: boolean
   prodBackupDir?: boolean
-  prodBackupIntervalHours?: boolean
   prodBackupEnabled?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["systemSettings"]>
 
 export type SystemSettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  piholeServers?: boolean
   piholeBaseUrl?: boolean
   piholePassword?: boolean
   reverseProxyIp?: boolean
@@ -588,15 +579,17 @@ export type SystemSettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   baseDomain?: boolean
   gitlabBaseUrl?: boolean
   gitlabApiToken?: boolean
+  prodDbUrl?: boolean
+  homologDbUrl?: boolean
   prodBackupDbUrl?: boolean
   prodBackupDir?: boolean
-  prodBackupIntervalHours?: boolean
   prodBackupEnabled?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["systemSettings"]>
 
 export type SystemSettingsSelectScalar = {
   id?: boolean
+  piholeServers?: boolean
   piholeBaseUrl?: boolean
   piholePassword?: boolean
   reverseProxyIp?: boolean
@@ -604,20 +597,22 @@ export type SystemSettingsSelectScalar = {
   baseDomain?: boolean
   gitlabBaseUrl?: boolean
   gitlabApiToken?: boolean
+  prodDbUrl?: boolean
+  homologDbUrl?: boolean
   prodBackupDbUrl?: boolean
   prodBackupDir?: boolean
-  prodBackupIntervalHours?: boolean
   prodBackupEnabled?: boolean
   updatedAt?: boolean
 }
 
-export type SystemSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "piholeBaseUrl" | "piholePassword" | "reverseProxyIp" | "traefikNetwork" | "baseDomain" | "gitlabBaseUrl" | "gitlabApiToken" | "prodBackupDbUrl" | "prodBackupDir" | "prodBackupIntervalHours" | "prodBackupEnabled" | "updatedAt", ExtArgs["result"]["systemSettings"]>
+export type SystemSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "piholeServers" | "piholeBaseUrl" | "piholePassword" | "reverseProxyIp" | "traefikNetwork" | "baseDomain" | "gitlabBaseUrl" | "gitlabApiToken" | "prodDbUrl" | "homologDbUrl" | "prodBackupDbUrl" | "prodBackupDir" | "prodBackupEnabled" | "updatedAt", ExtArgs["result"]["systemSettings"]>
 
 export type $SystemSettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SystemSettings"
   objects: {}
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    piholeServers: runtime.JsonValue
     piholeBaseUrl: string
     piholePassword: string
     reverseProxyIp: string
@@ -625,9 +620,10 @@ export type $SystemSettingsPayload<ExtArgs extends runtime.Types.Extensions.Inte
     baseDomain: string
     gitlabBaseUrl: string
     gitlabApiToken: string
+    prodDbUrl: string
+    homologDbUrl: string
     prodBackupDbUrl: string
     prodBackupDir: string
-    prodBackupIntervalHours: number
     prodBackupEnabled: boolean
     updatedAt: Date
   }, ExtArgs["result"]["systemSettings"]>
@@ -1054,6 +1050,7 @@ export interface Prisma__SystemSettingsClient<T, Null = never, ExtArgs extends r
  */
 export interface SystemSettingsFieldRefs {
   readonly id: Prisma.FieldRef<"SystemSettings", 'String'>
+  readonly piholeServers: Prisma.FieldRef<"SystemSettings", 'Json'>
   readonly piholeBaseUrl: Prisma.FieldRef<"SystemSettings", 'String'>
   readonly piholePassword: Prisma.FieldRef<"SystemSettings", 'String'>
   readonly reverseProxyIp: Prisma.FieldRef<"SystemSettings", 'String'>
@@ -1061,9 +1058,10 @@ export interface SystemSettingsFieldRefs {
   readonly baseDomain: Prisma.FieldRef<"SystemSettings", 'String'>
   readonly gitlabBaseUrl: Prisma.FieldRef<"SystemSettings", 'String'>
   readonly gitlabApiToken: Prisma.FieldRef<"SystemSettings", 'String'>
+  readonly prodDbUrl: Prisma.FieldRef<"SystemSettings", 'String'>
+  readonly homologDbUrl: Prisma.FieldRef<"SystemSettings", 'String'>
   readonly prodBackupDbUrl: Prisma.FieldRef<"SystemSettings", 'String'>
   readonly prodBackupDir: Prisma.FieldRef<"SystemSettings", 'String'>
-  readonly prodBackupIntervalHours: Prisma.FieldRef<"SystemSettings", 'Int'>
   readonly prodBackupEnabled: Prisma.FieldRef<"SystemSettings", 'Boolean'>
   readonly updatedAt: Prisma.FieldRef<"SystemSettings", 'DateTime'>
 }

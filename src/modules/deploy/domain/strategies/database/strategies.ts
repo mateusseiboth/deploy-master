@@ -39,7 +39,7 @@ export class UploadSqlDatabaseStrategy implements IDatabaseProvisionStrategy {
       : filePath;
     await this.pg.restoreFromSqlFile(databaseName, sqlPath);
 
-    return { databaseName, databaseUrl: this.pg.buildUrl(databaseName) };
+    return { databaseName, databaseUrl: await this.pg.buildUrl(databaseName) };
   }
 
   async drop(ctx: DeployContext): Promise<void> {
@@ -47,15 +47,23 @@ export class UploadSqlDatabaseStrategy implements IDatabaseProvisionStrategy {
   }
 }
 
-/** Opção 2 — copia o banco de produção no momento do deploy. */
-export class CopyProductionDatabaseStrategy implements IDatabaseProvisionStrategy {
-  constructor(private readonly pg: PostgresAdmin) {}
+/**
+ * Opção 2 — copia, no momento do deploy, um banco de origem (produção ou
+ * homologação). A origem é resolvida do contexto pelo `resolveSourceUrl`, então
+ * a mesma estratégia atende às duas origens (parametrização > duplicação).
+ */
+export class CopyDatabaseStrategy implements IDatabaseProvisionStrategy {
+  constructor(
+    private readonly pg: PostgresAdmin,
+    private readonly sourceLabel: string,
+    private readonly resolveSourceUrl: (ctx: DeployContext) => string | null | undefined,
+  ) {}
 
   async provision(ctx: DeployContext): Promise<ProvisionedDatabase> {
-    const sourceUrl = ctx.project.productionDbUrl;
+    const sourceUrl = this.resolveSourceUrl(ctx);
     if (!sourceUrl) {
       throw new DeployError(
-        "URL do banco de produção não configurada para estratégia COPY_PRODUCTION",
+        `URL do banco de ${this.sourceLabel} não configurada no projeto`,
         "ProvisionDatabase",
       );
     }
@@ -64,7 +72,7 @@ export class CopyProductionDatabaseStrategy implements IDatabaseProvisionStrateg
     await this.pg.createDatabase(databaseName);
     await this.pg.copyFromProduction(sourceUrl, databaseName);
 
-    return { databaseName, databaseUrl: this.pg.buildUrl(databaseName) };
+    return { databaseName, databaseUrl: await this.pg.buildUrl(databaseName) };
   }
 
   async drop(ctx: DeployContext): Promise<void> {

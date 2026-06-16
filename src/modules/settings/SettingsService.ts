@@ -6,6 +6,7 @@ import { SettingsDAO } from "./SettingsDAO";
 import type { SystemSettings } from "@prisma-generated/client";
 
 export interface UpdateSettingsDTO {
+  piholeServers?: { baseUrl: string; password: string }[];
   piholeBaseUrl?: string;
   piholePassword?: string;
   reverseProxyIp?: string;
@@ -13,9 +14,10 @@ export interface UpdateSettingsDTO {
   baseDomain?: string;
   gitlabBaseUrl?: string;
   gitlabApiToken?: string;
+  prodDbUrl?: string;
+  homologDbUrl?: string;
   prodBackupDbUrl?: string;
   prodBackupDir?: string;
-  prodBackupIntervalHours?: number;
   prodBackupEnabled?: boolean;
 }
 
@@ -51,7 +53,6 @@ export class SettingsService extends BaseService {
       gitlabApiToken: env.gitlab.apiToken,
       prodBackupDbUrl: env.backup.prodDbUrl,
       prodBackupDir: env.backup.prodDir,
-      prodBackupIntervalHours: env.backup.prodIntervalHours,
       prodBackupEnabled: env.backup.prodEnabled,
     }));
 

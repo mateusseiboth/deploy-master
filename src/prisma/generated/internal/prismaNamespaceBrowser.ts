@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   SystemSettings: 'SystemSettings',
+  BackupDatabaseConfig: 'BackupDatabaseConfig',
   ProductionBackupLog: 'ProductionBackupLog',
   User: 'User',
   RefreshToken: 'RefreshToken',
@@ -83,6 +84,7 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 
 export const SystemSettingsScalarFieldEnum = {
   id: 'id',
+  piholeServers: 'piholeServers',
   piholeBaseUrl: 'piholeBaseUrl',
   piholePassword: 'piholePassword',
   reverseProxyIp: 'reverseProxyIp',
@@ -90,9 +92,10 @@ export const SystemSettingsScalarFieldEnum = {
   baseDomain: 'baseDomain',
   gitlabBaseUrl: 'gitlabBaseUrl',
   gitlabApiToken: 'gitlabApiToken',
+  prodDbUrl: 'prodDbUrl',
+  homologDbUrl: 'homologDbUrl',
   prodBackupDbUrl: 'prodBackupDbUrl',
   prodBackupDir: 'prodBackupDir',
-  prodBackupIntervalHours: 'prodBackupIntervalHours',
   prodBackupEnabled: 'prodBackupEnabled',
   updatedAt: 'updatedAt'
 } as const
@@ -100,13 +103,29 @@ export const SystemSettingsScalarFieldEnum = {
 export type SystemSettingsScalarFieldEnum = (typeof SystemSettingsScalarFieldEnum)[keyof typeof SystemSettingsScalarFieldEnum]
 
 
+export const BackupDatabaseConfigScalarFieldEnum = {
+  id: 'id',
+  databaseName: 'databaseName',
+  enabled: 'enabled',
+  frequency: 'frequency',
+  hourOfDay: 'hourOfDay',
+  dayOfWeek: 'dayOfWeek',
+  dayOfMonth: 'dayOfMonth',
+  lastRunAt: 'lastRunAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BackupDatabaseConfigScalarFieldEnum = (typeof BackupDatabaseConfigScalarFieldEnum)[keyof typeof BackupDatabaseConfigScalarFieldEnum]
+
+
 export const ProductionBackupLogScalarFieldEnum = {
   id: 'id',
+  databaseName: 'databaseName',
   trigger: 'trigger',
   status: 'status',
-  directory: 'directory',
-  databases: 'databases',
-  totalBytes: 'totalBytes',
+  filePath: 'filePath',
+  sizeBytes: 'sizeBytes',
   message: 'message',
   startedAt: 'startedAt',
   finishedAt: 'finishedAt'
@@ -151,6 +170,7 @@ export const ProjectScalarFieldEnum = {
   buildCommand: 'buildCommand',
   startCommand: 'startCommand',
   productionDbUrl: 'productionDbUrl',
+  homologationDbUrl: 'homologationDbUrl',
   requiresDatabase: 'requiresDatabase',
   databaseEnvVar: 'databaseEnvVar',
   databaseUrlTemplate: 'databaseUrlTemplate',
@@ -209,6 +229,9 @@ export const EnvironmentScalarFieldEnum = {
   databaseName: 'databaseName',
   imageTag: 'imageTag',
   failureReason: 'failureReason',
+  dockerfilePath: 'dockerfilePath',
+  deployLog: 'deployLog',
+  deployPhase: 'deployPhase',
   expiresAt: 'expiresAt',
   renewalCount: 'renewalCount',
   createdAt: 'createdAt',
@@ -273,6 +296,13 @@ export const SortOrder = {
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const NullableJsonNullValueInput = {

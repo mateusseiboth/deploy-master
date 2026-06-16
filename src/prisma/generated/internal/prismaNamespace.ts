@@ -385,6 +385,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   SystemSettings: 'SystemSettings',
+  BackupDatabaseConfig: 'BackupDatabaseConfig',
   ProductionBackupLog: 'ProductionBackupLog',
   User: 'User',
   RefreshToken: 'RefreshToken',
@@ -411,7 +412,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "systemSettings" | "productionBackupLog" | "user" | "refreshToken" | "project" | "projectVariable" | "projectDeadline" | "environment" | "environmentVariableValue" | "environmentService" | "environmentBackup" | "auditLog"
+    modelProps: "systemSettings" | "backupDatabaseConfig" | "productionBackupLog" | "user" | "refreshToken" | "project" | "projectVariable" | "projectDeadline" | "environment" | "environmentVariableValue" | "environmentService" | "environmentBackup" | "auditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -486,6 +487,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.SystemSettingsCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.SystemSettingsCountAggregateOutputType> | number
+        }
+      }
+    }
+    BackupDatabaseConfig: {
+      payload: Prisma.$BackupDatabaseConfigPayload<ExtArgs>
+      fields: Prisma.BackupDatabaseConfigFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BackupDatabaseConfigFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackupDatabaseConfigPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BackupDatabaseConfigFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackupDatabaseConfigPayload>
+        }
+        findFirst: {
+          args: Prisma.BackupDatabaseConfigFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackupDatabaseConfigPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BackupDatabaseConfigFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackupDatabaseConfigPayload>
+        }
+        findMany: {
+          args: Prisma.BackupDatabaseConfigFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackupDatabaseConfigPayload>[]
+        }
+        create: {
+          args: Prisma.BackupDatabaseConfigCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackupDatabaseConfigPayload>
+        }
+        createMany: {
+          args: Prisma.BackupDatabaseConfigCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BackupDatabaseConfigCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackupDatabaseConfigPayload>[]
+        }
+        delete: {
+          args: Prisma.BackupDatabaseConfigDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackupDatabaseConfigPayload>
+        }
+        update: {
+          args: Prisma.BackupDatabaseConfigUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackupDatabaseConfigPayload>
+        }
+        deleteMany: {
+          args: Prisma.BackupDatabaseConfigDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BackupDatabaseConfigUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BackupDatabaseConfigUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackupDatabaseConfigPayload>[]
+        }
+        upsert: {
+          args: Prisma.BackupDatabaseConfigUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackupDatabaseConfigPayload>
+        }
+        aggregate: {
+          args: Prisma.BackupDatabaseConfigAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBackupDatabaseConfig>
+        }
+        groupBy: {
+          args: Prisma.BackupDatabaseConfigGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BackupDatabaseConfigGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BackupDatabaseConfigCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BackupDatabaseConfigCountAggregateOutputType> | number
         }
       }
     }
@@ -1344,6 +1419,7 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 
 export const SystemSettingsScalarFieldEnum = {
   id: 'id',
+  piholeServers: 'piholeServers',
   piholeBaseUrl: 'piholeBaseUrl',
   piholePassword: 'piholePassword',
   reverseProxyIp: 'reverseProxyIp',
@@ -1351,9 +1427,10 @@ export const SystemSettingsScalarFieldEnum = {
   baseDomain: 'baseDomain',
   gitlabBaseUrl: 'gitlabBaseUrl',
   gitlabApiToken: 'gitlabApiToken',
+  prodDbUrl: 'prodDbUrl',
+  homologDbUrl: 'homologDbUrl',
   prodBackupDbUrl: 'prodBackupDbUrl',
   prodBackupDir: 'prodBackupDir',
-  prodBackupIntervalHours: 'prodBackupIntervalHours',
   prodBackupEnabled: 'prodBackupEnabled',
   updatedAt: 'updatedAt'
 } as const
@@ -1361,13 +1438,29 @@ export const SystemSettingsScalarFieldEnum = {
 export type SystemSettingsScalarFieldEnum = (typeof SystemSettingsScalarFieldEnum)[keyof typeof SystemSettingsScalarFieldEnum]
 
 
+export const BackupDatabaseConfigScalarFieldEnum = {
+  id: 'id',
+  databaseName: 'databaseName',
+  enabled: 'enabled',
+  frequency: 'frequency',
+  hourOfDay: 'hourOfDay',
+  dayOfWeek: 'dayOfWeek',
+  dayOfMonth: 'dayOfMonth',
+  lastRunAt: 'lastRunAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BackupDatabaseConfigScalarFieldEnum = (typeof BackupDatabaseConfigScalarFieldEnum)[keyof typeof BackupDatabaseConfigScalarFieldEnum]
+
+
 export const ProductionBackupLogScalarFieldEnum = {
   id: 'id',
+  databaseName: 'databaseName',
   trigger: 'trigger',
   status: 'status',
-  directory: 'directory',
-  databases: 'databases',
-  totalBytes: 'totalBytes',
+  filePath: 'filePath',
+  sizeBytes: 'sizeBytes',
   message: 'message',
   startedAt: 'startedAt',
   finishedAt: 'finishedAt'
@@ -1412,6 +1505,7 @@ export const ProjectScalarFieldEnum = {
   buildCommand: 'buildCommand',
   startCommand: 'startCommand',
   productionDbUrl: 'productionDbUrl',
+  homologationDbUrl: 'homologationDbUrl',
   requiresDatabase: 'requiresDatabase',
   databaseEnvVar: 'databaseEnvVar',
   databaseUrlTemplate: 'databaseUrlTemplate',
@@ -1470,6 +1564,9 @@ export const EnvironmentScalarFieldEnum = {
   databaseName: 'databaseName',
   imageTag: 'imageTag',
   failureReason: 'failureReason',
+  dockerfilePath: 'dockerfilePath',
+  deployLog: 'deployLog',
+  deployPhase: 'deployPhase',
   expiresAt: 'expiresAt',
   renewalCount: 'renewalCount',
   createdAt: 'createdAt',
@@ -1536,6 +1633,13 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
 export const NullableJsonNullValueInput = {
   DbNull: DbNull,
   JsonNull: JsonNull
@@ -1590,16 +1694,16 @@ export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaMod
 
 
 /**
- * Reference to a field of type 'Int'
+ * Reference to a field of type 'Json'
  */
-export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
     
 
 
 /**
- * Reference to a field of type 'Int[]'
+ * Reference to a field of type 'QueryMode'
  */
-export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -1621,6 +1725,34 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'DateTime[]'
  */
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+/**
+ * Reference to a field of type 'BackupFrequency'
+ */
+export type EnumBackupFrequencyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BackupFrequency'>
+    
+
+
+/**
+ * Reference to a field of type 'BackupFrequency[]'
+ */
+export type ListEnumBackupFrequencyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BackupFrequency[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Int'
+ */
+export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+/**
+ * Reference to a field of type 'Int[]'
+ */
+export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
 
 
@@ -1649,20 +1781,6 @@ export type EnumBackupRunStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$
  * Reference to a field of type 'BackupRunStatus[]'
  */
 export type ListEnumBackupRunStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BackupRunStatus[]'>
-    
-
-
-/**
- * Reference to a field of type 'Json'
- */
-export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-/**
- * Reference to a field of type 'QueryMode'
- */
-export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -1916,6 +2034,7 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   systemSettings?: Prisma.SystemSettingsOmit
+  backupDatabaseConfig?: Prisma.BackupDatabaseConfigOmit
   productionBackupLog?: Prisma.ProductionBackupLogOmit
   user?: Prisma.UserOmit
   refreshToken?: Prisma.RefreshTokenOmit

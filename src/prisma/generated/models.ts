@@ -9,6 +9,7 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/SystemSettings.ts'
+export type * from './models/BackupDatabaseConfig.ts'
 export type * from './models/ProductionBackupLog.ts'
 export type * from './models/User.ts'
 export type * from './models/RefreshToken.ts'

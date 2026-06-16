@@ -9,6 +9,7 @@ import {
   type IJobQueue,
   type Job,
   type JobType,
+  type QueueJobView,
 } from "./IJobQueue";
 
 interface JobRow {
@@ -56,6 +57,31 @@ export class SqliteJobQueue implements IJobQueue {
       );
     `);
     this.db.exec("CREATE INDEX IF NOT EXISTS idx_jobs_claim ON jobs (status, run_at);");
+    // Metadados da fila (ex.: heartbeat do worker) para observabilidade.
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS queue_meta (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+      );
+    `);
+  }
+
+  /** Registra um "sinal de vida" do worker (timestamp). Chamado pelo loop. */
+  heartbeat(): void {
+    this.db
+      .query(
+        `INSERT INTO queue_meta (key, value) VALUES ('worker_heartbeat', $value)
+         ON CONFLICT(key) DO UPDATE SET value = $value`,
+      )
+      .run({ $value: String(Date.now()) });
+  }
+
+  /** Último heartbeat do worker (ms epoch) ou null se nunca houve. */
+  lastHeartbeat(): number | null {
+    const row = this.db
+      .query<{ value: string }, []>(`SELECT value FROM queue_meta WHERE key = 'worker_heartbeat'`)
+      .get();
+    return row ? Number(row.value) : null;
   }
 
   enqueue<T>(type: JobType, payload: T, options: EnqueueOptions = {}): string {
@@ -112,6 +138,25 @@ export class SqliteJobQueue implements IJobQueue {
     this.db
       .query(`UPDATE jobs SET status='completed', updated_at=$now WHERE id=$id`)
       .run({ $now: Date.now(), $id: jobId });
+  }
+
+  list(limit = 50): QueueJobView[] {
+    const rows = this.db
+      .query<JobRow, [number]>(`SELECT * FROM jobs ORDER BY updated_at DESC LIMIT ?`)
+      .all(limit);
+    return rows.map((row) => ({
+      id: row.id,
+      type: row.type as JobType,
+      status: row.status,
+      payload: JSON.parse(row.payload),
+      attempts: row.attempts,
+      maxAttempts: row.max_attempts,
+      lastError: row.last_error,
+      lockedBy: row.locked_by,
+      runAt: row.run_at,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    }));
   }
 
   retryOrFail(jobId: string, error: string): void {

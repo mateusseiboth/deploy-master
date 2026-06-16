@@ -10,6 +10,7 @@ import { gitlabRoutes, gitlabGlobalRoutes } from "./routes/gitlabRoutes";
 import { dashboardRoutes } from "./routes/dashboardRoutes";
 import { backupRoutes } from "./routes/backupRoutes";
 import { settingsRoutes } from "./routes/settingsRoutes";
+import { queueRoutes } from "./routes/queueRoutes";
 
 /**
  * Monta a aplicação Express: middlewares globais, rotas da API e o handler de
@@ -39,6 +40,7 @@ export function buildApp(): Express {
   app.use("/api/dashboard", authenticated, dashboardRoutes());
   app.use("/api/backups", authenticated, backupRoutes());
   app.use("/api/settings", authenticated, settingsRoutes());
+  app.use("/api/queue", authenticated, queueRoutes());
 
   app.use(errorHandler);
   return app;

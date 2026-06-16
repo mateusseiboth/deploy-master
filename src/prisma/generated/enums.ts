@@ -26,6 +26,15 @@ export const BackupRunStatus = {
 export type BackupRunStatus = (typeof BackupRunStatus)[keyof typeof BackupRunStatus]
 
 
+export const BackupFrequency = {
+  DAILY: 'DAILY',
+  WEEKLY: 'WEEKLY',
+  MONTHLY: 'MONTHLY'
+} as const
+
+export type BackupFrequency = (typeof BackupFrequency)[keyof typeof BackupFrequency]
+
+
 export const UserRole = {
   ADMIN: 'ADMIN',
   QA: 'QA',
@@ -84,7 +93,9 @@ export type EnvironmentStatus = (typeof EnvironmentStatus)[keyof typeof Environm
 
 export const BackupSource = {
   UPLOAD: 'UPLOAD',
-  PRODUCTION_COPY: 'PRODUCTION_COPY'
+  STORED_BACKUP: 'STORED_BACKUP',
+  PRODUCTION_COPY: 'PRODUCTION_COPY',
+  HOMOLOGATION_COPY: 'HOMOLOGATION_COPY'
 } as const
 
 export type BackupSource = (typeof BackupSource)[keyof typeof BackupSource]

@@ -16,7 +16,11 @@
     "prisma:push": "prisma db push",
     "prisma:studio": "prisma studio",
     "infra:up": "docker compose -f docker-compose.infra.yml up -d",
-    "infra:down": "docker compose -f docker-compose.infra.yml down"
+    "infra:down": "docker compose -f docker-compose.infra.yml down",
+    "dev:all": "concurrently \"npm run dev:web\" \"npm run dev:api\" \"npm run dev:worker\"",
+    "dev:web": "cd ./web && bun run dev",
+    "dev:api": "bun run dev",
+    "dev:worker": "bun run worker"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
@@ -41,6 +45,7 @@
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/ws": "^8.18.1",
+    "concurrently": "^10.0.3",
     "prisma": "7"
   },
   "peerDependencies": {

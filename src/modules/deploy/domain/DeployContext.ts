@@ -1,4 +1,5 @@
 import type {
+  BackupSource,
   CertificateProvider,
   DatabaseStrategy,
   HostnameFormat,
@@ -16,6 +17,7 @@ export interface DeployProjectConfig {
   buildCommand?: string | null;
   startCommand?: string | null;
   productionDbUrl?: string | null;
+  homologationDbUrl?: string | null;
   requiresDatabase: boolean;
   databaseEnvVar: string;
   databaseUrlTemplate?: string | null;
@@ -31,8 +33,8 @@ export interface DeployProjectConfig {
  * Endereços de Pi-hole e proxy reverso usados pelo pipeline.
  */
 export interface DeploySettings {
-  piholeBaseUrl: string;
-  piholePassword: string;
+  /** Servidores Pi-hole (DNS balanceado): registro vai para todos. */
+  piholes: { baseUrl: string; password: string }[];
   reverseProxyIp: string;
   traefikNetwork: string;
   /** GitLab global: usado quando o projeto não tem URL/token próprios. */
@@ -48,8 +50,12 @@ export interface DeployRequest {
   creatorUsername: string;
   /** Variáveis autorizadas com valores informados pelo QA. */
   variableOverrides: Record<string, string>;
-  /** Caminho do backup .sql/.sql.gz enviado (quando UPLOAD_SQL). */
+  /** Origem do banco escolhida para este deploy (autoritativa no pipeline). */
+  databaseSource: BackupSource;
+  /** Caminho do backup .sql/.sql.gz (quando UPLOAD ou STORED_BACKUP). */
   backupFilePath?: string;
+  /** Dockerfile escolhido para este deploy (override do padrão do projeto). */
+  dockerfilePath?: string;
 }
 
 /**
@@ -84,14 +90,42 @@ export class DeployContext {
   /** Trilha de logs para diagnóstico (FAILED expõe isso). */
   readonly logs: string[] = [];
 
-  constructor(project: DeployProjectConfig, request: DeployRequest, settings: DeploySettings) {
+  /** Rótulo da fase corrente do pipeline (exibição inline na lista). */
+  currentPhase?: string;
+
+  /** Callback de progresso: recebe a trilha completa a cada nova linha (SSE). */
+  private readonly onProgress?: (trail: string) => void;
+  /** Callback de mudança de fase: recebe o rótulo do step que vai executar. */
+  private readonly onPhase?: (label: string) => void;
+
+  /** Dockerfile efetivo deste deploy (override do ambiente ou padrão do projeto). */
+  get dockerfile(): string {
+    return this.request.dockerfilePath || this.project.dockerfilePath;
+  }
+
+  constructor(
+    project: DeployProjectConfig,
+    request: DeployRequest,
+    settings: DeploySettings,
+    onProgress?: (trail: string) => void,
+    onPhase?: (label: string) => void,
+  ) {
     this.project = project;
     this.request = request;
     this.settings = settings;
+    this.onProgress = onProgress;
+    this.onPhase = onPhase;
     this.slug = `env-${request.commitHash.slice(0, 7)}`;
   }
 
   log(message: string): void {
     this.logs.push(`[${new Date().toISOString()}] ${message}`);
+    this.onProgress?.(this.logs.join("\n"));
+  }
+
+  /** Marca a fase corrente (rótulo do step) e notifica via callback. */
+  phase(label: string): void {
+    this.currentPhase = label;
+    this.onPhase?.(label);
   }
 }

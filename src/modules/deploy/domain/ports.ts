@@ -25,7 +25,13 @@ export interface ContainerRunSpec {
 
 /** Orquestrador de containers (Docker Engine). */
 export interface IContainerOrchestrator {
-  buildImage(contextDir: string, dockerfilePath: string, tag: string): Promise<void>;
+  buildImage(
+    contextDir: string,
+    dockerfilePath: string,
+    tag: string,
+    buildArgs?: Record<string, string>,
+    onLog?: (line: string) => void,
+  ): Promise<void>;
   createNetwork(name: string): Promise<void>;
   runContainer(spec: ContainerRunSpec): Promise<string>; // -> containerId
   stopContainer(containerId: string): Promise<void>;
@@ -44,10 +50,10 @@ export interface PiholeConfig {
   password: string;
 }
 
-/** Provedor de DNS (Pi-hole). */
+/** Provedor de DNS (Pi-hole). Registra em TODOS os servidores informados. */
 export interface IDnsProvider {
-  register(hostname: string, ip: string, pihole: PiholeConfig): Promise<void>;
-  unregister(hostname: string, ip: string, pihole: PiholeConfig): Promise<void>;
+  register(hostname: string, ip: string, piholes: PiholeConfig[]): Promise<void>;
+  unregister(hostname: string, ip: string, piholes: PiholeConfig[]): Promise<void>;
   isResolving(hostname: string, expectedIp: string): Promise<boolean>;
   /** Aguarda a propagação do registro (resolução == ip esperado). */
   waitForPropagation(hostname: string, expectedIp: string, attempts?: number, delayMs?: number): Promise<boolean>;

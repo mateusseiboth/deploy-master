@@ -6,11 +6,12 @@ import type { IJobHandler } from "./IJobHandler";
 
 interface BackupPayload {
   trigger: BackupTrigger;
+  databaseName: string;
 }
 
 /**
- * Processa um job de backup de produção. O service gerencia as próprias
- * transações (logs) e roda os dumps fora de transação.
+ * Processa um job de backup de UM banco de produção. O service gerencia as
+ * próprias transações (logs) e roda o dump fora de transação.
  */
 @Injectable()
 export class BackupJobHandler implements IJobHandler<BackupPayload> {
@@ -19,6 +20,6 @@ export class BackupJobHandler implements IJobHandler<BackupPayload> {
   constructor(private readonly backups: ProductionBackupService) {}
 
   async handle(payload: BackupPayload): Promise<void> {
-    await this.backups.run(payload.trigger);
+    await this.backups.runDatabase(payload.trigger, payload.databaseName);
   }
 }

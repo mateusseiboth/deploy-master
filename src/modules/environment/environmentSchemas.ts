@@ -11,10 +11,14 @@ export const createEnvironmentSchema: z.ZodType<CreateEnvironmentDTO> = z.object
   commitMessage: z.string().optional(),
   commitDate: z.string().optional(),
   variableOverrides: z.record(z.string(), z.string()).optional(),
-  backup: z.object({
-    source: z.nativeEnum(BackupSource),
-    filePath: z.string().optional(),
-  }),
+  // Opcional: projetos que não dependem de banco não enviam origem de backup.
+  backup: z
+    .object({
+      source: z.nativeEnum(BackupSource),
+      filePath: z.string().optional(),
+    })
+    .optional(),
+  dockerfilePath: z.string().optional(),
 });
 
 export const renewSchema = z.object({ days: z.number().int().positive().max(30) });

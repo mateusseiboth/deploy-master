@@ -21,6 +21,7 @@ export function gitlabRoutes(): Router {
   router.get("/:id/gitlab/branches", async (req, res) => sendResult(res, await controller.branches(req)));
   router.get("/:id/gitlab/commits", async (req, res) => sendResult(res, await controller.commits(req)));
   router.get("/:id/gitlab/commits/:hash", async (req, res) => sendResult(res, await controller.commitDetail(req)));
+  router.get("/:id/gitlab/dockerfiles", async (req, res) => sendResult(res, await controller.dockerfiles(req)));
   router.get("/:id/gitlab/pipeline", async (req, res) => sendResult(res, await controller.pipeline(req)));
 
   return router;

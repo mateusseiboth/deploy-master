@@ -33,6 +33,8 @@ export interface CreateProjectInput {
   repositoryUrl?: string;
   gitlabToken?: string;
   dockerfilePath?: string;
+  productionDbUrl?: string;
+  homologationDbUrl?: string;
   databaseStrategy?: "UPLOAD_SQL" | "COPY_PRODUCTION";
   requiresDatabase?: boolean;
   databaseEnvVar?: string;
@@ -78,5 +80,16 @@ export function useCommits(projectId: string, branch: string) {
     queryKey: [...KEY, projectId, "commits", branch],
     queryFn: () => unwrap<GitLabCommit[]>(api.get(`/projects/${projectId}/gitlab/commits`, { params: { branch } })),
     enabled: !!projectId && !!branch,
+  });
+}
+
+/** Dockerfiles do repositório (para o QA escolher qual usar no build). */
+export function useDockerfiles(projectId: string, ref?: string) {
+  return useQuery({
+    queryKey: [...KEY, projectId, "dockerfiles", ref ?? "default"],
+    queryFn: () =>
+      unwrap<string[]>(api.get(`/projects/${projectId}/gitlab/dockerfiles`, { params: ref ? { ref } : {} })),
+    enabled: !!projectId,
+    staleTime: 60_000,
   });
 }

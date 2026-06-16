@@ -20,6 +20,7 @@ export interface CreateProjectDTO {
   buildCommand?: string;
   startCommand?: string;
   productionDbUrl?: string;
+  homologationDbUrl?: string;
   requiresDatabase?: boolean;
   databaseEnvVar?: string;
   databaseUrlTemplate?: string;
@@ -64,6 +65,7 @@ export class ProjectService extends BaseService {
       buildCommand: dto.buildCommand,
       startCommand: dto.startCommand,
       productionDbUrl: dto.productionDbUrl,
+      homologationDbUrl: dto.homologationDbUrl,
       requiresDatabase: dto.requiresDatabase ?? true,
       databaseEnvVar: dto.databaseEnvVar?.trim() || "DATABASE_URL",
       databaseUrlTemplate: dto.databaseUrlTemplate,
@@ -71,7 +73,8 @@ export class ProjectService extends BaseService {
       hostnameFormat: dto.hostnameFormat,
       certificateProvider: dto.certificateProvider,
       reverseProxy: dto.reverseProxy,
-      baseDomain: dto.baseDomain ?? "qa.local",
+      // Vazio = usa o domínio base global (SystemSettings.baseDomain) no deploy.
+      baseDomain: dto.baseDomain?.trim() ?? "",
       variables: dto.variables
         ? { create: dto.variables.map((v) => ({ key: v.key, type: v.type ?? "string", required: v.required ?? false, defaultValue: v.defaultValue })) }
         : undefined,
@@ -92,6 +95,7 @@ export class ProjectService extends BaseService {
       buildCommand: dto.buildCommand,
       startCommand: dto.startCommand,
       productionDbUrl: dto.productionDbUrl,
+      homologationDbUrl: dto.homologationDbUrl,
       requiresDatabase: dto.requiresDatabase,
       databaseEnvVar: dto.databaseEnvVar?.trim() || undefined,
       databaseUrlTemplate: dto.databaseUrlTemplate,

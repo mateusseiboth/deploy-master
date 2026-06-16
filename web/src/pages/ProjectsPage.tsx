@@ -87,9 +87,10 @@ function CreateProjectDialog({ open, onOpenChange }: { open: boolean; onOpenChan
   const create = useCreateProject();
   const gitlab = useGitlabProjects(open);
   const [form, setForm] = React.useState<CreateProjectInput>({
-    name: "", gitlabProjectId: "", repositoryUrl: "", gitlabToken: "",
+    name: "", gitlabProjectId: "", repositoryUrl: "", gitlabToken: "", dockerfilePath: "Dockerfile",
     databaseStrategy: "UPLOAD_SQL", baseDomain: "qa.local",
     requiresDatabase: true, databaseEnvVar: "DATABASE_URL", databaseUrlTemplate: "",
+    productionDbUrl: "", homologationDbUrl: "",
     deadline: { defaultDays: 7, maxDays: 30, maxRenewals: 5 },
   });
   const [variables, setVariables] = React.useState<{ key: string; required: boolean }[]>([]);
@@ -158,6 +159,9 @@ function CreateProjectDialog({ open, onOpenChange }: { open: boolean; onOpenChan
         <FormRow label="Token GitLab (opcional — usa o token geral)">
           <Input type="password" value={form.gitlabToken} onChange={(e) => set("gitlabToken", e.target.value)} />
         </FormRow>
+        <FormRow label="Dockerfile padrão">
+          <Input value={form.dockerfilePath ?? ""} onChange={(e) => set("dockerfilePath", e.target.value)} placeholder="Dockerfile" />
+        </FormRow>
         <div className="grid grid-cols-2 gap-3">
           <FormRow label="Estratégia de banco">
             <Select value={form.databaseStrategy} onChange={(e) => set("databaseStrategy", e.target.value as CreateProjectInput["databaseStrategy"])}>
@@ -199,6 +203,20 @@ function CreateProjectDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                   (ex.: <code>?schema=public</code>) é preservada — usuário, senha, IP, porta e
                   banco são substituídos.
                 </p>
+              </FormRow>
+              <FormRow label="URL do banco de produção (opcional — sobrescreve o global)">
+                <Input
+                  value={form.productionDbUrl ?? ""}
+                  onChange={(e) => set("productionDbUrl", e.target.value)}
+                  placeholder="vazio = usa o padrão global das Configurações"
+                />
+              </FormRow>
+              <FormRow label="URL do banco de homologação (opcional — sobrescreve o global)">
+                <Input
+                  value={form.homologationDbUrl ?? ""}
+                  onChange={(e) => set("homologationDbUrl", e.target.value)}
+                  placeholder="vazio = usa o padrão global das Configurações"
+                />
               </FormRow>
             </>
           )}
@@ -269,6 +287,8 @@ function EditProjectDialog({ project, onClose }: { project: Project; onClose: ()
     requiresDatabase: project.requiresDatabase ?? true,
     databaseEnvVar: project.databaseEnvVar ?? "DATABASE_URL",
     databaseUrlTemplate: project.databaseUrlTemplate ?? "",
+    productionDbUrl: project.productionDbUrl ?? "",
+    homologationDbUrl: project.homologationDbUrl ?? "",
     enabled: project.enabled ?? true,
     deadline: project.deadline
       ? {
@@ -339,6 +359,20 @@ function EditProjectDialog({ project, onClose }: { project: Project; onClose: ()
                   (ex.: <code>?schema=public</code>) é preservada — usuário, senha, IP, porta e
                   banco são substituídos.
                 </p>
+              </FormRow>
+              <FormRow label="URL do banco de produção (opcional — sobrescreve o global)">
+                <Input
+                  value={form.productionDbUrl ?? ""}
+                  onChange={(e) => set("productionDbUrl", e.target.value)}
+                  placeholder="vazio = usa o padrão global das Configurações"
+                />
+              </FormRow>
+              <FormRow label="URL do banco de homologação (opcional — sobrescreve o global)">
+                <Input
+                  value={form.homologationDbUrl ?? ""}
+                  onChange={(e) => set("homologationDbUrl", e.target.value)}
+                  placeholder="vazio = usa o padrão global das Configurações"
+                />
               </FormRow>
             </>
           )}

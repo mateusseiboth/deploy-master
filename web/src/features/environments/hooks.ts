@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, unwrap } from "@/lib/api";
 import type { Environment } from "@/lib/types";
 
+export type BackupSource = "UPLOAD" | "STORED_BACKUP" | "PRODUCTION_COPY" | "HOMOLOGATION_COPY";
+
 export interface CreateEnvironmentInput {
   projectId: string;
   branch: string;
@@ -10,7 +12,8 @@ export interface CreateEnvironmentInput {
   commitMessage?: string;
   commitDate?: string;
   variableOverrides?: Record<string, string>;
-  backup: { source: "UPLOAD" | "PRODUCTION_COPY"; filePath?: string };
+  backup: { source: BackupSource; filePath?: string };
+  dockerfilePath?: string;
 }
 
 const KEY = ["environments"];

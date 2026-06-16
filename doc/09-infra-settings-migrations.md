@@ -20,6 +20,21 @@
 - Próximas alterações: editar `schema.prisma` → gerar nova pasta em
   `prisma/migrations/<n>_<nome>` com `migrate diff --from-migrations` → `migrate deploy`.
 
+### Migration `20260615140000_homolog_progress_dockerfile`
+
+Aplicação idempotente (`ADD COLUMN IF NOT EXISTS` / `ADD VALUE IF NOT EXISTS`):
+
+- `system_settings.prodDbUrl` / `homologDbUrl` — conexões GLOBAIS de origem para cópia (admin); o QA só clica.
+- `projects.homologationDbUrl` — override por projeto da homologação (par de `productionDbUrl`); vazio = usa o global.
+- `environments.dockerfilePath` — Dockerfile escolhido no deploy (override do projeto).
+- `environments.deployLog` — trilha de progresso do pipeline (consumida via SSE).
+- `production_backup_logs`: `label`, `totalDatabases`, `processedDatabases`, `currentDatabase` — progresso ao vivo + nome legível da execução.
+- `BackupSource` ganha os valores `STORED_BACKUP` e `HOMOLOGATION_COPY`.
+
+> No Postgres 12+ o `ALTER TYPE ... ADD VALUE` roda em transação desde que o novo
+> valor **não seja usado na mesma transação** (não é). Em PG < 12 seria preciso
+> separar esses `ALTER TYPE` em outra migration. Assumimos PG 12+.
+
 ## Configurações no banco (não env) — Pi-hole e proxy
 
 Endereços de Pi-hole e proxy reverso são **cadastrados pelo ADMIN** e ficam na
@@ -46,6 +61,25 @@ docker compose -f docker-compose.infra.yml up -d
 O **API token do Pi-hole v5** = `sha256(sha256(WEBPASSWORD))`; cadastre-o em
 `/api/settings` (`piholeApiToken`). Aponte a máquina-cliente para
 `${REVERSE_PROXY_IP}` como servidor DNS.
+
+## Postgres efêmero gerenciado (porta randômica)
+
+Por padrão (`EPHEMERAL_PG_MANAGED=true`) o backend **sobe sob demanda** um único
+container Postgres compartilhado (`EPHEMERAL_PG_CONTAINER`, default
+`deploy-master-ephemeral-pg`, imagem `EPHEMERAL_PG_IMAGE`) publicando `5432` numa
+**porta livre aleatória** do host (escolhida pelo Docker e descoberta via inspect).
+Todos os ambientes criam `db_<hash>` nesse servidor; um volume nomeado preserva os
+bancos entre restarts. O container é **compartilhado** — o cleanup de um ambiente
+dropa só o `db_<hash>`, nunca o servidor.
+
+> ⚠️ **`EPHEMERAL_PG_HOST` deve ser um IP alcançável pelos containers** (ex.: o IP
+> de LAN do host Docker, `10.1.2.8`) — **não** `localhost`. O worker (no host) e o
+> health check funcionam com `localhost`, mas o **container da app** (e migrations
+> em build-time) só alcançam o Postgres por um host roteável. Com `localhost` o
+> deploy "passa" no health check mas a app não conecta ao banco.
+
+Para um Postgres externo fixo, use `EPHEMERAL_PG_MANAGED=false` +
+`EPHEMERAL_PG_HOST/PORT`.
 
 ## Backend em container (container-to-container)
 

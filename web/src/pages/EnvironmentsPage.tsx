@@ -5,12 +5,13 @@ import {Select} from "@/components/ui/select";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {useToast} from "@/components/ui/toast";
 import {CreateEnvironmentDialog} from "@/features/environments/CreateEnvironmentDialog";
+import {DeployProgressDialog} from "@/features/environments/DeployProgressDialog";
 import {LogsDialog} from "@/features/environments/LogsDialog";
 import {StatusBadge} from "@/features/environments/StatusBadge";
 import {useEnvironmentAction, useEnvironments} from "@/features/environments/hooks";
 import type {Environment} from "@/lib/types";
 import {daysUntil, formatDate} from "@/lib/utils";
-import {AlertTriangle, Clock, ExternalLink, Plus, RefreshCw, RotateCw, ScrollText, TerminalSquare, Trash2} from "lucide-react";
+import {Activity, AlertTriangle, Clock, ExternalLink, Plus, RefreshCw, RotateCw, ScrollText, TerminalSquare, Trash2} from "lucide-react";
 import * as React from "react";
 import {lifeRatio} from "./DashboardPage";
 
@@ -22,6 +23,7 @@ export function EnvironmentsPage() {
   const [createOpen, setCreateOpen] = React.useState(false);
   const [renewTarget, setRenewTarget] = React.useState<Environment | null>(null);
   const [logsTarget, setLogsTarget] = React.useState<Environment | null>(null);
+  const [progressTarget, setProgressTarget] = React.useState<Environment | null>(null);
   const [consoleTarget, setConsoleTarget] = React.useState<Environment | null>(null);
 
   return (
@@ -76,6 +78,7 @@ export function EnvironmentsPage() {
                 env={env}
                 onRenew={() => setRenewTarget(env)}
                 onLogs={() => setLogsTarget(env)}
+                onProgress={() => setProgressTarget(env)}
                 onConsole={() => setConsoleTarget(env)}
               />
             ))}
@@ -95,6 +98,10 @@ export function EnvironmentsPage() {
         env={logsTarget}
         onClose={() => setLogsTarget(null)}
       />
+      <DeployProgressDialog
+        env={progressTarget}
+        onClose={() => setProgressTarget(null)}
+      />
       {consoleTarget && (
         <React.Suspense fallback={null}>
           <ConsoleDialog
@@ -111,11 +118,13 @@ function EnvironmentRow({
   env,
   onRenew,
   onLogs,
+  onProgress,
   onConsole,
 }: {
   env: Environment;
   onRenew: () => void;
   onLogs: () => void;
+  onProgress: () => void;
   onConsole: () => void;
 }) {
   const {notify} = useToast();
@@ -133,6 +142,11 @@ function EnvironmentRow({
           status={env.status}
           ratio={lifeRatio(env)}
         />
+        {env.status === "PROVISIONING" && env.deployPhase && (
+          <span className="mt-1 block animate-pulse text-[11px] text-muted-foreground">
+            {env.deployPhase}…
+          </span>
+        )}
       </TableCell>
       <TableCell>
         <div className="flex items-center gap-1 text-xs">
@@ -161,6 +175,14 @@ function EnvironmentRow({
               </Button>
             </a>
           )}
+          <Button
+            variant="ghost"
+            size="icon"
+            title="Progresso do deploy"
+            onClick={onProgress}
+          >
+            <Activity className="h-4 w-4" />
+          </Button>
           <Button
             variant="ghost"
             size="icon"

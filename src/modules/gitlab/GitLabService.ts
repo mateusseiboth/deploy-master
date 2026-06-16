@@ -83,6 +83,18 @@ export class GitLabService extends BaseService {
     });
   }
 
+  /**
+   * Lista os Dockerfiles do repositório (qualquer arquivo cujo nome contenha
+   * "dockerfile"), para o QA escolher qual usar no build. Cacheado por ref.
+   */
+  listDockerfiles(projectId: string, ref?: string): Promise<string[]> {
+    return this.cached(`gitlab:${projectId}:dockerfiles:${ref ?? "default"}`, async () => {
+      const a = await this.loadAccess(projectId);
+      const paths = await this.gitlab.listTree(a.repositoryUrl, a.gitlabProjectId, a.gitlabToken, ref);
+      return paths.filter((p) => /dockerfile/i.test(p.split("/").pop() ?? ""));
+    });
+  }
+
   getPipeline(projectId: string, ref: string): Promise<GitLabPipeline | null> {
     return this.cached(`gitlab:${projectId}:pipeline:${ref}`, async () => {
       const a = await this.loadAccess(projectId);

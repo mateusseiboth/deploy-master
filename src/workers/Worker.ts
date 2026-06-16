@@ -36,6 +36,8 @@ export class Worker {
     this.running = true;
     console.log(`[${this.id}] worker iniciado (poll ${pollIntervalMs}ms)`);
     while (this.running) {
+      // Sinal de vida para a UI saber que o worker está consumindo a fila.
+      this.queue.heartbeat();
       const processed = await this.tick();
       if (!processed) await this.sleep(pollIntervalMs);
     }

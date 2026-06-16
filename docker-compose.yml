@@ -14,6 +14,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       # Workspace de clones/builds (compartilhado com o worker).
       - workspaces:/tmp/deploy-master/workspaces
+      - /mnt/backups:/mnt/backups
     networks:
       - traefik-public
     labels:
@@ -32,6 +33,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - workspaces:/tmp/deploy-master/workspaces
+      - /mnt/backups:/mnt/backups
     networks:
       - traefik-public
 

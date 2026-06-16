@@ -6,6 +6,7 @@ import { DeployStep } from "./IDeployStep";
 /** Gera hostname + URL do ambiente conforme a estratégia do projeto. */
 export class ResolveHostnameStep extends DeployStep {
   readonly name = "ResolveHostname";
+  readonly label = "Resolvendo hostname";
   constructor(private readonly hostname: IHostnameStrategy) {
     super();
   }
@@ -40,6 +41,7 @@ function applyUrlTemplate(databaseUrl: string, template?: string | null): string
  */
 export class ResolveEnvVarsStep extends DeployStep {
   readonly name = "ResolveEnvVars";
+  readonly label = "Resolvendo variáveis de ambiente";
   async execute(ctx: DeployContext): Promise<void> {
     const resolved: Record<string, string> = {
       ...ctx.request.variableOverrides,
@@ -59,6 +61,7 @@ export class ResolveEnvVarsStep extends DeployStep {
 /** Calcula as labels/config de rota do proxy (com TLS) para o container. */
 export class ComputeRouteStep extends DeployStep {
   readonly name = "ComputeRoute";
+  readonly label = "Calculando rota do proxy reverso";
   constructor(private readonly proxy: IReverseProxyStrategy) {
     super();
   }

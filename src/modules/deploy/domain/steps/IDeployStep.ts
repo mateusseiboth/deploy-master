@@ -7,6 +7,8 @@ import type { DeployContext } from "@modules/deploy/domain/DeployContext";
  */
 export interface IDeployStep {
   readonly name: string;
+  /** Rótulo legível (PT) exibido no progresso ao vivo; cai em `name` se ausente. */
+  readonly label?: string;
   execute(ctx: DeployContext): Promise<void>;
   /** Desfaz os efeitos do step. Deve ser idempotente e tolerante a "não existe". */
   compensate(ctx: DeployContext): Promise<void>;

@@ -119,6 +119,25 @@ export class GitLabClient {
   }
 
   /**
+   * Lista os caminhos dos arquivos (blobs) do repositório, recursivamente. Usado
+   * para descobrir os Dockerfiles disponíveis no repo.
+   */
+  async listTree(
+    repositoryUrl: string,
+    projectId: string,
+    token: string,
+    ref?: string,
+  ): Promise<string[]> {
+    const refQuery = ref ? `&ref=${encodeURIComponent(ref)}` : "";
+    const raw = await this.request<Array<RawTreeEntry>>(
+      repositoryUrl,
+      token,
+      `/projects/${encodeURIComponent(projectId)}/repository/tree?recursive=true&per_page=100${refQuery}`,
+    );
+    return raw.filter((e) => e.type === "blob").map((e) => e.path);
+  }
+
+  /**
    * Projetos acessíveis pelo token (para popular o seletor de projeto).
    * `baseUrl` pode ser a URL base do GitLab (token geral) — só o host é usado.
    */
@@ -130,6 +149,11 @@ export class GitLabClient {
     );
     return raw.map(toProjectRef);
   }
+}
+
+interface RawTreeEntry {
+  path: string;
+  type: string; // "blob" | "tree"
 }
 
 interface RawPipeline {

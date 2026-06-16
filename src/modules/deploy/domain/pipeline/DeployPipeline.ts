@@ -20,7 +20,8 @@ export class DeployPipeline {
     const executed: IDeployStep[] = [];
     try {
       for (const step of this.steps) {
-        ctx.log(`▶ ${step.name}`);
+        ctx.phase(step.label ?? step.name);
+        ctx.log(`▶ ${step.label ?? step.name}`);
         await step.execute(ctx);
         executed.push(step);
       }

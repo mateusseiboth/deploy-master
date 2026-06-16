@@ -12,9 +12,13 @@ HTTP (Express)                         Processo worker (bun run worker)
                                            ExpirationScheduler (cron)
 ```
 
-- **Fila**: `SqliteJobQueue` (`bun:sqlite`), tipos `deploy` e `cleanup`. Reserva
-  atômica (`BEGIN IMMEDIATE` + `UPDATE ... RETURNING`), backoff exponencial,
+- **Fila**: `SqliteJobQueue` (`bun:sqlite`), tipos `deploy`, `cleanup` e `backup`.
+  Reserva atômica (`BEGIN IMMEDIATE` + `UPDATE ... RETURNING`), backoff exponencial,
   `maxAttempts`. Sem Redis (ADR-007).
+- **Monitoramento**: `GET /api/queue` (`SqliteJobQueue.list`) expõe os jobs
+  (status/tipo/tentativas/erro) lendo o MESMO arquivo SQLite do worker — a UI
+  (card "Fila de operações" no Dashboard) mostra deploys, remoções e backups em
+  andamento, na fila ou com falha.
 - **Worker**: faz polling, reserva o job e despacha ao `IJobHandler` por tipo
   (Strategy). Falha → `retryOrFail` (backoff) → eventual `failed`.
 - **Cron**: `ExpirationScheduler` chama `EnvironmentService.processExpirations`
@@ -45,6 +49,11 @@ handlers seguem:
 `remove()` (manual, RBAC) ou cron (expiração) enfileiram `cleanup`. O handler
 hidrata o `DeployContext` com o snapshot persistido e roda `teardown()`
 (compensação reversa dos steps) — nenhum recurso órfão. Status final `REMOVED`.
+
+O cleanup é **resiliente**: o `teardown` (best-effort/idempotente) roda num
+`try`, e o `markRemoved` num `finally` — assim, mesmo que uma etapa de remoção
+falhe, o ambiente não fica preso em `REMOVING` (o que bloquearia recriar o mesmo
+commit). Recursos remanescentes são limpos por nova execução do cleanup.
 
 ## RBAC (placeholder até Fase 2)
 

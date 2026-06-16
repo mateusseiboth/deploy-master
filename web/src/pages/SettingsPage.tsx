@@ -4,14 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/toast";
-import { formatDate } from "@/lib/utils";
 import { useAuth } from "@/features/auth/AuthContext";
 import {
   useSettings,
   useUpdateSettings,
-  useProductionBackups,
-  useTriggerProductionBackup,
   type SystemSettings,
+  type PiholeServer,
 } from "@/features/settings/hooks";
 
 type StringKey = {
@@ -26,11 +24,9 @@ interface FieldDef {
 }
 
 const INFRA_FIELDS: FieldDef[] = [
-  { key: "piholeBaseUrl", label: "Pi-hole — URL base (v6)", hint: "raiz do Pi-hole, ex.: http://10.10.10.2 (sem /admin)" },
-  { key: "piholePassword", label: "Pi-hole — senha do admin", secret: true, hint: "v6 autentica por senha (não há mais API token)" },
   { key: "reverseProxyIp", label: "IP do proxy reverso", hint: "para onde os hostnames apontam" },
   { key: "traefikNetwork", label: "Rede do Traefik" },
-  { key: "baseDomain", label: "Domínio base", hint: "ex.: qa.local" },
+  { key: "baseDomain", label: "Domínio base", hint: "ex.: qualitysistemas.localdev — usado por projetos sem domínio próprio" },
 ];
 
 const GITLAB_FIELDS: FieldDef[] = [
@@ -38,9 +34,9 @@ const GITLAB_FIELDS: FieldDef[] = [
   { key: "gitlabApiToken", label: "GitLab — token de API (geral)", secret: true, hint: "usado por todos os projetos para buscar pela API" },
 ];
 
-const BACKUP_FIELDS: FieldDef[] = [
-  { key: "prodBackupDbUrl", label: "Backup — conexão do Postgres de produção", hint: "postgresql://user:pass@host:5432/postgres" },
-  { key: "prodBackupDir", label: "Backup — pasta destino", hint: "onde os dumps de todos os bancos serão gravados" },
+const COPY_SOURCE_FIELDS: FieldDef[] = [
+  { key: "prodDbUrl", label: "Banco de PRODUÇÃO (origem da cópia)", hint: "postgresql://user:pass@host:5432/db — usado quando o QA escolhe 'Copiar produção'. Recomenda-se usuário read-only." },
+  { key: "homologDbUrl", label: "Banco de HOMOLOGAÇÃO (origem da cópia)", hint: "postgresql://user:pass@host:5432/db — usado quando o QA escolhe 'Copiar homologação'." },
 ];
 
 export function SettingsPage() {
@@ -52,7 +48,16 @@ export function SettingsPage() {
   const isAdmin = user?.role === "ADMIN";
 
   React.useEffect(() => {
-    if (data) setForm(data);
+    if (!data) return;
+    // Semeia a lista a partir do par legado (URL+senha) quando ainda vazia, para
+    // o admin enxergar/migrar a config antiga de um único Pi-hole.
+    const piholeServers =
+      data.piholeServers?.length
+        ? data.piholeServers
+        : data.piholeBaseUrl
+          ? [{ baseUrl: data.piholeBaseUrl, password: data.piholePassword }]
+          : [];
+    setForm({ ...data, piholeServers });
   }, [data]);
 
   function setField<K extends keyof SystemSettings>(key: K, value: SystemSettings[K]) {
@@ -87,7 +92,7 @@ export function SettingsPage() {
     <div className="max-w-2xl space-y-6">
       <header>
         <h2 className="text-2xl font-bold">Configurações</h2>
-        <p className="text-sm text-muted-foreground">Pi-hole, GitLab e backup de produção (cadastrados no banco)</p>
+        <p className="text-sm text-muted-foreground">Pi-hole, GitLab e bancos de origem (cadastrados no banco). Backups ficam na aba Backups.</p>
       </header>
 
       <Card>
@@ -97,6 +102,12 @@ export function SettingsPage() {
         </CardHeader>
         <CardContent className="space-y-4">{renderFields(INFRA_FIELDS)}</CardContent>
       </Card>
+
+      <PiholeServersCard
+        servers={form.piholeServers ?? []}
+        disabled={!isAdmin}
+        onChange={(servers) => setField("piholeServers", servers)}
+      />
 
       <Card>
         <CardHeader>
@@ -108,38 +119,13 @@ export function SettingsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Backup automático de produção</CardTitle>
+          <CardTitle className="text-base">Bancos de origem para cópia</CardTitle>
           <CardDescription>
-            Roda um <code>pg_dump</code> completo de todos os bancos do servidor e grava na pasta.
+            Conexões padrão de produção e homologação. O QA só escolhe a origem; um projeto
+            pode sobrescrever estas URLs no seu cadastro.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {renderFields(BACKUP_FIELDS)}
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label>Intervalo entre backups (horas)</Label>
-              <Input
-                type="number"
-                min={1}
-                disabled={!isAdmin}
-                value={form.prodBackupIntervalHours ?? 24}
-                onChange={(e) => setField("prodBackupIntervalHours", Number(e.target.value))}
-              />
-            </div>
-            <div className="flex items-end pb-2">
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  disabled={!isAdmin}
-                  checked={form.prodBackupEnabled ?? false}
-                  onChange={(e) => setField("prodBackupEnabled", e.target.checked)}
-                />
-                Backup automático habilitado
-              </label>
-            </div>
-          </div>
-        </CardContent>
+        <CardContent className="space-y-4">{renderFields(COPY_SOURCE_FIELDS)}</CardContent>
       </Card>
 
       {isAdmin ? (
@@ -149,70 +135,73 @@ export function SettingsPage() {
       ) : (
         <p className="text-xs text-muted-foreground">Somente administradores podem editar.</p>
       )}
-
-      {isAdmin && <ProductionBackups />}
     </div>
   );
 }
 
-function formatBytes(bytes?: number | null): string {
-  if (!bytes) return "—";
-  const units = ["B", "KB", "MB", "GB", "TB"];
-  let value = bytes;
-  let i = 0;
-  while (value >= 1024 && i < units.length - 1) {
-    value /= 1024;
-    i++;
+function PiholeServersCard({
+  servers,
+  disabled,
+  onChange,
+}: {
+  servers: PiholeServer[];
+  disabled: boolean;
+  onChange: (servers: PiholeServer[]) => void;
+}) {
+  function patch(i: number, p: Partial<PiholeServer>) {
+    onChange(servers.map((s, idx) => (idx === i ? { ...s, ...p } : s)));
   }
-  return `${value.toFixed(1)} ${units[i]}`;
-}
-
-function ProductionBackups() {
-  const { data } = useProductionBackups();
-  const trigger = useTriggerProductionBackup();
-  const { notify } = useToast();
-
-  async function onRun() {
-    try {
-      await trigger.mutateAsync();
-      notify("Backup de produção enfileirado");
-    } catch {
-      notify("Falha ao disparar backup", "error");
-    }
+  function add() {
+    onChange([...servers, { baseUrl: "", password: "" }]);
+  }
+  function remove(i: number) {
+    onChange(servers.filter((_, idx) => idx !== i));
   }
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div>
-          <CardTitle className="text-base">Execuções de backup</CardTitle>
-          <CardDescription>Histórico (automático e solicitado).</CardDescription>
-        </div>
-        <Button size="sm" onClick={onRun} disabled={trigger.isPending}>
-          {trigger.isPending ? "Enfileirando…" : "Rodar agora"}
-        </Button>
+      <CardHeader>
+        <CardTitle className="text-base">Servidores Pi-hole (DNS)</CardTitle>
+        <CardDescription>
+          Pi-hole v6 (autentica por senha). O registro de DNS é gravado em <strong>todos</strong> os
+          servidores — útil quando há múltiplos DNS balanceados. URL base sem <code>/admin</code>.
+        </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-2">
-        {!data?.length && <p className="text-sm text-muted-foreground">Nenhuma execução ainda.</p>}
-        {data?.map((log) => (
-          <div key={log.id} className="rounded-md border p-3 text-xs">
-            <div className="flex items-center justify-between">
-              <span className="font-medium">
-                {log.trigger === "AUTOMATIC" ? "Automático" : "Solicitado"} · {statusLabel(log.status)}
-              </span>
-              <span className="text-muted-foreground">{formatDate(log.startedAt)}</span>
+      <CardContent className="space-y-3">
+        {servers.length === 0 && (
+          <p className="text-sm text-muted-foreground">Nenhum servidor. Adicione ao menos um.</p>
+        )}
+        {servers.map((server, i) => (
+          <div key={i} className="flex items-end gap-2">
+            <div className="flex-1 space-y-1.5">
+              <Label>URL base #{i + 1}</Label>
+              <Input
+                disabled={disabled}
+                value={server.baseUrl}
+                placeholder="http://10.1.2.4"
+                onChange={(e) => patch(i, { baseUrl: e.target.value })}
+              />
             </div>
-            <p className="text-muted-foreground">
-              {log.databases?.length ?? 0} banco(s) · {formatBytes(log.totalBytes)} · {log.directory}
-            </p>
-            {log.message && <p className="text-amber-400">{log.message}</p>}
+            <div className="flex-1 space-y-1.5">
+              <Label>Senha</Label>
+              <Input
+                type="password"
+                disabled={disabled}
+                value={server.password}
+                onChange={(e) => patch(i, { password: e.target.value })}
+              />
+            </div>
+            <Button variant="outline" size="sm" disabled={disabled} onClick={() => remove(i)}>
+              Remover
+            </Button>
           </div>
         ))}
+        {!disabled && (
+          <Button variant="outline" size="sm" onClick={add}>
+            + Adicionar servidor
+          </Button>
+        )}
       </CardContent>
     </Card>
   );
-}
-
-function statusLabel(status: "RUNNING" | "SUCCESS" | "FAILED"): string {
-  return status === "SUCCESS" ? "Concluído" : status === "FAILED" ? "Falhou" : "Em execução";
 }

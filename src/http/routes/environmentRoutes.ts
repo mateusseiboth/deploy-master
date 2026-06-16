@@ -27,6 +27,10 @@ export function environmentRoutes(): Router {
   // o containerId é lido numa transação curta e o stream roda fora dela.
   router.get("/:id/logs/stream", (req, res) => streamLogs(req, res));
 
+  // SSE: progresso do deploy (clone → build → ... → health). A fonte é a coluna
+  // `deployLog` persistida pelo worker (processos separados): faz tail por polling.
+  router.get("/:id/deploy/stream", (req, res) => streamDeployProgress(req, res));
+
   route
     .with(requireRole("ADMIN", "QA"), validateBody(createEnvironmentSchema))
     .post("/", (req) => controller.create(req));
@@ -79,4 +83,55 @@ async function streamLogs(req: Request, res: Response): Promise<void> {
     stop();
     sink.destroy();
   });
+}
+
+/** Estados em que o deploy ainda está em andamento (mantém o stream aberto). */
+const IN_PROGRESS = new Set(["PENDING", "PROVISIONING"]);
+
+/**
+ * Handler SSE do progresso do deploy: faz *tail* da coluna `deployLog` do
+ * ambiente (preenchida pelo worker), emitindo só as linhas novas. Encerra com
+ * `event: done` quando o ambiente sai dos estados em andamento.
+ */
+async function streamDeployProgress(req: Request, res: Response): Promise<void> {
+  const id = req.params.id as string;
+  const environments = container.get(EnvironmentService);
+
+  res.writeHead(200, {
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    Connection: "keep-alive",
+  });
+  res.write(`event: ready\ndata: conectado\n\n`);
+
+  let sentLines = 0;
+  let closed = false;
+  req.on("close", () => { closed = true; });
+
+  while (!closed) {
+    let snapshot: { status: string; deployLog: string | null } | null;
+    try {
+      snapshot = await runInTransaction(async () => {
+        const env = await environments.getById(id);
+        return { status: env.status, deployLog: env.deployLog };
+      });
+    } catch {
+      res.write(`event: done\ndata: not-found\n\n`);
+      res.end();
+      return;
+    }
+
+    const lines = snapshot.deployLog ? snapshot.deployLog.split("\n") : [];
+    for (const line of lines.slice(sentLines)) {
+      if (line) res.write(`data: ${line}\n\n`);
+    }
+    sentLines = lines.length;
+
+    if (!IN_PROGRESS.has(snapshot.status)) {
+      res.write(`event: done\ndata: ${snapshot.status}\n\n`);
+      res.end();
+      return;
+    }
+    await new Promise((r) => setTimeout(r, 700));
+  }
 }

@@ -47,6 +47,11 @@ export { Prisma }
  */
 export type SystemSettings = Prisma.SystemSettingsModel
 /**
+ * Model BackupDatabaseConfig
+ * 
+ */
+export type BackupDatabaseConfig = Prisma.BackupDatabaseConfigModel
+/**
  * Model ProductionBackupLog
  * 
  */

@@ -36,13 +36,18 @@ export class DeployOrchestratorService extends BaseService {
     super();
   }
 
-  /** Executa o pipeline completo de provisionamento. */
+  /**
+   * Executa o pipeline completo de provisionamento. `onProgress` (opcional)
+   * recebe a trilha de logs a cada novo passo, para transmissão ao vivo.
+   */
   async provision(
     project: DeployProjectConfig,
     request: DeployRequest,
     settings: DeploySettings,
+    onProgress?: (trail: string) => void,
+    onPhase?: (label: string) => void,
   ): Promise<DeployOutcome> {
-    const context = new DeployContext(project, request, settings);
+    const context = new DeployContext(project, request, settings, onProgress, onPhase);
     const pipeline = this.pipelineFactory.create(context);
     const result = await pipeline.execute(context);
     return { context, result };

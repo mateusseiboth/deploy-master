@@ -20,6 +20,21 @@ export interface EnqueueOptions {
   delayMs?: number;
 }
 
+/** Visão de um job para monitoramento da fila (sem reservar/alterar). */
+export interface QueueJobView {
+  id: string;
+  type: JobType;
+  status: string; // pending | active | completed | failed
+  payload: unknown;
+  attempts: number;
+  maxAttempts: number;
+  lastError: string | null;
+  lockedBy: string | null;
+  runAt: number;
+  createdAt: number;
+  updatedAt: number;
+}
+
 /**
  * Port da fila de jobs persistente. Abstrai o backend (SQLite) — Services
  * dependem desta interface, não da implementação (DIP). Sem Redis (ADR-007).
@@ -31,4 +46,6 @@ export interface IJobQueue {
   complete(jobId: string): void;
   /** Incrementa tentativas; reagenda com backoff ou marca como failed. */
   retryOrFail(jobId: string, error: string): void;
+  /** Lista os jobs recentes para monitoramento (não reserva nem altera). */
+  list(limit?: number): QueueJobView[];
 }

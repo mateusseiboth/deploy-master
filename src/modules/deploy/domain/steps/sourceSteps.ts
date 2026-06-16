@@ -4,6 +4,7 @@ import { DeployStep } from "./IDeployStep";
 
 export class CloneRepositoryStep extends DeployStep {
   readonly name = "CloneRepository";
+  readonly label = "Clonando repositório";
   constructor(private readonly source: ISourceProvider) {
     super();
   }
@@ -18,6 +19,7 @@ export class CloneRepositoryStep extends DeployStep {
 
 export class CheckoutCommitStep extends DeployStep {
   readonly name = "CheckoutCommit";
+  readonly label = "Checkout do commit";
   constructor(private readonly source: ISourceProvider) {
     super();
   }

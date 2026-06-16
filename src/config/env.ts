@@ -3,6 +3,17 @@
  * Single source of truth para acesso a `process.env` — nenhuma outra camada
  * deve ler `process.env` diretamente (SRP + facilita testes).
  */
+import { isAbsolute, resolve } from "path";
+import { fileURLToPath } from "url";
+
+// Raiz do projeto ancorada NESTE módulo (não no cwd). Garante que API e worker
+// resolvam os mesmos arquivos SQLite mesmo iniciados de diretórios diferentes.
+const PROJECT_ROOT = fileURLToPath(new URL("../..", import.meta.url));
+
+/** Resolve um caminho relativo contra a raiz do projeto (absoluto = inalterado). */
+function absolute(value: string): string {
+  return isAbsolute(value) ? value : resolve(PROJECT_ROOT, value);
+}
 
 function required(key: string): string {
   const value = process.env[key];
@@ -34,17 +45,26 @@ export const env = {
     txMaxWaitMs: int("DB_TX_MAX_WAIT_MS", 5000),
   },
   ephemeralPg: {
+    // managed=true: o sistema SOBE um container Postgres compartilhado sob demanda
+    // numa porta livre aleatória (descoberta via inspect). managed=false: usa um
+    // Postgres externo em host/port fixos (EPHEMERAL_PG_HOST/PORT).
+    managed: optional("EPHEMERAL_PG_MANAGED", "true") === "true",
+    image: optional("EPHEMERAL_PG_IMAGE", "postgres:16-alpine"),
+    containerName: optional("EPHEMERAL_PG_CONTAINER", "deploy-master-ephemeral-pg"),
+    // Host pelo qual app/build/worker alcançam o Postgres. Com managed, deve ser
+    // um IP roteável a partir dos containers (NÃO "localhost").
     host: optional("EPHEMERAL_PG_HOST", "localhost"),
-    port: int("EPHEMERAL_PG_PORT", 5432),
+    port: int("EPHEMERAL_PG_PORT", 5432), // usado só quando managed=false
     adminUser: optional("EPHEMERAL_PG_ADMIN_USER", "postgres"),
     adminPassword: optional("EPHEMERAL_PG_ADMIN_PASSWORD", "postgres"),
   },
   queue: {
-    dbPath: optional("QUEUE_DB_PATH", "./data/queue.sqlite"),
+    // Absoluto: API e worker (processos distintos) precisam do MESMO arquivo.
+    dbPath: absolute(optional("QUEUE_DB_PATH", "./data/queue.sqlite")),
   },
   cache: {
     driver: optional("CACHE_DRIVER", "memory"), // memory | sqlite
-    dbPath: optional("CACHE_DB_PATH", "./data/cache.sqlite"),
+    dbPath: absolute(optional("CACHE_DB_PATH", "./data/cache.sqlite")),
   },
   auth: {
     accessSecret: optional("JWT_ACCESS_SECRET", "dev-access-secret"),
@@ -69,10 +89,9 @@ export const env = {
     apiToken: optional("GITLAB_API_TOKEN", ""),
   },
   backup: {
-    // Backup automático completo do servidor PostgreSQL de produção.
+    // Backup automático do servidor PostgreSQL de produção (agendamento por banco).
     prodDbUrl: optional("PROD_BACKUP_DB_URL", ""),
     prodDir: optional("PROD_BACKUP_DIR", ""),
-    prodIntervalHours: int("PROD_BACKUP_INTERVAL_HOURS", 24),
     prodEnabled: optional("PROD_BACKUP_ENABLED", "false") === "true",
   },
   proxy: {

@@ -49,6 +49,7 @@ export interface Project {
   buildCommand?: string | null;
   startCommand?: string | null;
   productionDbUrl?: string | null;
+  homologationDbUrl?: string | null;
   requiresDatabase?: boolean;
   databaseEnvVar?: string;
   databaseUrlTemplate?: string | null;
@@ -79,6 +80,9 @@ export interface Environment {
   status: EnvironmentStatus;
   hostname?: string | null;
   url?: string | null;
+  dockerfilePath?: string | null;
+  deployLog?: string | null;
+  deployPhase?: string | null;
   failureReason?: string | null;
   expiresAt?: string | null;
   renewalCount: number;
@@ -105,6 +109,30 @@ export interface GitLabProjectRef {
   pathWithNamespace: string;
   httpUrlToRepo: string;
   webUrl: string;
+}
+
+export type QueueJobType = "deploy" | "cleanup" | "backup";
+
+export interface QueueJob {
+  id: string;
+  type: QueueJobType;
+  status: "pending" | "active" | "completed" | "failed";
+  payload: { environmentId?: string; trigger?: string; databaseName?: string } | null;
+  attempts: number;
+  maxAttempts: number;
+  lastError?: string | null;
+  lockedBy?: string | null;
+  runAt: number;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface QueueSnapshot {
+  jobs: QueueJob[];
+  stats: Record<string, number>;
+  /** Último heartbeat do worker (ms epoch) e se está online (< ~15s). */
+  lastHeartbeat?: number | null;
+  workerOnline?: boolean;
 }
 
 export interface DashboardIndicators {

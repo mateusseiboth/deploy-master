@@ -53,6 +53,9 @@ export type EnvironmentMinAggregateOutputType = {
   databaseName: string | null
   imageTag: string | null
   failureReason: string | null
+  dockerfilePath: string | null
+  deployLog: string | null
+  deployPhase: string | null
   expiresAt: Date | null
   renewalCount: number | null
   createdAt: Date | null
@@ -78,6 +81,9 @@ export type EnvironmentMaxAggregateOutputType = {
   databaseName: string | null
   imageTag: string | null
   failureReason: string | null
+  dockerfilePath: string | null
+  deployLog: string | null
+  deployPhase: string | null
   expiresAt: Date | null
   renewalCount: number | null
   createdAt: Date | null
@@ -103,6 +109,9 @@ export type EnvironmentCountAggregateOutputType = {
   databaseName: number
   imageTag: number
   failureReason: number
+  dockerfilePath: number
+  deployLog: number
+  deployPhase: number
   expiresAt: number
   renewalCount: number
   createdAt: number
@@ -138,6 +147,9 @@ export type EnvironmentMinAggregateInputType = {
   databaseName?: true
   imageTag?: true
   failureReason?: true
+  dockerfilePath?: true
+  deployLog?: true
+  deployPhase?: true
   expiresAt?: true
   renewalCount?: true
   createdAt?: true
@@ -163,6 +175,9 @@ export type EnvironmentMaxAggregateInputType = {
   databaseName?: true
   imageTag?: true
   failureReason?: true
+  dockerfilePath?: true
+  deployLog?: true
+  deployPhase?: true
   expiresAt?: true
   renewalCount?: true
   createdAt?: true
@@ -188,6 +203,9 @@ export type EnvironmentCountAggregateInputType = {
   databaseName?: true
   imageTag?: true
   failureReason?: true
+  dockerfilePath?: true
+  deployLog?: true
+  deployPhase?: true
   expiresAt?: true
   renewalCount?: true
   createdAt?: true
@@ -300,6 +318,9 @@ export type EnvironmentGroupByOutputType = {
   databaseName: string | null
   imageTag: string | null
   failureReason: string | null
+  dockerfilePath: string | null
+  deployLog: string | null
+  deployPhase: string | null
   expiresAt: Date | null
   renewalCount: number
   createdAt: Date
@@ -348,6 +369,9 @@ export type EnvironmentWhereInput = {
   databaseName?: Prisma.StringNullableFilter<"Environment"> | string | null
   imageTag?: Prisma.StringNullableFilter<"Environment"> | string | null
   failureReason?: Prisma.StringNullableFilter<"Environment"> | string | null
+  dockerfilePath?: Prisma.StringNullableFilter<"Environment"> | string | null
+  deployLog?: Prisma.StringNullableFilter<"Environment"> | string | null
+  deployPhase?: Prisma.StringNullableFilter<"Environment"> | string | null
   expiresAt?: Prisma.DateTimeNullableFilter<"Environment"> | Date | string | null
   renewalCount?: Prisma.IntFilter<"Environment"> | number
   createdAt?: Prisma.DateTimeFilter<"Environment"> | Date | string
@@ -379,6 +403,9 @@ export type EnvironmentOrderByWithRelationInput = {
   databaseName?: Prisma.SortOrderInput | Prisma.SortOrder
   imageTag?: Prisma.SortOrderInput | Prisma.SortOrder
   failureReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  dockerfilePath?: Prisma.SortOrderInput | Prisma.SortOrder
+  deployLog?: Prisma.SortOrderInput | Prisma.SortOrder
+  deployPhase?: Prisma.SortOrderInput | Prisma.SortOrder
   expiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   renewalCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -413,6 +440,9 @@ export type EnvironmentWhereUniqueInput = Prisma.AtLeast<{
   databaseName?: Prisma.StringNullableFilter<"Environment"> | string | null
   imageTag?: Prisma.StringNullableFilter<"Environment"> | string | null
   failureReason?: Prisma.StringNullableFilter<"Environment"> | string | null
+  dockerfilePath?: Prisma.StringNullableFilter<"Environment"> | string | null
+  deployLog?: Prisma.StringNullableFilter<"Environment"> | string | null
+  deployPhase?: Prisma.StringNullableFilter<"Environment"> | string | null
   expiresAt?: Prisma.DateTimeNullableFilter<"Environment"> | Date | string | null
   renewalCount?: Prisma.IntFilter<"Environment"> | number
   createdAt?: Prisma.DateTimeFilter<"Environment"> | Date | string
@@ -444,6 +474,9 @@ export type EnvironmentOrderByWithAggregationInput = {
   databaseName?: Prisma.SortOrderInput | Prisma.SortOrder
   imageTag?: Prisma.SortOrderInput | Prisma.SortOrder
   failureReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  dockerfilePath?: Prisma.SortOrderInput | Prisma.SortOrder
+  deployLog?: Prisma.SortOrderInput | Prisma.SortOrder
+  deployPhase?: Prisma.SortOrderInput | Prisma.SortOrder
   expiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   renewalCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -477,6 +510,9 @@ export type EnvironmentScalarWhereWithAggregatesInput = {
   databaseName?: Prisma.StringNullableWithAggregatesFilter<"Environment"> | string | null
   imageTag?: Prisma.StringNullableWithAggregatesFilter<"Environment"> | string | null
   failureReason?: Prisma.StringNullableWithAggregatesFilter<"Environment"> | string | null
+  dockerfilePath?: Prisma.StringNullableWithAggregatesFilter<"Environment"> | string | null
+  deployLog?: Prisma.StringNullableWithAggregatesFilter<"Environment"> | string | null
+  deployPhase?: Prisma.StringNullableWithAggregatesFilter<"Environment"> | string | null
   expiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Environment"> | Date | string | null
   renewalCount?: Prisma.IntWithAggregatesFilter<"Environment"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Environment"> | Date | string
@@ -500,6 +536,9 @@ export type EnvironmentCreateInput = {
   databaseName?: string | null
   imageTag?: string | null
   failureReason?: string | null
+  dockerfilePath?: string | null
+  deployLog?: string | null
+  deployPhase?: string | null
   expiresAt?: Date | string | null
   renewalCount?: number
   createdAt?: Date | string
@@ -531,6 +570,9 @@ export type EnvironmentUncheckedCreateInput = {
   databaseName?: string | null
   imageTag?: string | null
   failureReason?: string | null
+  dockerfilePath?: string | null
+  deployLog?: string | null
+  deployPhase?: string | null
   expiresAt?: Date | string | null
   renewalCount?: number
   createdAt?: Date | string
@@ -558,6 +600,9 @@ export type EnvironmentUpdateInput = {
   databaseName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dockerfilePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployLog?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployPhase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -589,6 +634,9 @@ export type EnvironmentUncheckedUpdateInput = {
   databaseName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dockerfilePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployLog?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployPhase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -618,6 +666,9 @@ export type EnvironmentCreateManyInput = {
   databaseName?: string | null
   imageTag?: string | null
   failureReason?: string | null
+  dockerfilePath?: string | null
+  deployLog?: string | null
+  deployPhase?: string | null
   expiresAt?: Date | string | null
   renewalCount?: number
   createdAt?: Date | string
@@ -641,6 +692,9 @@ export type EnvironmentUpdateManyMutationInput = {
   databaseName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dockerfilePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployLog?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployPhase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -666,6 +720,9 @@ export type EnvironmentUncheckedUpdateManyInput = {
   databaseName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dockerfilePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployLog?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployPhase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -701,6 +758,9 @@ export type EnvironmentCountOrderByAggregateInput = {
   databaseName?: Prisma.SortOrder
   imageTag?: Prisma.SortOrder
   failureReason?: Prisma.SortOrder
+  dockerfilePath?: Prisma.SortOrder
+  deployLog?: Prisma.SortOrder
+  deployPhase?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   renewalCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -730,6 +790,9 @@ export type EnvironmentMaxOrderByAggregateInput = {
   databaseName?: Prisma.SortOrder
   imageTag?: Prisma.SortOrder
   failureReason?: Prisma.SortOrder
+  dockerfilePath?: Prisma.SortOrder
+  deployLog?: Prisma.SortOrder
+  deployPhase?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   renewalCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -755,6 +818,9 @@ export type EnvironmentMinOrderByAggregateInput = {
   databaseName?: Prisma.SortOrder
   imageTag?: Prisma.SortOrder
   failureReason?: Prisma.SortOrder
+  dockerfilePath?: Prisma.SortOrder
+  deployLog?: Prisma.SortOrder
+  deployPhase?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   renewalCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -938,6 +1004,9 @@ export type EnvironmentCreateWithoutCreatorInput = {
   databaseName?: string | null
   imageTag?: string | null
   failureReason?: string | null
+  dockerfilePath?: string | null
+  deployLog?: string | null
+  deployPhase?: string | null
   expiresAt?: Date | string | null
   renewalCount?: number
   createdAt?: Date | string
@@ -967,6 +1036,9 @@ export type EnvironmentUncheckedCreateWithoutCreatorInput = {
   databaseName?: string | null
   imageTag?: string | null
   failureReason?: string | null
+  dockerfilePath?: string | null
+  deployLog?: string | null
+  deployPhase?: string | null
   expiresAt?: Date | string | null
   renewalCount?: number
   createdAt?: Date | string
@@ -1025,6 +1097,9 @@ export type EnvironmentScalarWhereInput = {
   databaseName?: Prisma.StringNullableFilter<"Environment"> | string | null
   imageTag?: Prisma.StringNullableFilter<"Environment"> | string | null
   failureReason?: Prisma.StringNullableFilter<"Environment"> | string | null
+  dockerfilePath?: Prisma.StringNullableFilter<"Environment"> | string | null
+  deployLog?: Prisma.StringNullableFilter<"Environment"> | string | null
+  deployPhase?: Prisma.StringNullableFilter<"Environment"> | string | null
   expiresAt?: Prisma.DateTimeNullableFilter<"Environment"> | Date | string | null
   renewalCount?: Prisma.IntFilter<"Environment"> | number
   createdAt?: Prisma.DateTimeFilter<"Environment"> | Date | string
@@ -1048,6 +1123,9 @@ export type EnvironmentCreateWithoutProjectInput = {
   databaseName?: string | null
   imageTag?: string | null
   failureReason?: string | null
+  dockerfilePath?: string | null
+  deployLog?: string | null
+  deployPhase?: string | null
   expiresAt?: Date | string | null
   renewalCount?: number
   createdAt?: Date | string
@@ -1077,6 +1155,9 @@ export type EnvironmentUncheckedCreateWithoutProjectInput = {
   databaseName?: string | null
   imageTag?: string | null
   failureReason?: string | null
+  dockerfilePath?: string | null
+  deployLog?: string | null
+  deployPhase?: string | null
   expiresAt?: Date | string | null
   renewalCount?: number
   createdAt?: Date | string
@@ -1130,6 +1211,9 @@ export type EnvironmentCreateWithoutVariableValuesInput = {
   databaseName?: string | null
   imageTag?: string | null
   failureReason?: string | null
+  dockerfilePath?: string | null
+  deployLog?: string | null
+  deployPhase?: string | null
   expiresAt?: Date | string | null
   renewalCount?: number
   createdAt?: Date | string
@@ -1160,6 +1244,9 @@ export type EnvironmentUncheckedCreateWithoutVariableValuesInput = {
   databaseName?: string | null
   imageTag?: string | null
   failureReason?: string | null
+  dockerfilePath?: string | null
+  deployLog?: string | null
+  deployPhase?: string | null
   expiresAt?: Date | string | null
   renewalCount?: number
   createdAt?: Date | string
@@ -1202,6 +1289,9 @@ export type EnvironmentUpdateWithoutVariableValuesInput = {
   databaseName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dockerfilePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployLog?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployPhase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1232,6 +1322,9 @@ export type EnvironmentUncheckedUpdateWithoutVariableValuesInput = {
   databaseName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dockerfilePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployLog?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployPhase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1258,6 +1351,9 @@ export type EnvironmentCreateWithoutServicesInput = {
   databaseName?: string | null
   imageTag?: string | null
   failureReason?: string | null
+  dockerfilePath?: string | null
+  deployLog?: string | null
+  deployPhase?: string | null
   expiresAt?: Date | string | null
   renewalCount?: number
   createdAt?: Date | string
@@ -1288,6 +1384,9 @@ export type EnvironmentUncheckedCreateWithoutServicesInput = {
   databaseName?: string | null
   imageTag?: string | null
   failureReason?: string | null
+  dockerfilePath?: string | null
+  deployLog?: string | null
+  deployPhase?: string | null
   expiresAt?: Date | string | null
   renewalCount?: number
   createdAt?: Date | string
@@ -1330,6 +1429,9 @@ export type EnvironmentUpdateWithoutServicesInput = {
   databaseName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dockerfilePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployLog?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployPhase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1360,6 +1462,9 @@ export type EnvironmentUncheckedUpdateWithoutServicesInput = {
   databaseName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dockerfilePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployLog?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployPhase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1386,6 +1491,9 @@ export type EnvironmentCreateWithoutBackupInput = {
   databaseName?: string | null
   imageTag?: string | null
   failureReason?: string | null
+  dockerfilePath?: string | null
+  deployLog?: string | null
+  deployPhase?: string | null
   expiresAt?: Date | string | null
   renewalCount?: number
   createdAt?: Date | string
@@ -1416,6 +1524,9 @@ export type EnvironmentUncheckedCreateWithoutBackupInput = {
   databaseName?: string | null
   imageTag?: string | null
   failureReason?: string | null
+  dockerfilePath?: string | null
+  deployLog?: string | null
+  deployPhase?: string | null
   expiresAt?: Date | string | null
   renewalCount?: number
   createdAt?: Date | string
@@ -1458,6 +1569,9 @@ export type EnvironmentUpdateWithoutBackupInput = {
   databaseName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dockerfilePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployLog?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployPhase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1488,6 +1602,9 @@ export type EnvironmentUncheckedUpdateWithoutBackupInput = {
   databaseName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dockerfilePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployLog?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployPhase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1514,6 +1631,9 @@ export type EnvironmentCreateWithoutAuditLogsInput = {
   databaseName?: string | null
   imageTag?: string | null
   failureReason?: string | null
+  dockerfilePath?: string | null
+  deployLog?: string | null
+  deployPhase?: string | null
   expiresAt?: Date | string | null
   renewalCount?: number
   createdAt?: Date | string
@@ -1544,6 +1664,9 @@ export type EnvironmentUncheckedCreateWithoutAuditLogsInput = {
   databaseName?: string | null
   imageTag?: string | null
   failureReason?: string | null
+  dockerfilePath?: string | null
+  deployLog?: string | null
+  deployPhase?: string | null
   expiresAt?: Date | string | null
   renewalCount?: number
   createdAt?: Date | string
@@ -1586,6 +1709,9 @@ export type EnvironmentUpdateWithoutAuditLogsInput = {
   databaseName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dockerfilePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployLog?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployPhase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1616,6 +1742,9 @@ export type EnvironmentUncheckedUpdateWithoutAuditLogsInput = {
   databaseName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dockerfilePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployLog?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployPhase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1643,6 +1772,9 @@ export type EnvironmentCreateManyCreatorInput = {
   databaseName?: string | null
   imageTag?: string | null
   failureReason?: string | null
+  dockerfilePath?: string | null
+  deployLog?: string | null
+  deployPhase?: string | null
   expiresAt?: Date | string | null
   renewalCount?: number
   createdAt?: Date | string
@@ -1666,6 +1798,9 @@ export type EnvironmentUpdateWithoutCreatorInput = {
   databaseName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dockerfilePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployLog?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployPhase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1695,6 +1830,9 @@ export type EnvironmentUncheckedUpdateWithoutCreatorInput = {
   databaseName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dockerfilePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployLog?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployPhase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1723,6 +1861,9 @@ export type EnvironmentUncheckedUpdateManyWithoutCreatorInput = {
   databaseName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dockerfilePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployLog?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployPhase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1747,6 +1888,9 @@ export type EnvironmentCreateManyProjectInput = {
   databaseName?: string | null
   imageTag?: string | null
   failureReason?: string | null
+  dockerfilePath?: string | null
+  deployLog?: string | null
+  deployPhase?: string | null
   expiresAt?: Date | string | null
   renewalCount?: number
   createdAt?: Date | string
@@ -1770,6 +1914,9 @@ export type EnvironmentUpdateWithoutProjectInput = {
   databaseName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dockerfilePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployLog?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployPhase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1799,6 +1946,9 @@ export type EnvironmentUncheckedUpdateWithoutProjectInput = {
   databaseName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dockerfilePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployLog?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployPhase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1827,6 +1977,9 @@ export type EnvironmentUncheckedUpdateManyWithoutProjectInput = {
   databaseName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dockerfilePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployLog?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deployPhase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1901,6 +2054,9 @@ export type EnvironmentSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   databaseName?: boolean
   imageTag?: boolean
   failureReason?: boolean
+  dockerfilePath?: boolean
+  deployLog?: boolean
+  deployPhase?: boolean
   expiresAt?: boolean
   renewalCount?: boolean
   createdAt?: boolean
@@ -1933,6 +2089,9 @@ export type EnvironmentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   databaseName?: boolean
   imageTag?: boolean
   failureReason?: boolean
+  dockerfilePath?: boolean
+  deployLog?: boolean
+  deployPhase?: boolean
   expiresAt?: boolean
   renewalCount?: boolean
   createdAt?: boolean
@@ -1960,6 +2119,9 @@ export type EnvironmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   databaseName?: boolean
   imageTag?: boolean
   failureReason?: boolean
+  dockerfilePath?: boolean
+  deployLog?: boolean
+  deployPhase?: boolean
   expiresAt?: boolean
   renewalCount?: boolean
   createdAt?: boolean
@@ -1987,13 +2149,16 @@ export type EnvironmentSelectScalar = {
   databaseName?: boolean
   imageTag?: boolean
   failureReason?: boolean
+  dockerfilePath?: boolean
+  deployLog?: boolean
+  deployPhase?: boolean
   expiresAt?: boolean
   renewalCount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type EnvironmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "projectId" | "creatorId" | "branch" | "commitHash" | "commitAuthor" | "commitMessage" | "commitDate" | "status" | "hostname" | "url" | "containerId" | "networkName" | "volumeName" | "databaseName" | "imageTag" | "failureReason" | "expiresAt" | "renewalCount" | "createdAt" | "updatedAt", ExtArgs["result"]["environment"]>
+export type EnvironmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "projectId" | "creatorId" | "branch" | "commitHash" | "commitAuthor" | "commitMessage" | "commitDate" | "status" | "hostname" | "url" | "containerId" | "networkName" | "volumeName" | "databaseName" | "imageTag" | "failureReason" | "dockerfilePath" | "deployLog" | "deployPhase" | "expiresAt" | "renewalCount" | "createdAt" | "updatedAt", ExtArgs["result"]["environment"]>
 export type EnvironmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   creator?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -2041,6 +2206,9 @@ export type $EnvironmentPayload<ExtArgs extends runtime.Types.Extensions.Interna
     databaseName: string | null
     imageTag: string | null
     failureReason: string | null
+    dockerfilePath: string | null
+    deployLog: string | null
+    deployPhase: string | null
     expiresAt: Date | null
     renewalCount: number
     createdAt: Date
@@ -2492,6 +2660,9 @@ export interface EnvironmentFieldRefs {
   readonly databaseName: Prisma.FieldRef<"Environment", 'String'>
   readonly imageTag: Prisma.FieldRef<"Environment", 'String'>
   readonly failureReason: Prisma.FieldRef<"Environment", 'String'>
+  readonly dockerfilePath: Prisma.FieldRef<"Environment", 'String'>
+  readonly deployLog: Prisma.FieldRef<"Environment", 'String'>
+  readonly deployPhase: Prisma.FieldRef<"Environment", 'String'>
   readonly expiresAt: Prisma.FieldRef<"Environment", 'DateTime'>
   readonly renewalCount: Prisma.FieldRef<"Environment", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Environment", 'DateTime'>

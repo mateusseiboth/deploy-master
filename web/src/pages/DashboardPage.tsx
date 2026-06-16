@@ -3,11 +3,11 @@ import {Input} from "@/components/ui/input";
 import {Select} from "@/components/ui/select";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {StatCard} from "@/features/dashboard/components";
-import {useDashboard} from "@/features/dashboard/hooks";
+import {useDashboard, useQueue} from "@/features/dashboard/hooks";
 import {CreateEnvironmentDialog} from "@/features/environments/CreateEnvironmentDialog";
 import {StatusBadge} from "@/features/environments/StatusBadge";
 import {useEnvironments} from "@/features/environments/hooks";
-import type {Environment, EnvironmentStatus} from "@/lib/types";
+import type {Environment, EnvironmentStatus, QueueJob, QueueJobType} from "@/lib/types";
 import {daysUntil, formatDate} from "@/lib/utils";
 import {
   AlertTriangle,
@@ -15,13 +15,18 @@ import {
   Boxes,
   CheckCircle2,
   Clock,
+  Database,
   ExternalLink,
+  Hammer,
   Link2,
+  ListChecks,
+  Loader2,
   Plus,
   RotateCw,
   Search,
   ShieldCheck,
   Timer,
+  Trash2,
 } from "lucide-react";
 import * as React from "react";
 
@@ -243,6 +248,9 @@ export function DashboardPage() {
         </Table>
       </section>
 
+      {/* Fila de operações */}
+      <QueueCard />
+
       {/* Tiles informativos */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <InfoTile
@@ -275,6 +283,92 @@ export function DashboardPage() {
         open={createOpen}
         onOpenChange={setCreateOpen}
       />
+    </div>
+  );
+}
+
+const JOB_META: Record<QueueJobType, {label: string; icon: typeof Hammer}> = {
+  deploy: {label: "Deploy", icon: Hammer},
+  cleanup: {label: "Remoção", icon: Trash2},
+  backup: {label: "Backup", icon: Database},
+};
+
+const JOB_STATUS_META: Record<string, {label: string; cls: string}> = {
+  active: {label: "Executando", cls: "text-primary"},
+  pending: {label: "Na fila", cls: "text-amber"},
+  failed: {label: "Falhou", cls: "text-destructive"},
+  completed: {label: "Concluído", cls: "text-ready"},
+};
+
+/** Painel da fila de operações: deploys, remoções e backups em andamento. */
+function QueueCard() {
+  const {data} = useQueue();
+  const jobs = data?.jobs ?? [];
+  // Ativos/na fila primeiro; depois os finalizados recentes (concluídos e com
+  // erro) — backups por banco terminam rápido e some­riam se só mostrássemos os
+  // vivos. A lista já vem ordenada por atualização (mais recentes primeiro).
+  const live = jobs.filter((j) => j.status === "active" || j.status === "pending");
+  const finished = jobs.filter((j) => j.status === "completed" || j.status === "failed").slice(0, 8);
+  const active = data?.stats?.active ?? 0;
+  const pending = data?.stats?.pending ?? 0;
+
+  return (
+    <section className="overflow-hidden rounded-lg border border-border-strong bg-surface shadow-panel">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border p-5">
+        <div className="flex items-center gap-2">
+          <ListChecks className="h-5 w-5 text-primary" />
+          <h2 className="font-display text-lg font-semibold tracking-tight">Fila de operações</h2>
+        </div>
+        <span className="text-xs text-muted-foreground">
+          {active} executando · {pending} na fila
+        </span>
+      </div>
+      {data && data.workerOnline === false && (
+        <div className="flex items-center gap-2 border-b border-border bg-destructive/10 px-5 py-2.5 text-xs text-destructive">
+          <AlertTriangle className="h-4 w-4 shrink-0" />
+          <span>Worker offline — deploys, remoções e backups não estão sendo processados.</span>
+        </div>
+      )}
+      <div className="divide-y divide-border">
+        {live.length === 0 && finished.length === 0 && (
+          <p className="p-5 text-center text-sm text-muted-foreground">Nenhuma operação na fila.</p>
+        )}
+        {[...live, ...finished].map((job) => <QueueRow key={job.id} job={job} />)}
+      </div>
+    </section>
+  );
+}
+
+function QueueRow({job}: {job: QueueJob}) {
+  const meta = JOB_META[job.type] ?? {label: job.type, icon: ListChecks};
+  const status = JOB_STATUS_META[job.status] ?? {label: job.status, cls: "text-muted-foreground"};
+  const Icon = meta.icon;
+  const target =
+    job.type === "backup"
+      ? [job.payload?.databaseName, job.payload?.trigger === "AUTOMATIC" ? "automático" : "solicitado"]
+          .filter(Boolean)
+          .join(" · ")
+      : job.payload?.environmentId
+        ? `env ${job.payload.environmentId.slice(0, 8)}`
+        : "—";
+
+  return (
+    <div className="flex items-center justify-between gap-3 p-4 text-sm">
+      <div className="flex items-center gap-3">
+        {job.status === "active" ? (
+          <Loader2 className="h-4 w-4 animate-spin text-primary" />
+        ) : (
+          <Icon className="h-4 w-4 text-muted-foreground" />
+        )}
+        <div>
+          <p className="font-medium">{meta.label} <span className="text-xs text-muted-foreground">· {target}</span></p>
+          {job.lastError && <p className="max-w-[28rem] truncate text-xs text-destructive">{job.lastError}</p>}
+        </div>
+      </div>
+      <div className="text-right">
+        <span className={`text-xs font-medium ${status.cls}`}>{status.label}</span>
+        {job.attempts > 1 && <p className="text-[0.625rem] text-faint">tentativa {job.attempts}/{job.maxAttempts}</p>}
+      </div>
     </div>
   );
 }

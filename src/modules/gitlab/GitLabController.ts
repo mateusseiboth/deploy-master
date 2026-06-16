@@ -37,6 +37,12 @@ export class GitLabController extends BaseController {
     return this.ok(await this.service.getCommit(this.param(req, "id"), this.param(req, "hash")));
   }
 
+  /** Lista os Dockerfiles do repositório (ref opcional via query `ref`). */
+  async dockerfiles(req: Request): Promise<HttpResult> {
+    const ref = typeof req.query.ref === "string" ? req.query.ref : undefined;
+    return this.ok(await this.service.listDockerfiles(this.param(req, "id"), ref));
+  }
+
   async pipeline(req: Request): Promise<HttpResult> {
     const ref = req.query.ref;
     if (typeof ref !== "string" || !ref) {

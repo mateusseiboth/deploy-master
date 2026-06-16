@@ -43,19 +43,27 @@ export class DeployPipelineFactory {
   create(ctx: DeployContext): DeployPipeline {
     const { project } = ctx;
 
-    const dbStrategy = this.databaseStrategies.create(project.databaseStrategy);
     const hostnameStrategy = this.hostnameStrategies.create(project.hostnameFormat);
     const certificateStrategy = this.certificateStrategies.create(project.certificateProvider);
     const proxyStrategy = this.proxyStrategies.create(project.reverseProxy, certificateStrategy);
 
-    return new DeployPipelineBuilder()
+    // Banco é provisionado ANTES do build: além de falhar cedo (sem desperdiçar
+    // build), a URL do banco já entra como build-arg — Dockerfiles que rodam
+    // migrations em build-time precisam da env do banco configurada. Projetos
+    // sem banco (`requiresDatabase=false`) pulam o provisionamento.
+    const builder = new DeployPipelineBuilder()
       .add(new CloneRepositoryStep(this.source))
       .add(new CheckoutCommitStep(this.source))
-      .add(new BuildImageStep(this.docker))
-      .add(new CreateNetworkStep(this.docker))
-      .add(new ProvisionDatabaseStep(dbStrategy))
+      .add(new CreateNetworkStep(this.docker));
+
+    if (project.requiresDatabase) {
+      builder.add(new ProvisionDatabaseStep(this.databaseStrategies.create(ctx.request.databaseSource)));
+    }
+
+    return builder
       .add(new ResolveHostnameStep(hostnameStrategy))
       .add(new ResolveEnvVarsStep())
+      .add(new BuildImageStep(this.docker))
       .add(new ComputeRouteStep(proxyStrategy))
       .add(new RunContainerStep(this.docker))
       .add(new RegisterDnsStep(this.dns))

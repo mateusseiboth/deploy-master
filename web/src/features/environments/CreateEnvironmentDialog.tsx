@@ -6,9 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { useToast } from "@/components/ui/toast";
 import { api, unwrap } from "@/lib/api";
-import { formatDate } from "@/lib/utils";
-import { useProjects, useProject, useBranches, useCommits } from "@/features/projects/hooks";
-import { useCreateEnvironment } from "./hooks";
+import { formatBytes, formatDate } from "@/lib/utils";
+import { useProjects, useProject, useBranches, useCommits, useDockerfiles } from "@/features/projects/hooks";
+import { useAvailableBackups } from "@/features/settings/hooks";
+import { useCreateEnvironment, type BackupSource } from "./hooks";
 
 export function CreateEnvironmentDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
   const { notify } = useToast();
@@ -17,8 +18,10 @@ export function CreateEnvironmentDialog({ open, onOpenChange }: { open: boolean;
   const [projectId, setProjectId] = React.useState("");
   const [branch, setBranch] = React.useState("");
   const [commitHash, setCommitHash] = React.useState("");
-  const [backupSource, setBackupSource] = React.useState<"UPLOAD" | "PRODUCTION_COPY">("UPLOAD");
+  const [backupSource, setBackupSource] = React.useState<BackupSource>("UPLOAD");
   const [backupPath, setBackupPath] = React.useState<string>();
+  const [storedBackupId, setStoredBackupId] = React.useState("");
+  const [dockerfilePath, setDockerfilePath] = React.useState("");
   const [overrides, setOverrides] = React.useState<Record<string, string>>({});
   const [uploading, setUploading] = React.useState(false);
 
@@ -26,11 +29,19 @@ export function CreateEnvironmentDialog({ open, onOpenChange }: { open: boolean;
   const project = useProject(projectId);
   const branches = useBranches(projectId);
   const commits = useCommits(projectId, branch);
+  const dockerfiles = useDockerfiles(projectId);
+  const availableBackups = useAvailableBackups(open && backupSource === "STORED_BACKUP");
   const selectedCommit = commits.data?.find((c) => c.id === commitHash);
+
+  // Pré-seleciona o Dockerfile padrão do projeto quando o projeto muda.
+  React.useEffect(() => {
+    setDockerfilePath(project.data?.dockerfilePath || "Dockerfile");
+  }, [project.data?.dockerfilePath]);
 
   function reset() {
     setProjectId(""); setBranch(""); setCommitHash("");
-    setBackupSource("UPLOAD"); setBackupPath(undefined); setOverrides({});
+    setBackupSource("UPLOAD"); setBackupPath(undefined); setStoredBackupId("");
+    setDockerfilePath(""); setOverrides({});
   }
 
   async function onUpload(file: File) {
@@ -61,6 +72,7 @@ export function CreateEnvironmentDialog({ open, onOpenChange }: { open: boolean;
         commitDate: selectedCommit?.createdAt,
         variableOverrides: overrides,
         backup: { source: backupSource, filePath: backupPath },
+        dockerfilePath: dockerfilePath || undefined,
       });
       notify("Deploy enfileirado");
       reset();
@@ -70,7 +82,12 @@ export function CreateEnvironmentDialog({ open, onOpenChange }: { open: boolean;
     }
   }
 
-  const canDeploy = projectId && branch && commitHash && (backupSource === "PRODUCTION_COPY" || backupPath);
+  // Projeto sem banco: não exige (nem mostra) origem/backup. `undefined` enquanto
+  // carrega conta como "depende" (default), para não liberar deploy cedo demais.
+  const requiresDatabase = project.data?.requiresDatabase !== false;
+  const copiesFromServer = backupSource === "PRODUCTION_COPY" || backupSource === "HOMOLOGATION_COPY";
+  const canDeploy =
+    projectId && branch && commitHash && (!requiresDatabase || copiesFromServer || backupPath);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -116,14 +133,43 @@ export function CreateEnvironmentDialog({ open, onOpenChange }: { open: boolean;
           </div>
         )}
 
-        <Field label="Banco de dados">
-          <Select value={backupSource} onChange={(e) => setBackupSource(e.target.value as typeof backupSource)}>
-            <option value="UPLOAD">Enviar arquivo .sql / .sql.gz</option>
-            <option value="PRODUCTION_COPY">Copiar banco de produção</option>
-          </Select>
-        </Field>
+        {projectId && (
+          <Field label="Dockerfile">
+            <Select value={dockerfilePath} onChange={(e) => setDockerfilePath(e.target.value)}>
+              {dockerfiles.isLoading && <option>Carregando do GitLab…</option>}
+              {/* Garante a presença do padrão mesmo se a árvore não carregar. */}
+              {!dockerfiles.data?.includes(dockerfilePath) && dockerfilePath && (
+                <option value={dockerfilePath}>{dockerfilePath}</option>
+              )}
+              {dockerfiles.data?.map((d) => <option key={d} value={d}>{d}</option>)}
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Repositórios com vários Dockerfiles: escolha qual usar neste build.
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Migrations em <span className="text-foreground">build-time</span>? Declare{" "}
+              <code>ARG DATABASE_URL</code> + <code>ENV DATABASE_URL=${"{DATABASE_URL}"}</code> no Dockerfile:
+              o deploy passa a URL do banco isolado como build-arg. Em runtime a URL é injetada
+              automaticamente (sobrescreve o <code>ENV</code> da imagem).
+            </p>
+          </Field>
+        )}
 
-        {backupSource === "UPLOAD" && (
+        {requiresDatabase && (
+          <Field label="Banco de dados">
+            <Select
+              value={backupSource}
+              onChange={(e) => { setBackupSource(e.target.value as BackupSource); setBackupPath(undefined); setStoredBackupId(""); }}
+            >
+              <option value="UPLOAD">Enviar arquivo .sql / .sql.gz</option>
+              <option value="STORED_BACKUP">Usar backup salvo</option>
+              <option value="PRODUCTION_COPY">Copiar banco de produção</option>
+              <option value="HOMOLOGATION_COPY">Copiar banco de homologação</option>
+            </Select>
+          </Field>
+        )}
+
+        {requiresDatabase && backupSource === "UPLOAD" && (
           <Field label="Arquivo de backup">
             <Input
               type="file"
@@ -132,6 +178,30 @@ export function CreateEnvironmentDialog({ open, onOpenChange }: { open: boolean;
               onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0])}
             />
             {backupPath && <p className="mt-1 text-xs text-emerald-400">Backup pronto.</p>}
+          </Field>
+        )}
+
+        {requiresDatabase && backupSource === "STORED_BACKUP" && (
+          <Field label="Backup salvo">
+            <Select
+              value={storedBackupId}
+              onChange={(e) => {
+                const id = e.target.value;
+                setStoredBackupId(id);
+                const backup = availableBackups.data?.find((b) => b.id === id);
+                setBackupPath(backup?.filePath ?? undefined);
+              }}
+            >
+              <option value="">{availableBackups.isLoading ? "Carregando…" : "Selecione um backup…"}</option>
+              {availableBackups.data?.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.databaseName} · {formatDate(b.startedAt)} · {formatBytes(b.sizeBytes)}
+                </option>
+              ))}
+            </Select>
+            {!availableBackups.isLoading && availableBackups.data?.length === 0 && (
+              <p className="text-xs text-muted-foreground">Nenhum backup concluído disponível.</p>
+            )}
           </Field>
         )}
 
